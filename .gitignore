@@ -26,4 +26,8 @@ server/*.db
 
 # 构建产物
 dist/
+.next/
+
+# 数据文件（保留 data 目录但忽略内容）
+data/
 
