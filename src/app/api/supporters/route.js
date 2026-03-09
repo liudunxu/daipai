@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { supabase } from '../../../lib/supabase'
 
 // GET 获取声援者列表
 export async function GET() {
