@@ -2,33 +2,66 @@
 
 ## 项目概述
 
-这是一个简单的单页面 HTML 营销推广页面，主要内容为足部护理产品/知识分享，风格采用东北雨姐（网红）的口吻和元素。
+这是一个 React + Tailwind CSS 开发的单页面营销推广页面，主要内容为足部护理产品/知识分享，风格采用东北雨姐（网红）的口吻和元素。
 
 ## 技术栈
 
-- 纯 HTML + CSS（内联样式）
-- 无需构建工具，直接浏览器打开即可
-- 移动端优先设计（max-width: 600px）
+- **框架**: React 18 + Vite
+- **样式**: Tailwind CSS 3.4
+- **语言**: JavaScript (ES6+)
+- **本地服务**: Vite Dev Server (端口 3000)
+
+## 快速开始
+
+```bash
+# 安装依赖
+npm install
+
+# 启动开发服务器
+npm run dev
+
+# 构建生产版本
+npm run build
+
+# 预览生产版本
+npm run preview
+```
 
 ## 文件结构
 
 ```
 claude-code/
-└── hanjiao.html    # 主页面（单文件项目）
+├── index.html              # 入口 HTML
+├── package.json             # 项目配置
+├── vite.config.js           # Vite 配置
+├── tailwind.config.js       # Tailwind 配置
+├── postcss.config.js        # PostCSS 配置
+├── src/
+│   ├── main.jsx            # React 入口
+│   ├── App.jsx             # 主组件
+│   ├── index.css           # 全局样式
+│   └── components/         # 组件目录
+│       ├── Header.jsx      # 头部组件
+│       ├── Symptoms.jsx   # 症状组件
+│       ├── Solutions.jsx  # 解决方案组件
+│       ├── Tips.jsx       # 提示组件
+│       ├── Cta.jsx        # 行动召唤组件
+│       └── Footer.jsx     # 页脚组件
+├── docs/                   # 文档目录
+└── images/                 # 图片资源
 ```
 
 ## 开发规范
 
-### HTML 规范
-- 使用 HTML5 标准结构
-- `<meta name="viewport" content="width=device-width, initial-scale=1.0">` 必须添加
-- CSS 内联在 `<style>` 标签中，位于 `<head>` 内
+### 组件规范
+- 组件文件使用 PascalCase 命名（如 `Header.jsx`）
+- 组件放在 `src/components/` 目录
+- 每个组件功能单一，代码简洁
 
-### CSS 规范
-- 使用弹性布局（Flexbox）和网格布局（Grid）
-- 移动端优先，容器最大宽度 600px
-- 使用圆角（border-radius）和阴影（box-shadow）增强视觉效果
-- 配色风格：渐变背景 + 清新绿色/橙色点缀
+### Tailwind CSS 规范
+- 使用 Tailwind 工具类进行样式开发
+- 自定义颜色在 `tailwind.config.js` 的 `theme.extend.colors` 中配置
+- 动画在 `theme.extend.animation` 中配置
 
 ### 内容风格（重要）
 - **必须使用东北雨姐的口气风格**
@@ -39,26 +72,6 @@ claude-code/
   - "嘎嘎好使" 而非 "非常好用"
   - "脚出汗贼多" 而非 "脚部出汗多"
   - "干就完了" 而非 "坚持就是胜利"
-
-### 页面元素规范
-- 页面头部可添加东北雨姐头像和"东北雨姐推荐"标签
-- 使用 Emoji 增添活力（🦶💪😰💡✅🏃‍♂️）
-- 引用语使用 `yujie-quote` 类样式
-
-## 常用样式类名参考
-
-| 类名 | 用途 |
-|------|------|
-| `.container` | 页面主容器 |
-| `.header` | 顶部区域 |
-| `.content` | 内容区域 |
-| `.section` | 章节区块 |
-| `.cta` | 行动召唤按钮区域 |
-| `.footer` | 页脚 |
-| `.yujie-badge` | 雨姐推荐徽章 |
-| `.yujie-avatar` | 雨姐头像 |
-| `.yujie-tag` | 雨姐标签 |
-| `.yujie-quote` | 雨姐语录 |
 
 ## Git 提交规范
 
@@ -78,8 +91,8 @@ refactor: 重构xxx代码
 docs: 更新xxx文档
 ```
 
-### 注意事项
+## 注意事项
 
-1. 外部图片链接可能不稳定，建议使用 base64 或本地图片
+1. 外部图片链接可能不稳定，建议使用本地图片或 base64
 2. 如需添加图片，先确认用户提供的图片路径/URL
-3. 保持代码简洁，不需要额外的 JS 文件
+3. 开发完成后运行 `npm run build` 构建生产版本
