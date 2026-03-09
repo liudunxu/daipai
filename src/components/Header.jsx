@@ -3,7 +3,7 @@ function Header() {
     <div className="bg-gradient-to-r from-success-dark to-success p-[50px_30px] text-center text-white">
       <div className="flex flex-col items-center gap-[15px] mb-[20px]">
         <img
-          src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTBZYJnG6in8Ll0nWflpGvaEZMpQsRc6Rvp0w&s"
+          src="https://img1.baidu.com/it/u=786911366,1641212921&fm=253&fmt=auto&app=138&f=JPEG?w=800&h=854"
           alt="东北雨姐"
           className="w-[100px] h-[100px] rounded-full border-4 border-white object-cover shadow-lg"
         />
