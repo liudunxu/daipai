@@ -60,7 +60,25 @@ claude-code/
 | `.yujie-tag` | 雨姐标签 |
 | `.yujie-quote` | 雨姐语录 |
 
-## 注意事项
+## Git 提交规范
+
+### 自动提交
+**每次修改完代码后，必须自动提交 git 记录**
+
+- 使用 `git add` 暂存修改的文件
+- 使用 `git commit` 提交，格式：`feat: xxx` 或 `fix: xxx`
+- 提交信息需要简洁描述本次改动
+
+### 提交信息格式
+```
+feat: 添加xxx功能
+fix: 修复xxx问题
+style: 优化xxx样式
+refactor: 重构xxx代码
+docs: 更新xxx文档
+```
+
+### 注意事项
 
 1. 外部图片链接可能不稳定，建议使用 base64 或本地图片
 2. 如需添加图片，先确认用户提供的图片路径/URL
