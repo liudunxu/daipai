@@ -1,45 +1,29 @@
 import { NextResponse } from 'next/server'
-import fs from 'fs'
-import path from 'path'
-
-const DB_PATH = path.join(process.cwd(), 'data', 'supporters.json')
-
-// 确保数据目录存在
-function ensureDbExists() {
-  const dir = path.dirname(DB_PATH)
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true })
-  }
-  if (!fs.existsSync(DB_PATH)) {
-    fs.writeFileSync(DB_PATH, JSON.stringify([]))
-  }
-}
-
-// 读取数据
-function getSupporters() {
-  ensureDbExists()
-  const data = fs.readFileSync(DB_PATH, 'utf-8')
-  return JSON.parse(data)
-}
-
-// 写入数据
-function saveSupporters(supporters) {
-  fs.writeFileSync(DB_PATH, JSON.stringify(supporters, null, 2))
-}
+import { supabase } from '@/lib/supabase'
 
 // GET 获取声援者列表
 export async function GET() {
   try {
-    const supporters = getSupporters()
-    // 按姓名去重，取最新100条
+    if (!supabase) {
+      return NextResponse.json({ error: '数据库未配置' }, { status: 500 })
+    }
+
+    const { data, error } = await supabase
+      .from('supporters')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(100)
+
+    if (error) throw error
+
+    // 按姓名去重
     const uniqueMap = new Map()
-    supporters.forEach(s => uniqueMap.set(s.name, s))
+    data.forEach(s => uniqueMap.set(s.name, s))
     const unique = Array.from(uniqueMap.values())
-      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-      .slice(0, 100)
 
     return NextResponse.json(unique)
   } catch (error) {
+    console.error('获取失败:', error)
     return NextResponse.json({ error: '获取失败' }, { status: 500 })
   }
 }
@@ -47,6 +31,10 @@ export async function GET() {
 // POST 添加声援者
 export async function POST(request) {
   try {
+    if (!supabase) {
+      return NextResponse.json({ error: '数据库未配置' }, { status: 500 })
+    }
+
     const { name } = await request.json()
 
     if (!name || !name.trim()) {
@@ -55,23 +43,25 @@ export async function POST(request) {
 
     const trimmedName = name.trim().slice(0, 50)
 
-    const supporters = getSupporters()
-
     // 检查是否已存在
-    const existingIndex = supporters.findIndex(s => s.name === trimmedName)
+    const { data: existing } = await supabase
+      .from('supporters')
+      .select('*')
+      .eq('name', trimmedName)
+      .single()
 
-    if (existingIndex >= 0) {
-      // 已存在，更新时间为当前时间
-      supporters[existingIndex].created_at = new Date().toISOString()
+    if (existing) {
+      // 已存在，更新时间
+      await supabase
+        .from('supporters')
+        .update({ created_at: new Date().toISOString() })
+        .eq('id', existing.id)
     } else {
       // 新增
-      supporters.push({
-        name: trimmedName,
-        created_at: new Date().toISOString()
-      })
+      await supabase
+        .from('supporters')
+        .insert([{ name: trimmedName }])
     }
-
-    saveSupporters(supporters)
 
     return NextResponse.json({
       success: true,
@@ -79,6 +69,7 @@ export async function POST(request) {
       message: '声援成功！'
     })
   } catch (error) {
+    console.error('提交失败:', error)
     return NextResponse.json({ error: '提交失败' }, { status: 500 })
   }
 }
