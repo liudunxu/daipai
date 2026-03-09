@@ -18,3 +18,12 @@ Thumbs.db
 # 备份文件
 *.bak
 *.backup
+
+# 依赖
+node_modules/
+server/__pycache__/
+server/*.db
+
+# 构建产物
+dist/
+

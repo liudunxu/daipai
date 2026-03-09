@@ -2,6 +2,7 @@ import Header from './components/Header'
 import Symptoms from './components/Symptoms'
 import Solutions from './components/Solutions'
 import Tips from './components/Tips'
+import Supporters from './components/Supporters'
 import Cta from './components/Cta'
 import Footer from './components/Footer'
 
@@ -22,6 +23,10 @@ function App() {
 
           <div className="mb-[25px] animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
             <Tips />
+          </div>
+
+          <div className="animate-fade-in-up" style={{ animationDelay: '0.35s' }}>
+            <Supporters />
           </div>
         </div>
 
