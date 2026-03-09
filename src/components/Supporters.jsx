@@ -1,3 +1,5 @@
+'use client'
+
 import { useState, useEffect } from 'react'
 
 // 使用相对路径，通过 Vite 代理访问后端
