@@ -17,16 +17,16 @@ function App() {
             <Symptoms />
           </div>
 
+          <div className="mb-[25px] animate-fade-in-up" style={{ animationDelay: '0.15s' }}>
+            <Supporters />
+          </div>
+
           <div className="mb-[25px] animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
             <Solutions />
           </div>
 
-          <div className="mb-[25px] animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
+          <div className="animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
             <Tips />
-          </div>
-
-          <div className="animate-fade-in-up" style={{ animationDelay: '0.35s' }}>
-            <Supporters />
           </div>
         </div>
 
