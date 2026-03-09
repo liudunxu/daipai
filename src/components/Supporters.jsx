@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 
-const API_BASE = 'http://localhost:8000'
+// 使用相对路径，通过 Vite 代理访问后端
+const API_BASE = ''
 
 function Supporters() {
   const [name, setName] = useState('')
