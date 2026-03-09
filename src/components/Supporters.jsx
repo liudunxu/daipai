@@ -78,20 +78,20 @@ function Supporters() {
 
       {/* 声援表单 */}
       <form onSubmit={handleSubmit} className="bg-gradient-to-r from-pink-50 to-purple-50 p-4 rounded-lg border border-pink-200 mb-4">
-        <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row gap-2">
           <input
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="写下你的名字，支持雨姐！"
             maxLength={50}
-            className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400 focus:border-transparent"
+            className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400 focus:border-transparent text-base"
             disabled={loading}
           />
           <button
             type="submit"
             disabled={loading}
-            className="px-6 py-2.5 bg-gradient-to-r from-pink-500 to-purple-500 text-white font-bold rounded-lg hover:opacity-90 disabled:opacity-50 transition-opacity"
+            className="px-6 py-2.5 bg-gradient-to-r from-pink-500 to-purple-500 text-white font-bold rounded-lg hover:opacity-90 disabled:opacity-50 transition-opacity whitespace-nowrap"
           >
             {loading ? '提交中...' : '声援！'}
           </button>
