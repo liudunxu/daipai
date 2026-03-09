@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://daipai.vercel.app/sitemap.xml
