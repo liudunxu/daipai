@@ -5,42 +5,48 @@ const newsData = [
     title: "GitHub星标破24.8万！OpenClaw登顶历史第一",
     desc: "2026年首个爆火的开源AI项目，超越Next.js成为史上增长最快的开源项目！",
     tag: "🔥 热点",
-    icon: "⭐"
+    icon: "⭐",
+    url: "https://github.com/openclaw"
   },
   {
     id: 2,
     title: "创始人加入OpenAI！项目转为基金会运作",
     desc: "OpenClaw发起人Peter Steinberger宣布加入OpenAI，项目将维持开源独立运营",
     tag: "🚀 大事件",
-    icon: "🚀"
+    icon: "🚀",
+    url: "https://www.ithome.com.tw/news/173968"
   },
   {
     id: 3,
     title: "7×24小时主动干活！你的AI数字员工来了",
     desc: "不只是聊天！OpenClaw能操作电脑、 管理文件、 自动订餐、 整理资料",
     tag: "💡 核心技术",
-    icon: "🤖"
+    icon: "🤖",
+    url: "https://openclaw.ai/"
   },
   {
     id: 4,
     title: "支持飞书、钉钉！首批中文客户端上线",
     desc: "2026.2.2版本重磅更新，首款中文聊天客户端支持来了",
     tag: "📱 新功能",
-    icon: "💬"
+    icon: "💬",
+    url: "https://openclaw.cc/"
   },
   {
     id: 5,
     title: "工信部预警安全风险！龙岗区拟扶持",
     desc: "深圳龙岗区拟出台政策扶持OpenClaw发展，同时工密部发布安全预警",
     tag: "⚠️ 政策动态",
-    icon: "📢"
+    icon: "📢",
+    url: "https://www.lg.gov.cn/xxgk/zwgk/tzgg/content/post_12672991.html"
   },
   {
     id: 6,
     title: "2026 Agent元年！从'陪聊'到'干活'",
     desc: "MWC展会引热议，OpenClaw引领AI从被动回答走向主动执行",
     tag: "🌍 全球视野",
-    icon: "🌐"
+    icon: "🌐",
+    url: "https://zhuanlan.zhihu.com/p/2012505134752618054"
   }
 ]
 
@@ -153,7 +159,7 @@ export default function Home() {
             {newsData.map((item) => (
               <div
                 key={item.id}
-                className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-5 hover:bg-white/10 transition-all hover:scale-[1.01] cursor-pointer"
+                className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-5 hover:bg-white/10 transition-all hover:scale-[1.01]"
               >
                 <div className="flex items-start gap-4">
                   <span className="text-3xl">{item.icon}</span>
@@ -167,7 +173,7 @@ export default function Home() {
                     <p className="text-white/60 text-sm">{item.desc}</p>
                   </div>
                 </div>
-              </div>
+              </a>
             ))}
           </div>
         </div>
