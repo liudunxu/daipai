@@ -124,6 +124,25 @@ export default function Home() {
         </div>
       </section>
 
+      {/* 排行榜 */}
+      <section className="py-8 px-5">
+        <div className="max-w-4xl mx-auto">
+          <h2 className="text-2xl font-bold text-white text-center mb-6">
+            🏆 AI 产品榜 · AI 龙虾榜
+          </h2>
+          <p className="text-white/60 text-center mb-6">
+            2026年2月各大公司OpenClaw类产品排名
+          </p>
+          <div className="rounded-xl overflow-hidden shadow-2xl">
+            <img
+              src="/ai-ranking.jpg"
+              alt="AI产品榜 - OpenClaw类产品排名"
+              className="w-full h-auto"
+            />
+          </div>
+        </div>
+      </section>
+
       {/* 资讯列表 */}
       <section id="news" className="py-12 px-5">
         <div className="max-w-4xl mx-auto">
