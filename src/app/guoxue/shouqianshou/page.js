@@ -40,6 +40,34 @@ export default function ShouqianshouPage() {
         </div>
       </header>
 
+      {/* 团长介绍 */}
+      <section className="py-8 px-5">
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border border-cyan-500/30 rounded-2xl p-8 text-center">
+            <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full mb-4">
+              <span className="text-4xl">👨‍💼</span>
+            </div>
+            <h2 className="text-2xl font-bold text-white mb-2">
+              刘付伟 团长
+            </h2>
+            <p className="text-cyan-300 font-medium mb-4">
+              西海岸手牵手志愿者团队创始人
+            </p>
+            <p className="text-white/70 leading-relaxed max-w-2xl mx-auto">
+              刘付伟团长是青岛西海岸新区公益事业的发起人之一，多年来始终坚守在志愿服务第一线。他带领团队累计帮扶困境儿童数百名，组织暖冬行动、爱心助学等公益活动数十场，用实际行动诠释了一名志愿者的责任与担当。
+            </p>
+            <div className="flex flex-wrap justify-center gap-4 mt-6">
+              <span className="px-4 py-2 bg-white/10 rounded-full text-white/80 text-sm">
+                🏆 青岛市优秀志愿者
+              </span>
+              <span className="px-4 py-2 bg-white/10 rounded-full text-white/80 text-sm">
+                ❤️ 公益事业贡献奖
+              </span>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* 团队简介 */}
       <section id="about" className="py-12 px-5">
         <div className="max-w-4xl mx-auto">
