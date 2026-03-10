@@ -1,5 +1,6 @@
 import './globals.css'
 import BaiduAnalytics from '../components/BaiduAnalytics'
+import GoogleAdSense from '../components/GoogleAdSense'
 
 export const metadata = {
   title: {
@@ -50,6 +51,7 @@ export default function RootLayout({ children }) {
     <html lang="zh-CN">
       <body>
         {children}
+        <GoogleAdSense />
         <BaiduAnalytics />
       </body>
     </html>
