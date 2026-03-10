@@ -1,3 +1,5 @@
+import Image from 'next/image'
+
 // OpenClaw 资讯数据
 const newsData = [
   {
@@ -140,10 +142,14 @@ export default function Home() {
             2026年2月各大公司OpenClaw类产品排名
           </p>
           <div className="rounded-xl overflow-hidden shadow-2xl">
-            <img
+            <Image
               src="/ai-ranking.jpg"
               alt="AI产品榜 - OpenClaw类产品排名"
+              width={800}
+              height={1131}
               className="w-full h-auto"
+              priority={false}
+              unoptimized={true}
             />
           </div>
         </div>
