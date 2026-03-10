@@ -220,10 +220,10 @@ export default function DicePage() {
         </p>
 
         {/* 骰子 */}
-        <div className="relative w-36 h-36 md:w-48 md:h-48 mx-auto mb-8 md:mb-10">
+        <div className="flex items-center justify-center mb-8 md:mb-10">
           {/* 骰子主体 */}
           <div
-            className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-28 h-28 md:w-40 md:h-40 rounded-2xl flex items-center justify-center transition-all duration-200 ${
+            className={`w-32 h-32 md:w-44 md:h-44 rounded-2xl flex items-center justify-center ${
               isRolling ? 'animate-shake' : ''
             } ${
               showResult
@@ -233,11 +233,6 @@ export default function DicePage() {
           >
             {result ? renderDice(result, isRolling) : renderDice(1)}
           </div>
-
-          {/* 摇动时的光晕效果 */}
-          {isRolling && (
-            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-44 h-44 rounded-2xl bg-purple-500/30 animate-pulse blur-xl"></div>
-          )}
         </div>
 
         {/* 结果展示 */}
