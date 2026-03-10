@@ -83,6 +83,58 @@ export default function DicePage() {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [rollDice])
 
+  // 手机摇一摇
+  useEffect(() => {
+    let lastShake = 0
+    const SHAKE_THRESHOLD = 15
+
+    const handleMotion = (event) => {
+      if (isRolling) return
+
+      const acc = event.accelerationIncludingGravity
+      if (!acc) return
+
+      const now = Date.now()
+      if (now - lastShake < 1000) return // 1秒内只触发一次
+
+      const speed = Math.abs(acc.x + acc.y + acc.z)
+      if (speed > SHAKE_THRESHOLD) {
+        lastShake = now
+        rollDice()
+      }
+    }
+
+    // 请求权限（iOS 13+）
+    const requestPermission = async () => {
+      if (typeof DeviceMotionEvent !== 'undefined' &&
+          typeof DeviceMotionEvent.requestPermission === 'function') {
+        try {
+          const permission = await DeviceMotionEvent.requestPermission()
+          if (permission === 'granted') {
+            window.addEventListener('devicemotion', handleMotion)
+          }
+        } catch (e) {
+          console.log('DeviceMotion permission denied')
+        }
+      } else {
+        // Android 或不需要权限的设备
+        window.addEventListener('devicemotion', handleMotion)
+      }
+    }
+
+    // 首次触摸时请求权限
+    const handleFirstTouch = () => {
+      requestPermission()
+      window.removeEventListener('touchstart', handleFirstTouch)
+    }
+    window.addEventListener('touchstart', handleFirstTouch, { once: true })
+
+    return () => {
+      window.removeEventListener('devicemotion', handleMotion)
+      window.removeEventListener('touchstart', handleFirstTouch)
+    }
+  }, [rollDice, isRolling])
+
   // 渲染骰子点数
   const renderDice = (num, showAnimation = false) => {
     const dotPositions = {
@@ -164,14 +216,14 @@ export default function DicePage() {
           🎲 在线摇骰子
         </h1>
         <p className="text-white/60 mb-10 text-lg">
-          {isRolling ? '摇ing...' : '点击任意位置 / 按空格键 / 点击按钮'}
+          {isRolling ? '摇ing...' : '点击 / 空格键 / 摇一摇'}
         </p>
 
         {/* 骰子 */}
-        <div className="relative w-48 h-48 mx-auto mb-10">
+        <div className="relative w-36 h-36 md:w-48 md:h-48 mx-auto mb-8 md:mb-10">
           {/* 骰子主体 */}
           <div
-            className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-40 rounded-2xl flex items-center justify-center transition-all duration-200 ${
+            className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-28 h-28 md:w-40 md:h-40 rounded-2xl flex items-center justify-center transition-all duration-200 ${
               isRolling ? 'animate-shake' : ''
             } ${
               showResult
@@ -207,7 +259,7 @@ export default function DicePage() {
           ref={buttonRef}
           onClick={rollDice}
           disabled={isRolling}
-          className={`px-12 py-5 bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 text-white font-bold text-xl rounded-2xl shadow-2xl transition-all duration-300 hover:shadow-purple-500/40 active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed ${
+          className={`px-8 py-4 md:px-12 md:py-5 bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 text-white font-bold text-lg md:text-xl rounded-2xl shadow-2xl transition-all duration-300 hover:shadow-purple-500/40 active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed ${
             isRolling ? 'animate-pulse scale-105' : 'hover:scale-105'
           }`}
           style={{
@@ -261,15 +313,10 @@ export default function DicePage() {
         }
 
         @keyframes shake {
-          0%, 100% { transform: translateX(0) translateY(0) rotate(0); }
-          10% { transform: translateX(-8px) translateY(-6px) rotate(-10deg); }
-          20% { transform: translateX(8px) translateY(6px) rotate(10deg); }
-          30% { transform: translateX(-8px) translateY(6px) rotate(-10deg); }
-          40% { transform: translateX(8px) translateY(-6px) rotate(10deg); }
-          50% { transform: translateX(-5px) translateY(3px) rotate(-5deg); }
-          60% { transform: translateX(5px) translateY(-3px) rotate(5deg); }
-          70% { transform: translateX(-3px) translateY(2px) rotate(-3deg); }
-          80% { transform: translateX(3px) translateY(-2px) rotate(3deg); }
+          0%, 100% { transform: rotate(0deg) scale(1); }
+          25% { transform: rotate(-8deg) scale(1.05); }
+          50% { transform: rotate(8deg) scale(1.05); }
+          75% { transform: rotate(-5deg) scale(1.02); }
         }
 
         @keyframes historyPop {
