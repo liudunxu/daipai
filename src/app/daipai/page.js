@@ -2,6 +2,7 @@ import Header from '../../components/Header'
 import Symptoms from '../../components/Symptoms'
 import Solutions from '../../components/Solutions'
 import Tips from '../../components/Tips'
+import DaipaiCounter from '../../components/DaipaiCounter'
 import Cta from '../../components/Cta'
 import Footer from '../../components/Footer'
 
@@ -17,6 +18,7 @@ export default function DaipaiPage() {
         <Header />
 
         <div className="p-[30px]">
+          <DaipaiCounter />
           <div className="mb-[25px] animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
             <Symptoms />
           </div>
