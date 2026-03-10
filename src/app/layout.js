@@ -9,7 +9,7 @@ export const metadata = {
   openGraph: {
     type: 'website',
     locale: 'zh_CN',
-    url: 'https://ping.zkwatcher.top',
+    url: 'https://www.zkwatcher.top',
     siteName: '综合资讯平台',
   },
   robots: {

@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://ping.zkwatcher.top/sitemap.xml
+Sitemap: https://www.zkwatcher.top/sitemap.xml

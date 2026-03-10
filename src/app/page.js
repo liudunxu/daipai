@@ -54,7 +54,7 @@ export const metadata = {
   openGraph: {
     type: 'website',
     locale: 'zh_CN',
-    url: 'https://ping.zkwatcher.top',
+    url: 'https://www.zkwatcher.top',
     siteName: 'OpenClaw中文网',
     title: 'OpenClaw 中文资讯站 - 2026年最火AI Agent',
     description: '24.8万星标史上第一！2026年AI Agent元年必备关注',
