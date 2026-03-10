@@ -13,7 +13,7 @@ export const metadata = {
   openGraph: {
     type: 'website',
     locale: 'zh_CN',
-    url: 'https://daipai.vercel.app',
+    url: 'https://ping.zkwatcher.top',
     siteName: '东北雨姐足部护理',
     title: '告别汗脚臭脚 - 专业足部护理产品 | 东北雨姐推荐',
     description: '老铁们！雨姐教你整好脚嘎嘎自信！专业足部护理产品，告别汗脚臭脚。',
