@@ -3,46 +3,18 @@ import BaiduAnalytics from '../components/BaiduAnalytics'
 import GoogleAdSense from '../components/GoogleAdSense'
 
 export const metadata = {
-  title: {
-    default: '告别汗脚臭脚 - 专业足部护理产品 | 东北雨姐推荐',
-    template: '%s | 东北雨姐足部护理',
-  },
-  description: '老铁们！雨姐教你整好脚嘎嘎自信！专业足部护理产品，告别汗脚臭脚，轻松拥有干爽舒适的双脚。',
-  keywords: ['足部护理', '汗脚', '臭脚', '脚气', '足部问题', '东北雨姐', '护理产品'],
-  authors: [{ name: '东北雨姐' }],
-  creator: '东北雨姐',
+  title: 'OpenClaw中文网 | 北京润泽园国学院 | 西海岸手牵手志愿者',
+  description: 'OpenClaw资讯第一站、北京润泽园国学院、西海岸手牵手志愿者团队 - 关注2026科技前沿与公益事业',
+  keywords: ['OpenClaw', 'AI Agent', '王阳明', '国学', '志愿服务', '公益'],
   openGraph: {
     type: 'website',
     locale: 'zh_CN',
     url: 'https://ping.zkwatcher.top',
-    siteName: '东北雨姐足部护理',
-    title: '告别汗脚臭脚 - 专业足部护理产品 | 东北雨姐推荐',
-    description: '老铁们！雨姐教你整好脚嘎嘎自信！专业足部护理产品，告别汗脚臭脚。',
-    images: [
-      {
-        url: '/og-image.jpg',
-        width: 1200,
-        height: 630,
-        alt: '东北雨姐足部护理',
-      },
-    ],
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: '告别汗脚臭脚 - 专业足部护理产品 | 东北雨姐推荐',
-    description: '老铁们！雨姐教你整好脚嘎嘎自信！专业足部护理产品，告别汗脚臭脚。',
-    images: ['/og-image.jpg'],
+    siteName: '综合资讯平台',
   },
   robots: {
     index: true,
     follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
-    },
   },
 }
 
