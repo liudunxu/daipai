@@ -1,4 +1,5 @@
 import './globals.css'
+import BaiduAnalytics from '../components/BaiduAnalytics'
 
 export const metadata = {
   title: {
@@ -47,7 +48,10 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="zh-CN">
-      <body>{children}</body>
+      <body>
+        {children}
+        <BaiduAnalytics />
+      </body>
     </html>
   )
 }
