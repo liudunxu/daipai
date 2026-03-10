@@ -157,9 +157,12 @@ export default function Home() {
           </h2>
           <div className="space-y-4">
             {newsData.map((item) => (
-              <div
+              <a
                 key={item.id}
-                className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-5 hover:bg-white/10 transition-all hover:scale-[1.01]"
+                href={item.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-5 hover:bg-white/10 transition-all hover:scale-[1.01]"
               >
                 <div className="flex items-start gap-4">
                   <span className="text-3xl">{item.icon}</span>
