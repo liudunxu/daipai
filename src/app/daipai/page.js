@@ -2,7 +2,6 @@ import Header from '../../components/Header'
 import Symptoms from '../../components/Symptoms'
 import Solutions from '../../components/Solutions'
 import Tips from '../../components/Tips'
-import Supporters from '../../components/Supporters'
 import Cta from '../../components/Cta'
 import Footer from '../../components/Footer'
 
@@ -20,10 +19,6 @@ export default function DaipaiPage() {
         <div className="p-[30px]">
           <div className="mb-[25px] animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
             <Symptoms />
-          </div>
-
-          <div className="mb-[25px] animate-fade-in-up" style={{ animationDelay: '0.15s' }}>
-            <Supporters />
           </div>
 
           <div className="mb-[25px] animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
