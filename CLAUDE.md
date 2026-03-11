@@ -77,6 +77,10 @@ claude-code/
 - 组件放在 `src/components/` 目录
 - 每个组件功能单一，代码简洁
 
+### 页面管理规范
+- **每次新增或删除页面，必须同步更新 `/nav` 导航页面的链接**
+- 保持导航页面包含所有有效页面的入口
+
 ### Tailwind CSS 规范
 - 使用 Tailwind 工具类进行样式开发
 - 自定义颜色在 `tailwind.config.js` 的 `theme.extend.colors` 中配置
