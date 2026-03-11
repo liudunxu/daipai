@@ -5,77 +5,104 @@ import { useState, useEffect } from 'react'
 const questions = [
   {
     id: 1,
-    question: '你平时主要用什么电脑？',
+    question: '你的电脑开机速度属于哪种？',
     options: [
-      { text: 'Windows 电脑（联想、戴尔、华硕等）', score: 2 },
-      { text: '苹果电脑（MacBook、iMac）', score: 2 },
-      { text: 'Linux 电脑', score: 3 },
-      { text: '不太清楚 / 不知道', score: 1 },
+      { text: '开机只需十几秒，快到飞起 ⚡', score: 3 },
+      { text: '大约30秒左右，还能接受', score: 2 },
+      { text: '开机去喝杯咖啡，回来刚好', score: 1 },
+      { text: '开机？我一般直接睡觉 💤', score: 0 },
     ],
   },
   {
     id: 2,
-    question: '你的电脑用了几年了？',
+    question: '看到"环境变量"这个词，你第一反应是？',
     options: [
-      { text: '1-3年，还比较新', score: 3 },
-      { text: '4-5年，还能用', score: 2 },
-      { text: '5年以上，有点卡', score: 1 },
-      { text: '不太清楚', score: 1 },
+      { text: 'PATH、JAVA_HOME 配置小 case', score: 3 },
+      { text: '好像在哪见过，有点印象', score: 2 },
+      { text: '这是啥？能吃吗？🤔', score: 1 },
     ],
   },
   {
     id: 3,
-    question: '你平时会自己安装软件吗？',
+    question: '你的电脑出了故障，你通常会？',
     options: [
-      { text: '经常安装，简单', score: 3 },
-      { text: '偶尔安装，百度一下就会', score: 2 },
-      { text: '一般找人帮忙装', score: 1 },
-      { text: '不太清楚怎么做', score: 0 },
+      { text: '自己百度/Google 解决，一般能搞定', score: 3 },
+      { text: '找身边的大神朋友帮忙', score: 2 },
+      { text: '直接重装系统，不行就换新的', score: 1 },
+      { text: '祈祷它自己好起来 🙏', score: 0 },
     ],
   },
   {
     id: 4,
-    question: '你知道什么是"命令行"或"终端"吗？',
+    question: '朋友让你帮忙装个软件，你会？',
     options: [
-      { text: '知道，经常用', score: 3 },
-      { text: '听说过，但没用过', score: 2 },
-      { text: '完全不知道', score: 1 },
+      { text: '官网下载 -> 下一步 -> 下一步 -> 完成 ✅', score: 3 },
+      { text: '百度搜一下教程，按步骤来', score: 2 },
+      { text: '让他找别人，我搞不定', score: 1 },
     ],
   },
   {
     id: 5,
-    question: '你想用 OpenClaw 做什么？',
+    question: '你知道 CLI、GUI、TUI 分别代表什么吗？',
     options: [
-      { text: '让AI帮我干活，提高效率', score: 3 },
-      { text: '学习AI技术，写代码', score: 2 },
-      { text: '好奇，想了解一下', score: 1 },
-      { text: '不太清楚', score: 1 },
+      { text: '全部知道，老司机了 🚗', score: 3 },
+      { text: '听说过 GUI，其他不太清楚', score: 2 },
+      { text: '这是啥？外星语言？👽', score: 1 },
     ],
   },
   {
     id: 6,
-    question: '你愿意花时间学习新工具吗？',
+    question: '如果让你同时开 5 个软件，你会？',
     options: [
-      { text: '愿意，花1-2小时没问题', score: 3 },
-      { text: '可以花半小时试试', score: 2 },
-      { text: '希望打开就能用', score: 1 },
-      { text: '不太清楚', score: 1 },
+      { text: '毫无压力，轻轻松松 💪', score: 3 },
+      { text: '可能会卡，得一个一个来', score: 2 },
+      { text: '不行不行，会死机的 🔥', score: 0 },
+      { text: '我只开一个，多的不敢开', score: 1 },
     ],
   },
   {
     id: 7,
-    question: '你的电脑配置大约是什么水平？',
+    question: '你想用 OpenClaw 做什么？（可多选，但选一个最能代表你的）',
     options: [
-      { text: '16GB以上内存，速度很快', score: 3 },
-      { text: '8GB内存，还行', score: 2 },
-      { text: '4GB或更少，有点卡', score: 0 },
-      { text: '不太清楚配置', score: 1 },
+      { text: '我要让 AI 给我打工，效率拉满！', score: 3 },
+      { text: '学点 AI 技术，以后装逼用 😎', score: 2 },
+      { text: '好奇来看看，说不定以后有用', score: 1 },
+      { text: '朋友推荐的，不知道能干啥', score: 1 },
+    ],
+  },
+  {
+    id: 8,
+    question: '你知道 Docker 或虚拟机是用来干什么的吗？',
+    options: [
+      { text: '知道，常用来隔离环境/部署服务', score: 3 },
+      { text: '听说过，好像是用来装软件的？', score: 2 },
+      { text: '不知道，没接触过 😐', score: 1 },
+    ],
+  },
+  {
+    id: 9,
+    question: '你愿意花多长时间来配置一个工具？',
+    options: [
+      { text: '花一下午研究都行，搞定为止', score: 3 },
+      { text: '1-2 小时左右能搞定就行', score: 2 },
+      { text: '最好点一下就安装好，不要让我动手', score: 1 },
+      { text: '别让我配置，直接给我用！', score: 0 },
+    ],
+  },
+  {
+    id: 10,
+    question: '你的硬盘空间还剩多少？',
+    options: [
+      { text: '还有几百GB，完全够用', score: 3 },
+      { text: '剩几十GB，将就够用', score: 2 },
+      { text: '快满了，经常提示空间不足', score: 1 },
+      { text: '不知道，没看过 👀', score: 1 },
     ],
   },
 ]
 
-function getResult(score) {
-  const maxScore = questions.length * 3
+function getResult(score, totalQuestions) {
+  const maxScore = totalQuestions * 3
   if (score >= maxScore * 0.7) {
     return {
       title: '⭐ 非常适合！',
@@ -164,7 +191,7 @@ export default function OpenClawCheckPage() {
   }
 
   const totalScore = answers.reduce((a, b) => a + b, 0)
-  const result = getResult(totalScore)
+  const result = getResult(totalScore, questions.length)
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-8 px-5">
@@ -179,7 +206,7 @@ export default function OpenClawCheckPage() {
             你适合安装 OpenClaw 吗？
           </h1>
           <p className="text-white/60">
-            回答 {questions.length} 道题，快速得出结论
+            回答 {questions.length} 道题，测出你与 OpenClaw 的缘分
           </p>
         </div>
 
@@ -280,8 +307,8 @@ export default function OpenClawCheckPage() {
             </p>
 
             <div className="bg-white/5 rounded-xl p-4 mb-6">
-              <p className="text-white/40 text-sm">得分</p>
-              <p className="text-3xl font-black text-white">{totalScore} / {questions.length * 3}</p>
+              <p className="text-white/40 text-sm">适配指数</p>
+              <p className="text-3xl font-black text-white">{Math.round(totalScore / (questions.length * 3) * 100)}%</p>
             </div>
 
             <div className="flex flex-col sm:flex-row gap-3">
