@@ -9,20 +9,11 @@ export const metadata = {
     siteName: 'OpenClaw中文网',
     title: '腾讯QClaw内测上线！微信一句话操控电脑',
     description: '腾讯推出QClaw本地AI助手！微信发句话，电脑自动帮你干活。',
-    images: [
-      {
-        url: 'https://www.zkwatcher.top/og-image.png',
-        width: 1200,
-        height: 630,
-        alt: 'QClaw - 微信AI助手',
-      },
-    ],
   },
   twitter: {
-    card: 'summary_large_image',
+    card: 'summary',
     title: '腾讯QClaw内测上线！微信一句话操控电脑',
     description: '腾讯推出QClaw本地AI助手！微信一句话就能远程操控电脑自动干活。',
-    images: ['https://www.zkwatcher.top/og-image.png'],
   },
 }
 

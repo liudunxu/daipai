@@ -66,20 +66,11 @@ export const metadata = {
     siteName: 'OpenClaw中文网',
     title: 'OpenClaw 中文资讯站 - 2026年最火AI Agent',
     description: '24.8万星标史上第一！2026年AI Agent元年必备关注',
-    images: [
-      {
-        url: 'https://www.zkwatcher.top/og-image.png',
-        width: 1200,
-        height: 630,
-        alt: 'OpenClaw 中文资讯站',
-      },
-    ],
   },
   twitter: {
-    card: 'summary_large_image',
+    card: 'summary',
     title: 'OpenClaw 中文资讯站 - 2026年最火AI Agent',
     description: '24.8万星标史上第一！2026年AI Agent元年必备关注',
-    images: ['https://www.zkwatcher.top/og-image.png'],
   },
 }
 

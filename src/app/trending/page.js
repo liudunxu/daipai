@@ -9,20 +9,11 @@ export const metadata = {
     siteName: '热点资讯',
     title: '今日热搜榜 - 微博、知乎、百度热搜合集',
     description: '聚合各大平台热搜热点，一站式了解全网最热话题。',
-    images: [
-      {
-        url: 'https://www.zkwatcher.top/og-image.png',
-        width: 1200,
-        height: 630,
-        alt: '今日热搜榜',
-      },
-    ],
   },
   twitter: {
-    card: 'summary_large_image',
+    card: 'summary',
     title: '今日热搜榜 - 微博、知乎、百度热搜合集',
     description: '聚合各大平台热搜热点，一站式了解全网最热话题。',
-    images: ['https://www.zkwatcher.top/og-image.png'],
   },
 }
 

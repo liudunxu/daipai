@@ -17,20 +17,11 @@ export const metadata = {
     siteName: '东北雨姐推荐',
     title: '告别汗脚臭脚 - 专业足部护理产品 | 东北雨姐推荐',
     description: '老铁们！雨姐教你整好脚嘎嘎自信！专业足部护理产品，告别汗脚臭脚。',
-    images: [
-      {
-        url: 'https://www.zkwatcher.top/og-image.png',
-        width: 1200,
-        height: 630,
-        alt: '足部护理产品',
-      },
-    ],
   },
   twitter: {
-    card: 'summary_large_image',
+    card: 'summary',
     title: '告别汗脚臭脚 - 专业足部护理产品 | 东北雨姐推荐',
     description: '老铁们！雨姐教你整好脚嘎嘎自信！',
-    images: ['https://www.zkwatcher.top/og-image.png'],
   },
 }
 
