@@ -16,7 +16,7 @@ export default function StockPage() {
   // 跌的图片
   const downImages = [
     'https://img2.baidu.com/it/u=4089263971,3127396884&fm=253&fmt=auto&app=138&f=JPEG?w=516&h=500',
-    'https://img1.baidu.com/it/u=104819902,1646492412&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=522',
+    'https://img0.baidu.com/it/u=2209049682,3316918132&fm=253&fmt=auto&app=120&f=JPEG?w=605&h=500',
   ]
 
   // 预测文案
@@ -108,11 +108,18 @@ export default function StockPage() {
         {/* 结果区域 */}
         <div className="mb-8">
           {result ? (
-            <div className={`transition-all duration-500 ${result.willRise ? 'animate-scale-in' : 'animate-shake'}`}>
+            <div
+              className="transition-all duration-500"
+              style={{
+                animation: result.willRise
+                  ? 'scaleIn 0.5s ease-out forwards'
+                  : 'shake 0.5s ease-out',
+              }}
+            >
               <div className={`inline-block px-8 py-4 rounded-2xl shadow-2xl mb-6 ${
                 result.willRise
-                  ? 'bg-gradient-to-r from-green-400 to-emerald-500'
-                  : 'bg-gradient-to-r from-red-400 to-rose-500'
+                  ? 'bg-gradient-to-r from-red-400 to-rose-500'
+                  : 'bg-gradient-to-r from-green-400 to-emerald-500'
               }`}>
                 <p className="text-3xl font-black text-white">
                   {result.willRise ? '📈 要涨！' : '📉 要跌！'}
@@ -130,9 +137,9 @@ export default function StockPage() {
           )}
         </div>
 
-        {/* 图片展示 */}
-        {result && (
-          <div className="mb-8 animate-fade-in">
+        {/* 图片展示 - 只在动画结束后显示 */}
+        {result && !isRolling && (
+          <div className="mb-8" style={{ animation: 'fadeIn 0.5s ease-out forwards' }}>
             <img
               src={result.image}
               alt={result.willRise ? '上涨' : '下跌'}
@@ -192,13 +199,13 @@ export default function StockPage() {
       </footer>
 
       <style jsx>{`
-        @keyframes scale-in {
+        @keyframes scaleIn {
           0% { transform: scale(0); opacity: 0; }
           50% { transform: scale(1.1); }
           100% { transform: scale(1); opacity: 1; }
         }
 
-        @keyframes fade-in {
+        @keyframes fadeIn {
           0% { opacity: 0; transform: translateY(10px); }
           100% { opacity: 1; transform: translateY(0); }
         }
@@ -210,10 +217,6 @@ export default function StockPage() {
           60% { transform: translateX(-10px); }
           80% { transform: translateX(10px); }
         }
-
-        .animate-scale-in { animation: scale-in 0.5s ease-out forwards; }
-        .animate-fade-in { animation: fade-in 0.5s ease-out forwards; }
-        .animate-shake { animation: shake 0.5s ease-out; }
       `}</style>
     </div>
   )
