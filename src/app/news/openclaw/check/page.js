@@ -5,78 +5,102 @@ import { useState } from 'react'
 const questions = [
   {
     id: 1,
-    question: '你的电脑是什么操作系统？',
+    question: '你平时主要用什么电脑？',
     options: [
-      { text: 'Windows 10/11', score: 2 },
-      { text: 'macOS', score: 2 },
-      { text: 'Linux (Ubuntu/Debian)', score: 3 },
-      { text: '其他系统', score: 0 },
+      { text: 'Windows 电脑（联想、戴尔、华硕等）', score: 2 },
+      { text: '苹果电脑（MacBook、iMac）', score: 2 },
+      { text: 'Linux 电脑', score: 3 },
+      { text: '不太清楚 / 不知道', score: 1 },
     ],
   },
   {
     id: 2,
-    question: '你使用过命令行/终端吗？',
+    question: '你的电脑用了几年了？',
     options: [
-      { text: '经常使用，很熟练', score: 3 },
-      { text: '偶尔使用，有一些了解', score: 2 },
-      { text: '基本没用过', score: 0 },
+      { text: '1-3年，还比较新', score: 3 },
+      { text: '4-5年，还能用', score: 2 },
+      { text: '5年以上，有点卡', score: 1 },
+      { text: '不太清楚', score: 1 },
     ],
   },
   {
     id: 3,
-    question: '你的电脑配置如何？',
+    question: '你平时会自己安装软件吗？',
     options: [
-      { text: '16GB以上内存，8核以上CPU', score: 3 },
-      { text: '8GB内存，4核CPU', score: 2 },
-      { text: '4GB内存或更低', score: 0 },
+      { text: '经常安装，简单', score: 3 },
+      { text: '偶尔安装，百度一下就会', score: 2 },
+      { text: '一般找人帮忙装', score: 1 },
+      { text: '不太清楚怎么做', score: 0 },
     ],
   },
   {
     id: 4,
-    question: '你想用 OpenClaw 做什么？',
+    question: '你知道什么是"命令行"或"终端"吗？',
     options: [
-      { text: '提高工作效率，自动化任务', score: 3 },
-      { text: '学习AI技术，写代码', score: 2 },
-      { text: '好奇，想试试看', score: 1 },
+      { text: '知道，经常用', score: 3 },
+      { text: '听说过，但没用过', score: 2 },
+      { text: '完全不知道', score: 1 },
     ],
   },
   {
     id: 5,
-    question: '你愿意花时间学习和配置吗？',
+    question: '你想用 OpenClaw 做什么？',
     options: [
-      { text: '愿意，花几个小时没问题', score: 3 },
-      { text: '可以花半小时左右', score: 2 },
-      { text: '希望打开就能用', score: 0 },
+      { text: '让AI帮我干活，提高效率', score: 3 },
+      { text: '学习AI技术，写代码', score: 2 },
+      { text: '好奇，想了解一下', score: 1 },
+      { text: '不太清楚', score: 1 },
+    ],
+  },
+  {
+    id: 6,
+    question: '你愿意花时间学习新工具吗？',
+    options: [
+      { text: '愿意，花1-2小时没问题', score: 3 },
+      { text: '可以花半小时试试', score: 2 },
+      { text: '希望打开就能用', score: 1 },
+      { text: '不太清楚', score: 1 },
+    ],
+  },
+  {
+    id: 7,
+    question: '你的电脑配置大约是什么水平？',
+    options: [
+      { text: '16GB以上内存，速度很快', score: 3 },
+      { text: '8GB内存，还行', score: 2 },
+      { text: '4GB或更少，有点卡', score: 0 },
+      { text: '不太清楚配置', score: 1 },
     ],
   },
 ]
 
 function getResult(score) {
-  if (score >= 12) {
+  const maxScore = questions.length * 3
+  if (score >= maxScore * 0.7) {
     return {
       title: '⭐ 非常适合！',
-      desc: '你的环境和技术背景非常适合安装 OpenClaw。它能大幅提升你的工作效率，让你体验AI自动化的强大能力！',
+      desc: '你的电脑和环境非常适合安装 OpenClaw！它能帮你自动完成很多工作，比如整理文件、写报告、查资料等。大约花1小时配置好，就能体验AI自动化的强大了！',
       color: 'from-green-500 to-emerald-500',
       emoji: '🎉',
     }
-  } else if (score >= 8) {
+  } else if (score >= maxScore * 0.5) {
     return {
       title: '👍 比较适合',
-      desc: '你具备使用 OpenClaw 的基础条件。建议先阅读官方文档，了解基本操作后再开始。需要时也可以先尝试在线版本。',
+      desc: '你的电脑基本可以运行 OpenClaw。建议先看一下官方教程，花点时间配置一下。如果遇到问题，可以找会安装的朋友帮帮忙。实在不行也可以先用在线版体验。',
       color: 'from-blue-500 to-cyan-500',
       emoji: '💪',
     }
-  } else if (score >= 5) {
+  } else if (score >= maxScore * 0.35) {
     return {
-      title: '⚠️ 可以尝试',
-      desc: '你可能需要更多时间来熟悉工具。建议先在业余时间学习基础知识，或者找有经验的朋友帮忙安装配置。',
+      title: '⚠️ 可以试试',
+      desc: '你的电脑配置可能需要升级，或者需要找人帮忙安装。建议先多了解一下，或者让身边懂电脑的朋友帮忙看看。也可以先试试在线版本。',
       color: 'from-yellow-500 to-orange-500',
       emoji: '🤔',
     }
   } else {
     return {
       title: '❌ 暂不建议',
-      desc: '当前条件可能不太适合自行安装 OpenClaw。你可以先体验在线版或网页版，或者升级电脑配置后再尝试。',
+      desc: '目前你的电脑可能不太适合自己安装 OpenClaw。建议先升级一下电脑配置（比如加内存），或者试试在线版本的 AI 工具。等条件具备了再尝试安装。',
       color: 'from-red-500 to-pink-500',
       emoji: '😅',
     }
