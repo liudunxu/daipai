@@ -9,7 +9,21 @@ export const metadata = {
     siteName: '实用工具箱',
     title: '导航页 - 实用工具集合',
     description: '汇集各种实用工具和资讯页面。',
-  }
+    images: [
+      {
+        url: 'https://www.zkwatcher.top/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: '实用工具箱',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: '导航页 - 实用工具集合',
+    description: '汇集各种实用工具和资讯页面',
+    images: ['https://www.zkwatcher.top/og-image.png'],
+  },
 }
 
 export default function NavPage() {

@@ -11,6 +11,22 @@ export const metadata = {
     locale: 'zh_CN',
     url: 'https://www.zkwatcher.top',
     siteName: '综合资讯平台',
+    title: '综合资讯平台 - OpenClaw中文网 | 国学院 | 公益',
+    description: '关注2026科技前沿与公益事业 - OpenClaw资讯、国学文化、志愿服务',
+    images: [
+      {
+        url: 'https://www.zkwatcher.top/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: '综合资讯平台',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: '综合资讯平台 - OpenClaw中文网 | 国学院 | 公益',
+    description: '关注2026科技前沿与公益事业',
+    images: ['https://www.zkwatcher.top/og-image.png'],
   },
   robots: {
     index: true,
