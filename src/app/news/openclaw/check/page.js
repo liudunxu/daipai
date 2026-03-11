@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 const questions = [
   {
@@ -111,6 +111,39 @@ export default function OpenClawCheckPage() {
   const [currentQ, setCurrentQ] = useState(0)
   const [answers, setAnswers] = useState([])
   const [showResult, setShowResult] = useState(false)
+  const [isAnalyzing, setIsAnalyzing] = useState(false)
+  const [analyzeStep, setAnalyzeStep] = useState(0)
+
+  // AI分析动画
+  const analyzeSteps = [
+    '正在分析你的电脑配置...',
+    '正在评估你的技术经验...',
+    '正在计算适配指数...',
+    '正在生成专业建议...',
+  ]
+
+  useEffect(() => {
+    if (isAnalyzing) {
+      const interval = setInterval(() => {
+        setAnalyzeStep((prev) => {
+          if (prev < analyzeSteps.length - 1) {
+            return prev + 1
+          }
+          return prev
+        })
+      }, 600)
+
+      const timeout = setTimeout(() => {
+        setIsAnalyzing(false)
+        setShowResult(true)
+      }, 3000)
+
+      return () => {
+        clearInterval(interval)
+        clearTimeout(timeout)
+      }
+    }
+  }, [isAnalyzing])
 
   const handleAnswer = (score) => {
     const newAnswers = [...answers, score]
@@ -119,7 +152,8 @@ export default function OpenClawCheckPage() {
     if (currentQ < questions.length - 1) {
       setCurrentQ(currentQ + 1)
     } else {
-      setShowResult(true)
+      setIsAnalyzing(true)
+      setAnalyzeStep(0)
     }
   }
 
@@ -181,6 +215,55 @@ export default function OpenClawCheckPage() {
                   {option.text}
                 </button>
               ))}
+            </div>
+          </div>
+        ) : isAnalyzing ? (
+          /* AI 分析中 */
+          <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8 text-center">
+            <div className="relative mb-8">
+              {/* AI 扫描动画 */}
+              <div className="w-32 h-32 mx-auto relative">
+                <div className="absolute inset-0 border-4 border-purple-500/30 rounded-full"></div>
+                <div className="absolute inset-0 border-4 border-transparent border-t-purple-500 rounded-full animate-spin"></div>
+                <div className="absolute inset-4 border-4 border-transparent border-t-cyan-500 rounded-full animate-spin" style={{ animationDuration: '1.5s', animationDirection: 'reverse' }}></div>
+                <div className="absolute inset-8 border-4 border-transparent border-t-pink-500 rounded-full animate-spin" style={{ animationDuration: '2s' }}></div>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="text-5xl">🤖</span>
+                </div>
+              </div>
+              {/* 扫描线 */}
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-1 bg-gradient-to-r from-transparent via-purple-400 to-transparent animate-pulse"></div>
+            </div>
+
+            <h2 className="text-2xl font-bold text-white mb-4">
+              🧠 AI 正在分析中...
+            </h2>
+
+            <div className="space-y-2 mb-6">
+              {analyzeSteps.map((step, idx) => (
+                <p
+                  key={idx}
+                  className={`text-sm transition-all duration-300 ${
+                    idx === analyzeStep
+                      ? 'text-purple-400 font-medium scale-105'
+                      : idx < analyzeStep
+                      ? 'text-green-400'
+                      : 'text-white/30'
+                  }`}
+                >
+                  {idx < analyzeStep ? '✓ ' : idx === analyzeStep ? '▸ ' : '○ '}
+                  {step}
+                </p>
+              ))}
+            </div>
+
+            <div className="flex items-center justify-center gap-2 text-white/50">
+              <span className="inline-flex items-center gap-1">
+                <span className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+                <span className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+                <span className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+              </span>
+              <span className="text-sm ml-2">AI 正在思考中</span>
             </div>
           </div>
         ) : (
