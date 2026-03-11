@@ -183,41 +183,7 @@ export default function OpenClawCheckPage() {
           </p>
         </div>
 
-        {!showResult ? (
-          /* 测试题目 */
-          <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6">
-            {/* 进度条 */}
-            <div className="flex items-center gap-2 mb-6">
-              {questions.map((_, idx) => (
-                <div
-                  key={idx}
-                  className={`h-2 flex-1 rounded-full transition-colors ${
-                    idx <= currentQ ? 'bg-purple-500' : 'bg-white/10'
-                  }`}
-                />
-              ))}
-            </div>
-            <p className="text-white/40 text-sm mb-4">
-              第 {currentQ + 1} / {questions.length} 题
-            </p>
-
-            <h2 className="text-xl font-bold text-white mb-6">
-              {questions[currentQ].question}
-            </h2>
-
-            <div className="space-y-3">
-              {questions[currentQ].options.map((option, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => handleAnswer(option.score)}
-                  className="w-full text-left p-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all hover:scale-[1.01] text-white"
-                >
-                  {option.text}
-                </button>
-              ))}
-            </div>
-          </div>
-        ) : isAnalyzing ? (
+        {isAnalyzing ? (
           /* AI 分析中 */
           <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8 text-center">
             <div className="relative mb-8">
@@ -264,6 +230,40 @@ export default function OpenClawCheckPage() {
                 <span className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
               </span>
               <span className="text-sm ml-2">AI 正在思考中</span>
+            </div>
+          </div>
+        ) : !showResult ? (
+          /* 测试题目 */
+          <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6">
+            {/* 进度条 */}
+            <div className="flex items-center gap-2 mb-6">
+              {questions.map((_, idx) => (
+                <div
+                  key={idx}
+                  className={`h-2 flex-1 rounded-full transition-colors ${
+                    idx <= currentQ ? 'bg-purple-500' : 'bg-white/10'
+                  }`}
+                />
+              ))}
+            </div>
+            <p className="text-white/40 text-sm mb-4">
+              第 {currentQ + 1} / {questions.length} 题
+            </p>
+
+            <h2 className="text-xl font-bold text-white mb-6">
+              {questions[currentQ].question}
+            </h2>
+
+            <div className="space-y-3">
+              {questions[currentQ].options.map((option, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => handleAnswer(option.score)}
+                  className="w-full text-left p-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all hover:scale-[1.01] text-white"
+                >
+                  {option.text}
+                </button>
+              ))}
             </div>
           </div>
         ) : (
