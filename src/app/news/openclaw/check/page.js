@@ -62,41 +62,12 @@ const questions = [
   },
   {
     id: 7,
-    question: '你想用 OpenClaw 做什么？（可多选，但选一个最能代表你的）',
-    options: [
-      { text: '我要让 AI 给我打工，效率拉满！', score: 3 },
-      { text: '学点 AI 技术，以后装逼用 😎', score: 2 },
-      { text: '好奇来看看，说不定以后有用', score: 1 },
-      { text: '朋友推荐的，不知道能干啥', score: 1 },
-    ],
-  },
-  {
-    id: 8,
-    question: '你知道 Docker 或虚拟机是用来干什么的吗？',
-    options: [
-      { text: '知道，常用来隔离环境/部署服务', score: 3 },
-      { text: '听说过，好像是用来装软件的？', score: 2 },
-      { text: '不知道，没接触过 😐', score: 1 },
-    ],
-  },
-  {
-    id: 9,
     question: '你愿意花多长时间来配置一个工具？',
     options: [
       { text: '花一下午研究都行，搞定为止', score: 3 },
       { text: '1-2 小时左右能搞定就行', score: 2 },
       { text: '最好点一下就安装好，不要让我动手', score: 1 },
       { text: '别让我配置，直接给我用！', score: 0 },
-    ],
-  },
-  {
-    id: 10,
-    question: '你的硬盘空间还剩多少？',
-    options: [
-      { text: '还有几百GB，完全够用', score: 3 },
-      { text: '剩几十GB，将就够用', score: 2 },
-      { text: '快满了，经常提示空间不足', score: 1 },
-      { text: '不知道，没看过 👀', score: 1 },
     ],
   },
 ]
