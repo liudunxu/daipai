@@ -119,13 +119,14 @@ export default function OpenClawCheckPage() {
   const pageUrl = 'https://www.zkwatcher.top/news/openclaw/check'
 
   const handleSaveImage = async () => {
-    if (!resultRef.current || isSaving) return
+    const captureArea = resultRef.current
+    if (!captureArea || isSaving) return
 
     setIsSaving(true)
     try {
       // 生成二维码
       const qrDataUrl = await QRCode.toDataURL(pageUrl, {
-        width: 100,
+        width: 80,
         margin: 1,
         color: {
           dark: '#000000',
@@ -134,7 +135,7 @@ export default function OpenClawCheckPage() {
       })
 
       // 先截图
-      const canvas = await html2canvas(resultRef.current, {
+      const canvas = await html2canvas(captureArea, {
         backgroundColor: '#0f172a',
         scale: 2,
         useCORS: true,
@@ -143,7 +144,7 @@ export default function OpenClawCheckPage() {
       // 创建新canvas添加二维码水印
       const finalCanvas = document.createElement('canvas')
       finalCanvas.width = canvas.width
-      finalCanvas.height = canvas.height + 80 // 底部留出空间放二维码和提示
+      finalCanvas.height = canvas.height
       const ctx = finalCanvas.getContext('2d')
 
       // 填充背景
@@ -153,30 +154,25 @@ export default function OpenClawCheckPage() {
       // 绘制原图
       ctx.drawImage(canvas, 0, 0)
 
-      // 绘制二维码
+      // 绘制二维码到右上角
       const qrImg = new Image()
       qrImg.src = qrDataUrl
       await new Promise((resolve) => {
         qrImg.onload = resolve
       })
 
-      // 右下角二维码
-      const qrSize = 80
-      const qrX = finalCanvas.width - qrSize - 20
-      const qrY = finalCanvas.height - qrSize - 20
-      ctx.drawImage(qrImg, qrX, qrY, qrSize, qrSize)
+      const qrSize = 70
+      const qrX = finalCanvas.width - qrSize - 15
+      const qrY = 15
 
-      // 绘制提示文字
+      // 绘制白色背景框
       ctx.fillStyle = '#ffffff'
-      ctx.font = '14px sans-serif'
-      ctx.textAlign = 'left'
-      ctx.fillText('扫码进入测试页面', qrX - 100, qrY + 45)
+      ctx.beginPath()
+      ctx.roundRect(qrX - 5, qrY - 5, qrSize + 10, qrSize + 10, 8)
+      ctx.fill()
 
-      // 绘制网站水印
-      ctx.fillStyle = 'rgba(255,255,255,0.3)'
-      ctx.font = '12px sans-serif'
-      ctx.textAlign = 'left'
-      ctx.fillText('zkwatcher.top', 20, finalCanvas.height - 25)
+      // 绘制二维码
+      ctx.drawImage(qrImg, qrX, qrY, qrSize, qrSize)
 
       const link = document.createElement('a')
       link.download = `openclaw-test-result-${Date.now()}.png`
@@ -344,31 +340,34 @@ export default function OpenClawCheckPage() {
           </div>
         ) : (
           /* 测试结果 */
-          <div ref={resultRef} className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8 text-center">
-            <div className={`inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r ${result.color} rounded-full mb-6`}>
-              <span className="text-4xl">{result.emoji}</span>
-            </div>
-            <h2 className={`text-3xl font-black bg-gradient-to-r ${result.color} bg-clip-text text-transparent mb-4`}>
-              {result.title}
-            </h2>
-            <p className="text-white/70 leading-relaxed mb-8">
-              {result.desc}
-            </p>
+          <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8 text-center">
+            {/* 截图内容区域 */}
+            <div ref={resultRef} className="capture-area">
+              <div className={`inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r ${result.color} rounded-full mb-6`}>
+                <span className="text-4xl">{result.emoji}</span>
+              </div>
+              <h2 className={`text-3xl font-black bg-gradient-to-r ${result.color} bg-clip-text text-transparent mb-4`}>
+                {result.title}
+              </h2>
+              <p className="text-white/70 leading-relaxed mb-8">
+                {result.desc}
+              </p>
 
-            <div className="bg-white/5 rounded-xl p-4 mb-6">
-              <p className="text-white/40 text-sm">适配指数</p>
-              <p className="text-3xl font-black text-white">{Math.round(totalScore / (questions.length * 3) * 100)}%</p>
+              <div className="bg-white/5 rounded-xl p-4">
+                <p className="text-white/40 text-sm">适配指数</p>
+                <p className="text-3xl font-black text-white">{Math.round(totalScore / (questions.length * 3) * 100)}%</p>
+              </div>
             </div>
 
-            {/* 按钮区域 - 两行布局 */}
-            <div className="space-y-3">
+            {/* 按钮区域 - 放在截图区域外部 */}
+            <div className="space-y-3 mt-6">
               <div className="flex gap-3">
                 <button
                   onClick={handleSaveImage}
                   disabled={isSaving}
                   className="flex-1 px-4 py-3 bg-green-500 text-white font-bold rounded-full hover:scale-105 transition-transform disabled:opacity-50 disabled:cursor-not-allowed text-sm"
                 >
-                  {isSaving ? '⏳ 生成中...' : '📸 保存图片（含二维码）'}
+                  {isSaving ? '⏳ 生成中...' : '📸 保存图片'}
                 </button>
                 <button
                   onClick={resetTest}
@@ -383,9 +382,6 @@ export default function OpenClawCheckPage() {
               >
                 📰 了解更多
               </a>
-              <p className="text-white/40 text-xs">
-                保存图片分享给朋友，扫码可进入测试
-              </p>
             </div>
           </div>
         )}
