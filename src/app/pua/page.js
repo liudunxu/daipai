@@ -309,17 +309,18 @@ export default function PuaPage() {
           </p>
         </header>
 
-        {/* 警示提示 */}
-        <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-5 mb-8">
-          <div className="flex items-start gap-3">
-            <span className="text-2xl">⚠️</span>
-            <div>
-              <h3 className="text-yellow-400 font-bold mb-2">温馨提示</h3>
-              <p className="text-white/70 text-sm">
-                本页面仅供娱乐和学习参考。遇到职场PUA时，建议保持理性，提升自身能力，必要时寻求帮助。
-              </p>
-            </div>
-          </div>
+        {/* 资料来源 - 醒目展示 */}
+        <div className="bg-purple-500/20 border border-purple-500/50 rounded-xl p-4 mb-8 text-center">
+          <p className="text-purple-300 text-sm mb-2">📂 资料来源</p>
+          <a
+            href="https://github.com/tanweai/pua"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-white font-bold hover:text-purple-300 transition-colors inline-flex items-center gap-2"
+          >
+            https://github.com/tanweai/pua
+            <span className="text-xs">↗</span>
+          </a>
         </div>
 
         {/* PUA分类卡片 */}
@@ -353,17 +354,9 @@ export default function PuaPage() {
 
         {/* 底部 */}
         <footer className="text-center py-6 border-t border-white/10">
-          <p className="text-white/30 text-sm mb-2">
+          <p className="text-white/30 text-sm">
             本页面内容仅供娱乐，请勿当真
           </p>
-          <a
-            href="https://github.com/tanweai/pua"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-purple-400 text-sm hover:underline"
-          >
-            📂 资料来源：https://github.com/tanweai/pua
-          </a>
         </footer>
       </div>
     </div>
