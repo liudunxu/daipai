@@ -26,6 +26,8 @@ export default function NavPage() {
     { name: '🔥 热搜榜', url: '/trending', desc: '微博、知乎、百度热搜' },
     { name: '🦶 足部护理', url: '/daipai', desc: '东北雨姐推荐' },
     { name: '🦞 QClaw资讯', url: '/news/openclaw', desc: '腾讯QClaw最新消息' },
+    { name: '📝 适合性测试', url: '/news/openclaw/check', desc: '测测你适合用OpenClaw吗' },
+    { name: '💼 PUA话术', url: '/pua', desc: '互联网大厂PUA大全' },
     { name: '📖 国学院', url: '/guoxue', desc: '北京润泽园国学院' },
   ]
 
