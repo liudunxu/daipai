@@ -1,9 +1,3 @@
-export const metadata = {
-  title: '节日祝福头像生成器 - 春节、中秋、国庆专属头像',
-  description: '生成专属节日祝福头像！支持春节、中秋、国庆、生日等主题，一键生成带文字的精美头像，适合微信、QQ、抖音等平台。',
-  keywords: ['节日头像生成器', '春节头像', '中秋头像', '国庆头像', '祝福头像', '微信头像', 'QQ头像', '头像制作'],
-}
-
 export default function AvatarPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-8 px-5">

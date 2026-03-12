@@ -1,5 +1,7 @@
 'use client'
 
+import { useState } from 'react'
+
 const promptCategories = [
   {
     name: '📝 写作助手',
@@ -69,7 +71,7 @@ const promptCategories = [
   },
 ]
 
-export default function PromptPage() {
+function PromptCard({ category }) {
   const copyPrompt = async (text) => {
     try {
       await navigator.clipboard.writeText(text)
@@ -79,6 +81,32 @@ export default function PromptPage() {
     }
   }
 
+  return (
+    <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6">
+      <div className="flex items-center gap-3 mb-4">
+        <span className="text-3xl">{category.icon}</span>
+        <h2 className={`text-xl font-bold bg-gradient-to-r ${category.color} bg-clip-text text-transparent`}>
+          {category.name}
+        </h2>
+      </div>
+
+      <div className="grid md:grid-cols-2 gap-3">
+        {category.prompts.map((item, qIdx) => (
+          <div
+            key={qIdx}
+            onClick={() => copyPrompt(item.prompt)}
+            className="bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl p-4 cursor-pointer transition-all hover:scale-[1.01] group"
+          >
+            <p className="text-white font-medium mb-2 group-hover:text-green-400 transition-colors">{item.title}</p>
+            <p className="text-white/40 text-xs line-clamp-2">{item.prompt}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+export default function PromptPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-8 px-5">
       <div className="max-w-4xl mx-auto">
@@ -95,34 +123,12 @@ export default function PromptPage() {
           </p>
         </header>
 
-        {/* 提示词分类 */}
         <div className="space-y-6">
           {promptCategories.map((category, idx) => (
-            <div key={idx} className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <span className="text-3xl">{category.icon}</span>
-                <h2 className={`text-xl font-bold bg-gradient-to-r ${category.color} bg-clip-text text-transparent`}>
-                  {category.name}
-                </h2>
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-3">
-                {category.prompts.map((item, qIdx) => (
-                  <button
-                    key={qIdx}
-                    onClick={() => copyPrompt(item.prompt)}
-                    className="bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl p-4 text-left transition-all hover:scale-[1.01] group"
-                  >
-                    <p className="text-white font-medium mb-2 group-hover:text-green-400 transition-colors">{item.title}</p>
-                    <p className="text-white/40 text-xs line-clamp-2">{item.prompt}</p>
-                  </button>
-                ))}
-              </div>
-            </div>
+            <PromptCard key={idx} category={category} />
           ))}
         </div>
 
-        {/* 使用说明 */}
         <div className="mt-8 bg-green-500/20 border border-green-500/50 rounded-2xl p-6">
           <h3 className="text-green-300 font-bold mb-3">💡 使用方法</h3>
           <ol className="text-white/70 text-sm space-y-2">
@@ -133,7 +139,6 @@ export default function PromptPage() {
           </ol>
         </div>
 
-        {/* 底部 */}
         <footer className="text-center py-6 border-t border-white/10 mt-8">
           <p className="text-white/30 text-sm">
             AI提示词大全 · 持续更新 · 欢迎贡献
