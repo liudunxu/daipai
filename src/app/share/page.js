@@ -1,8 +1,6 @@
-export const metadata = {
-  title: '社交媒体引流素材 - 一键复制发布',
-  description: '社交媒体引流素材，包含微博、知乎、小红书、抖音文案，一键复制快速发布。',
-  keywords: ['社交媒体引流', '微博文案', '知乎引流', '小红书', '抖音文案', '引流素材'],
-}
+'use client'
+
+import { useState } from 'react'
 
 const socialContents = {
   weibo: {
@@ -26,7 +24,7 @@ const socialContents = {
     name: '小红书',
     color: 'from-pink-500 to-rose-500',
     contents: [
-      '👩‍💻 打工人必备AI神器！\n\n姐妹们！这个AI太香了😭\n7×24小时主动干活\n妥妥的打工最强外挂！\n\n📎官网在评论區\n\n#AI工具 #打工人 #效率神器 #2026',
+      '👩‍💻 打工人必备AI神器！\n\n姐妹们！这个AI太香了😭\n7×24小时主动干活\n妥妥的打工最强外挂！\n\n📎官网在评论区\n\n#AI工具 #打工人 #效率神器 #2026',
       '🔥2026年最火的AI项目！\n\nGitHub星标破24.8万！\n史上增长最快！\n\n打工人终于有救了👀\n\n#AI #开源 #科技',
     ]
   },
@@ -42,12 +40,14 @@ const socialContents = {
 
 export default function SharePage() {
   const url = 'https://www.zkwatcher.top'
+  const [copied, setCopied] = useState(null)
 
-  const copyToClipboard = async (text) => {
+  const copyToClipboard = async (text, idx) => {
     const content = text.replace('{{url}}', url)
     try {
       await navigator.clipboard.writeText(content)
-      alert('✅ 已复制到剪贴板！')
+      setCopied(idx)
+      setTimeout(() => setCopied(null), 2000)
     } catch {
       alert('复制失败')
     }
@@ -71,16 +71,21 @@ export default function SharePage() {
               {platform.name} 文案
             </h2>
             <div className="space-y-3">
-              {platform.contents.map((content, idx) => (
-                <div
-                  key={idx}
-                  onClick={() => copyToClipboard(content)}
-                  className="bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl p-4 cursor-pointer transition-colors group"
-                >
-                  <p className="text-white/70 text-sm whitespace-pre-line">{content.replace('{{url}}', url)}</p>
-                  <span className="text-green-400 text-xs mt-2 inline-block group-hover:text-green-300">点击复制</span>
-                </div>
-              ))}
+              {platform.contents.map((content, idx) => {
+                const contentId = `${key}-${idx}`
+                return (
+                  <div
+                    key={idx}
+                    onClick={() => copyToClipboard(content, contentId)}
+                    className="bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl p-4 cursor-pointer transition-colors group"
+                  >
+                    <p className="text-white/70 text-sm whitespace-pre-line">{content.replace('{{url}}', url)}</p>
+                    <span className="text-green-400 text-xs mt-2 inline-block group-hover:text-green-300">
+                      {copied === contentId ? '✅ 已复制' : '点击复制'}
+                    </span>
+                  </div>
+                )
+              })}
             </div>
           </div>
         ))}
