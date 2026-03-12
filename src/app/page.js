@@ -57,8 +57,8 @@ export const metadata = {
     default: 'OpenClaw 中文资讯站 - 2026年最火AI Agent',
     template: '%s | OpenClaw中文网'
   },
-  description: 'OpenClaw资讯第一站！24.8万星标史上第一，2026年AI Agent元年必备关注。最新资讯、深度解读、部署教程。',
-  keywords: ['OpenClaw', 'AI Agent', '人工智能', '开源项目', '2026科技', 'GitHub'],
+  description: 'OpenClaw资讯第一站！24.8万星标史上第一，2026年AI Agent元年必备关注。最新资讯、深度解读、部署教程。GitHub最火开源项目。',
+  keywords: ['OpenClaw', 'AI Agent', '人工智能', '开源项目', '2026科技', 'GitHub', 'AI工具', 'ChatGPT', 'Claude', '自动驾驶', 'AI数字员工', 'Agent'],
   openGraph: {
     type: 'website',
     locale: 'zh_CN',

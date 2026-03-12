@@ -32,6 +32,7 @@ export default function NavPage() {
     { name: '🖼️ 节日头像', url: '/avatar', desc: '春节、中秋、生日头像' },
     { name: '🎊 祝福语', url: '/blessing', desc: '节日祝福语生成' },
     { name: '🤖 AI提示词', url: '/prompt', desc: 'ChatGPT提示词大全' },
+    { name: '📢 引流素材', url: '/share', desc: '社交媒体文案一键复制' },
   ]
 
   return (
