@@ -4,6 +4,36 @@ import { useState, useEffect, useRef } from 'react'
 import html2canvas from 'html2canvas'
 import { QRCodeSVG } from 'qrcode.react'
 
+// 分享到社交平台
+const handleShare = async (platform) => {
+  const url = encodeURIComponent(pageUrl)
+  const title = encodeURIComponent('我测试了OpenClaw适合性，结果是：' + result.title + '！快来测测你的缘分吧～')
+
+  const shareUrls = {
+    weibo: `https://service.weibo.com/share/share.php?url=${url}&title=${title}`,
+    twitter: `https://twitter.com/intent/tweet?text=${title}&url=${url}`,
+    copy: pageUrl,
+  }
+
+  if (platform === 'copy') {
+    try {
+      await navigator.clipboard.writeText(shareUrls.copy)
+      alert('链接已复制到剪贴板！')
+    } catch {
+      // 兼容旧浏览器
+      const input = document.createElement('input')
+      input.value = shareUrls.copy
+      document.body.appendChild(input)
+      input.select()
+      document.execCommand('copy')
+      document.body.removeChild(input)
+      alert('链接已复制到剪贴板！')
+    }
+  } else if (shareUrls[platform]) {
+    window.open(shareUrls[platform], '_blank', 'width=600,height=400')
+  }
+}
+
 const questions = [
   {
     id: 1,
@@ -342,6 +372,32 @@ export default function OpenClawCheckPage() {
                   🔄 重新测试
                 </button>
               </div>
+
+              {/* 分享按钮 */}
+              <div className="pt-2">
+                <p className="text-white/40 text-xs mb-2">分享给朋友一起测</p>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => handleShare('weibo')}
+                    className="flex-1 px-3 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-300 font-medium rounded-lg transition-colors text-xs"
+                  >
+                    📱 微博
+                  </button>
+                  <button
+                    onClick={() => handleShare('twitter')}
+                    className="flex-1 px-3 py-2 bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 font-medium rounded-lg transition-colors text-xs"
+                  >
+                    🐦 Twitter
+                  </button>
+                  <button
+                    onClick={() => handleShare('copy')}
+                    className="flex-1 px-3 py-2 bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 font-medium rounded-lg transition-colors text-xs"
+                  >
+                    📋 复制链接
+                  </button>
+                </div>
+              </div>
+
               <a
                 href="/news/openclaw"
                 className="block w-full px-4 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold rounded-full hover:scale-105 transition-transform text-sm"
