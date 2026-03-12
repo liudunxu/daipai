@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.98.0",
+    "@upstash/redis": "^1.36.4",
     "html2canvas": "^1.4.1",
     "next": "^14.1.0",
     "qrcode": "^1.5.4",
