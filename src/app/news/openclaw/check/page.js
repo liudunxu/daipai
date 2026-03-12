@@ -208,21 +208,6 @@ export default function OpenClawCheckPage() {
           <p className="text-white/60">
             回答 {questions.length} 道题，测出你与 OpenClaw 的缘分
           </p>
-
-          {/* 首页二维码 */}
-          {!showResult && !isAnalyzing && (
-            <div className="mt-6 inline-block">
-              <div className="bg-white rounded-xl p-3">
-                <QRCodeSVG
-                  value={pageUrl}
-                  size={100}
-                  level="M"
-                  includeMargin={false}
-                />
-              </div>
-              <p className="text-white/40 text-xs mt-2">扫码开始测试</p>
-            </div>
-          )}
         </div>
 
         {isAnalyzing ? (
@@ -333,27 +318,32 @@ export default function OpenClawCheckPage() {
                 size={120}
                 level="M"
                 includeMargin={false}
+                bgColor="#ffffff"
+                fgColor="#000000"
               />
               <p className="text-gray-600 text-xs mt-2">扫码分享你的结果</p>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-3">
-              <button
-                onClick={handleSaveImage}
-                disabled={isSaving}
-                className="flex-1 px-6 py-3 bg-green-500 text-white font-bold rounded-full hover:scale-105 transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isSaving ? '⏳ 保存中...' : '📸 保存结果图片'}
-              </button>
-              <button
-                onClick={resetTest}
-                className="flex-1 px-6 py-3 bg-white/10 text-white font-bold rounded-full hover:bg-white/20 transition-colors"
-              >
-                🔄 重新测试
-              </button>
+            {/* 按钮区域 - 两行布局 */}
+            <div className="space-y-3">
+              <div className="flex gap-3">
+                <button
+                  onClick={handleSaveImage}
+                  disabled={isSaving}
+                  className="flex-1 px-4 py-3 bg-green-500 text-white font-bold rounded-full hover:scale-105 transition-transform disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                >
+                  {isSaving ? '⏳ 保存中...' : '📸 保存结果'}
+                </button>
+                <button
+                  onClick={resetTest}
+                  className="flex-1 px-4 py-3 bg-white/10 text-white font-bold rounded-full hover:bg-white/20 transition-colors text-sm"
+                >
+                  🔄 重新测试
+                </button>
+              </div>
               <a
                 href="/news/openclaw"
-                className="flex-1 px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold rounded-full hover:scale-105 transition-transform"
+                className="block w-full px-4 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold rounded-full hover:scale-105 transition-transform text-sm"
               >
                 📰 了解更多
               </a>
