@@ -1,6 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
+import html2canvas from 'html2canvas'
+import { QRCodeSVG } from 'qrcode.react'
 
 const questions = [
   {
@@ -111,6 +113,33 @@ export default function OpenClawCheckPage() {
   const [showResult, setShowResult] = useState(false)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [analyzeStep, setAnalyzeStep] = useState(0)
+  const [isSaving, setIsSaving] = useState(false)
+  const resultRef = useRef(null)
+
+  const pageUrl = 'https://www.zkwatcher.top/news/openclaw/check'
+
+  const handleSaveImage = async () => {
+    if (!resultRef.current || isSaving) return
+
+    setIsSaving(true)
+    try {
+      const canvas = await html2canvas(resultRef.current, {
+        backgroundColor: '#0f172a',
+        scale: 2,
+        useCORS: true,
+      })
+
+      const link = document.createElement('a')
+      link.download = `openclaw-test-result-${Date.now()}.png`
+      link.href = canvas.toDataURL('image/png')
+      link.click()
+    } catch (error) {
+      console.error('保存图片失败:', error)
+      alert('保存失败，请重试')
+    } finally {
+      setIsSaving(false)
+    }
+  }
 
   // AI分析动画
   const analyzeSteps = [
@@ -179,6 +208,21 @@ export default function OpenClawCheckPage() {
           <p className="text-white/60">
             回答 {questions.length} 道题，测出你与 OpenClaw 的缘分
           </p>
+
+          {/* 首页二维码 */}
+          {!showResult && !isAnalyzing && (
+            <div className="mt-6 inline-block">
+              <div className="bg-white rounded-xl p-3">
+                <QRCodeSVG
+                  value={pageUrl}
+                  size={100}
+                  level="M"
+                  includeMargin={false}
+                />
+              </div>
+              <p className="text-white/40 text-xs mt-2">扫码开始测试</p>
+            </div>
+          )}
         </div>
 
         {isAnalyzing ? (
@@ -266,7 +310,7 @@ export default function OpenClawCheckPage() {
           </div>
         ) : (
           /* 测试结果 */
-          <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8 text-center">
+          <div ref={resultRef} className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8 text-center">
             <div className={`inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r ${result.color} rounded-full mb-6`}>
               <span className="text-4xl">{result.emoji}</span>
             </div>
@@ -282,7 +326,25 @@ export default function OpenClawCheckPage() {
               <p className="text-3xl font-black text-white">{Math.round(totalScore / (questions.length * 3) * 100)}%</p>
             </div>
 
+            {/* 二维码区域 */}
+            <div className="bg-white rounded-xl p-4 mb-6 inline-block">
+              <QRCodeSVG
+                value={pageUrl}
+                size={120}
+                level="M"
+                includeMargin={false}
+              />
+              <p className="text-gray-600 text-xs mt-2">扫码分享你的结果</p>
+            </div>
+
             <div className="flex flex-col sm:flex-row gap-3">
+              <button
+                onClick={handleSaveImage}
+                disabled={isSaving}
+                className="flex-1 px-6 py-3 bg-green-500 text-white font-bold rounded-full hover:scale-105 transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isSaving ? '⏳ 保存中...' : '📸 保存结果图片'}
+              </button>
               <button
                 onClick={resetTest}
                 className="flex-1 px-6 py-3 bg-white/10 text-white font-bold rounded-full hover:bg-white/20 transition-colors"
