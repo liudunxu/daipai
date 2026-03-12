@@ -80,28 +80,28 @@ function getResult(score, totalQuestions) {
     return {
       title: '⭐ 非常适合！',
       desc: '你的电脑和环境非常适合安装 OpenClaw！它能帮你自动完成很多工作，比如整理文件、写报告、查资料等。大约花1小时配置好，就能体验AI自动化的强大了！',
-      color: 'from-green-500 to-emerald-500',
+      color: 'bg-green-500',
       emoji: '🎉',
     }
   } else if (score >= maxScore * 0.5) {
     return {
       title: '👍 比较适合',
       desc: '你的电脑基本可以运行 OpenClaw。建议先看一下官方教程，花点时间配置一下。如果遇到问题，可以找会安装的朋友帮帮忙。实在不行也可以先用在线版体验。',
-      color: 'from-blue-500 to-cyan-500',
+      color: 'bg-blue-500',
       emoji: '💪',
     }
   } else if (score >= maxScore * 0.35) {
     return {
       title: '⚠️ 可以试试',
       desc: '你的电脑配置可能需要升级，或者需要找人帮忙安装。建议先多了解一下，或者让身边懂电脑的朋友帮忙看看。也可以先试试在线版本。',
-      color: 'from-yellow-500 to-orange-500',
+      color: 'bg-yellow-500',
       emoji: '🤔',
     }
   } else {
     return {
       title: '❌ 暂不建议',
       desc: '目前你的电脑可能不太适合自己安装 OpenClaw。建议先升级一下电脑配置（比如加内存），或者试试在线版本的 AI 工具。等条件具备了再尝试安装。',
-      color: 'from-red-500 to-pink-500',
+      color: 'bg-red-500',
       emoji: '😅',
     }
   }
@@ -139,6 +139,16 @@ export default function OpenClawCheckPage() {
         backgroundColor: '#0f172a',
         scale: 2,
         useCORS: true,
+        logging: false,
+        onclone: (clonedDoc) => {
+          // 复制原始样式到克隆的文档
+          const style = clonedDoc.createElement('style')
+          style.textContent = `
+            * { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important; }
+            .bg-clip-text { -webkit-background-clip: text !important; background-clip: text !important; }
+          `
+          clonedDoc.head.appendChild(style)
+        }
       })
 
       // 创建新canvas添加二维码水印
@@ -343,18 +353,18 @@ export default function OpenClawCheckPage() {
           <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8 text-center">
             {/* 截图内容区域 */}
             <div ref={resultRef} className="capture-area">
-              <div className={`inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r ${result.color} rounded-full mb-6`}>
+              <div className={`inline-flex items-center justify-center w-20 h-20 ${result.color} rounded-full mb-6`}>
                 <span className="text-4xl">{result.emoji}</span>
               </div>
-              <h2 className={`text-3xl font-black bg-gradient-to-r ${result.color} bg-clip-text text-transparent mb-4`}>
+              <h2 className="text-3xl font-black text-white mb-4">
                 {result.title}
               </h2>
               <p className="text-white/70 leading-relaxed mb-8">
                 {result.desc}
               </p>
 
-              <div className="bg-white/5 rounded-xl p-4">
-                <p className="text-white/40 text-sm">适配指数</p>
+              <div className="bg-white/10 rounded-xl p-4">
+                <p className="text-white/60 text-sm">适配指数</p>
                 <p className="text-3xl font-black text-white">{Math.round(totalScore / (questions.length * 3) * 100)}%</p>
               </div>
             </div>
