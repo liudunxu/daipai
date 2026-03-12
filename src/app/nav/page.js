@@ -29,6 +29,9 @@ export default function NavPage() {
     { name: '📝 适合性测试', url: '/news/openclaw/check', desc: '测测你适合用OpenClaw吗' },
     { name: '💼 PUA话术', url: '/pua', desc: '互联网大厂PUA大全' },
     { name: '📖 国学院', url: '/guoxue', desc: '北京润泽园国学院' },
+    { name: '🖼️ 节日头像', url: '/avatar', desc: '春节、中秋、生日头像' },
+    { name: '🎊 祝福语', url: '/blessing', desc: '节日祝福语生成' },
+    { name: '🤖 AI提示词', url: '/prompt', desc: 'ChatGPT提示词大全' },
   ]
 
   return (
