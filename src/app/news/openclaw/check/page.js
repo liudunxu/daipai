@@ -5,20 +5,27 @@ import html2canvas from 'html2canvas'
 import { QRCodeSVG } from 'qrcode.react'
 
 // 分享到社交平台
-const handleShare = async (platform) => {
+const handleShare = async (platform, resultTitle) => {
   const url = encodeURIComponent(pageUrl)
-  const title = encodeURIComponent('我测试了OpenClaw适合性，结果是：' + result.title + '！快来测测你的缘分吧～')
+  const title = encodeURIComponent('我测试了OpenClaw适合性，结果是：' + resultTitle + '！快来测测你的缘分吧～')
+  const shareText = '我测试了OpenClaw适合性，结果是：' + resultTitle + '！快来测测你的缘分吧～\n' + pageUrl
 
   const shareUrls = {
+    // 国内平台
+    qq: `http://connect.qq.com/widget/shareqq/index.html?url=${url}&title=${title}`,
+    qzone: `https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare.php?url=${url}&title=${title}`,
+    douban: `https://www.douban.com/share/service?url=${url}&name=${title}`,
     weibo: `https://service.weibo.com/share/share.php?url=${url}&title=${title}`,
+    // 国外平台
     twitter: `https://twitter.com/intent/tweet?text=${title}&url=${url}`,
-    copy: pageUrl,
+    // 复制链接（适合微信）
+    copy: shareText,
   }
 
   if (platform === 'copy') {
     try {
       await navigator.clipboard.writeText(shareUrls.copy)
-      alert('链接已复制到剪贴板！')
+      alert('✅ 链接已复制！\n\n请打开微信/QQ粘贴发送给朋友～')
     } catch {
       // 兼容旧浏览器
       const input = document.createElement('input')
@@ -27,7 +34,7 @@ const handleShare = async (platform) => {
       input.select()
       document.execCommand('copy')
       document.body.removeChild(input)
-      alert('链接已复制到剪贴板！')
+      alert('✅ 链接已复制！\n\n请打开微信/QQ粘贴发送给朋友～')
     }
   } else if (shareUrls[platform]) {
     window.open(shareUrls[platform], '_blank', 'width=600,height=400')
@@ -376,24 +383,30 @@ export default function OpenClawCheckPage() {
               {/* 分享按钮 */}
               <div className="pt-2">
                 <p className="text-white/40 text-xs mb-2">分享给朋友一起测</p>
-                <div className="flex gap-2">
+                <div className="grid grid-cols-4 gap-2">
                   <button
-                    onClick={() => handleShare('weibo')}
-                    className="flex-1 px-3 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-300 font-medium rounded-lg transition-colors text-xs"
+                    onClick={() => handleShare('qq', result.title)}
+                    className="px-2 py-2 bg-blue-600/30 hover:bg-blue-600/50 text-blue-200 font-medium rounded-lg transition-colors text-xs"
+                  >
+                    💬 QQ
+                  </button>
+                  <button
+                    onClick={() => handleShare('qzone', result.title)}
+                    className="px-2 py-2 bg-yellow-500/30 hover:bg-yellow-500/50 text-yellow-200 font-medium rounded-lg transition-colors text-xs"
+                  >
+                    ⭐ QZ
+                  </button>
+                  <button
+                    onClick={() => handleShare('weibo', result.title)}
+                    className="px-2 py-2 bg-red-500/30 hover:bg-red-500/50 text-red-200 font-medium rounded-lg transition-colors text-xs"
                   >
                     📱 微博
                   </button>
                   <button
-                    onClick={() => handleShare('twitter')}
-                    className="flex-1 px-3 py-2 bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 font-medium rounded-lg transition-colors text-xs"
+                    onClick={() => handleShare('copy', result.title)}
+                    className="px-2 py-2 bg-green-500/30 hover:bg-green-500/50 text-green-200 font-medium rounded-lg transition-colors text-xs"
                   >
-                    🐦 Twitter
-                  </button>
-                  <button
-                    onClick={() => handleShare('copy')}
-                    className="flex-1 px-3 py-2 bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 font-medium rounded-lg transition-colors text-xs"
-                  >
-                    📋 复制链接
+                    🔗 微信
                   </button>
                 </div>
               </div>
