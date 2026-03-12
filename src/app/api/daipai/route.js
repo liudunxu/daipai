@@ -1,11 +1,5 @@
 import { NextResponse } from 'next/server'
-import { Redis } from '@upstash/redis'
-
-// 初始化 Redis 客户端
-const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL,
-  token: process.env.UPSTASH_REDIS_REST_TOKEN,
-})
+import { redis } from '../../../lib/redis'
 
 const COUNTER_KEY = 'daipai:counter'
 
