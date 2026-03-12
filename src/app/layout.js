@@ -23,9 +23,37 @@ export const metadata = {
   },
 }
 
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'WebSite',
+      name: '综合资讯平台',
+      url: 'https://www.zkwatcher.top',
+      description: 'OpenClaw资讯第一站、北京润泽园国学院、西海岸手牵手志愿者团队',
+      publisher: {
+        '@type': 'Organization',
+        name: '综合资讯平台'
+      }
+    },
+    {
+      '@type': 'CollectionPage',
+      name: '热门工具',
+      url: 'https://www.zkwatcher.top/nav',
+      description: '包含摇骰子、股市预测、姓名大全等实用工具'
+    }
+  ]
+}
+
 export default function RootLayout({ children }) {
   return (
     <html lang="zh-CN">
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      </head>
       <body>
         {children}
         <GoogleAdSense />
