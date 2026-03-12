@@ -1,13 +1,13 @@
 export const metadata = {
-  title: '互联网大厂PUA话术大全 - 职场黑话指南',
-  description: '汇集阿里、字节、华为、腾讯、美团、百度等大厂PUA话术，职场生存必备指南。资料来源：https://github.com/tanweai/pua',
-  keywords: ['PUA', '职场PUA', '大厂话术', '互联网黑话', '职场生存指南'],
+  title: '互联网大厂PUA话术大全 - 职场黑话指南 | 阿里字节华为腾讯',
+  description: '汇集阿里、字节、华为、腾讯、美团、百度、拼多多、京东等大厂PUA话术大全，包含职场黑话、裁员话术、绩效考核PUA等，职场生存必备指南。资料来源：https://github.com/tanweai/pua',
+  keywords: ['PUA', '职场PUA', '大厂话术', '互联网黑话', '职场生存指南', '阿里pua', '字节跳动pua', '华为pua', '腾讯pua', '美团pua', '百度pua', '拼多多pua', '京东pua', '裁员话术', '绩效考核PUA', '职场黑话', '互联网职场', '大厂裁员', '35岁危机', '996福报'],
   openGraph: {
     type: 'website',
     locale: 'zh_CN',
     url: 'https://www.zkwatcher.top/pua',
     siteName: 'PUA话术大全',
-    title: '互联网大厂PUA话术大全',
+    title: '互联网大厂PUA话术大全 - 职场黑话指南',
     description: '汇集各大厂PUA话术，职场生存必备指南',
   },
 }
