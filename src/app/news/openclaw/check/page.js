@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import html2canvas from 'html2canvas'
-import QRCode from 'qrcode'
+import { QRCodeSVG } from 'qrcode.react'
 
 const questions = [
   {
@@ -124,69 +124,17 @@ export default function OpenClawCheckPage() {
 
     setIsSaving(true)
     try {
-      // 生成二维码
-      const qrDataUrl = await QRCode.toDataURL(pageUrl, {
-        width: 80,
-        margin: 1,
-        color: {
-          dark: '#000000',
-          light: '#ffffff',
-        },
-      })
-
-      // 先截图
+      // 截图
       const canvas = await html2canvas(captureArea, {
         backgroundColor: '#0f172a',
         scale: 2,
         useCORS: true,
         logging: false,
-        onclone: (clonedDoc) => {
-          // 复制原始样式到克隆的文档
-          const style = clonedDoc.createElement('style')
-          style.textContent = `
-            * { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important; }
-            .bg-clip-text { -webkit-background-clip: text !important; background-clip: text !important; }
-          `
-          clonedDoc.head.appendChild(style)
-        }
       })
-
-      // 创建新canvas添加二维码水印
-      const finalCanvas = document.createElement('canvas')
-      finalCanvas.width = canvas.width
-      finalCanvas.height = canvas.height
-      const ctx = finalCanvas.getContext('2d')
-
-      // 填充背景
-      ctx.fillStyle = '#0f172a'
-      ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height)
-
-      // 绘制原图
-      ctx.drawImage(canvas, 0, 0)
-
-      // 绘制二维码到右上角
-      const qrImg = new Image()
-      qrImg.src = qrDataUrl
-      await new Promise((resolve) => {
-        qrImg.onload = resolve
-      })
-
-      const qrSize = 70
-      const qrX = finalCanvas.width - qrSize - 15
-      const qrY = 15
-
-      // 绘制白色背景框
-      ctx.fillStyle = '#ffffff'
-      ctx.beginPath()
-      ctx.roundRect(qrX - 5, qrY - 5, qrSize + 10, qrSize + 10, 8)
-      ctx.fill()
-
-      // 绘制二维码
-      ctx.drawImage(qrImg, qrX, qrY, qrSize, qrSize)
 
       const link = document.createElement('a')
       link.download = `openclaw-test-result-${Date.now()}.png`
-      link.href = finalCanvas.toDataURL('image/png')
+      link.href = canvas.toDataURL('image/png')
       link.click()
     } catch (error) {
       console.error('保存图片失败:', error)
@@ -353,19 +301,27 @@ export default function OpenClawCheckPage() {
           <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8 text-center">
             {/* 截图内容区域 */}
             <div ref={resultRef} className="capture-area">
-              <div className={`inline-flex items-center justify-center w-20 h-20 ${result.color} rounded-full mb-6`}>
-                <span className="text-4xl">{result.emoji}</span>
-              </div>
-              <h2 className="text-3xl font-black text-white mb-4">
-                {result.title}
-              </h2>
-              <p className="text-white/70 leading-relaxed mb-8">
-                {result.desc}
-              </p>
-
-              <div className="bg-white/10 rounded-xl p-4">
-                <p className="text-white/60 text-sm">适配指数</p>
-                <p className="text-3xl font-black text-white">{Math.round(totalScore / (questions.length * 3) * 100)}%</p>
+              <div className="flex items-center gap-4">
+                <div className="flex-1 text-left">
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="text-2xl">{result.emoji}</span>
+                    <h2 className="text-xl font-black text-white">
+                      {result.title}
+                    </h2>
+                  </div>
+                  <p className="text-white/70 text-xs leading-relaxed mb-4">
+                    {result.desc}
+                  </p>
+                  <div className="bg-white/10 rounded-lg p-3 flex items-center justify-between">
+                    <div>
+                      <p className="text-white/60 text-xs">适配指数</p>
+                      <p className="text-xl font-black text-white">{Math.round(totalScore / (questions.length * 3) * 100)}%</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-white p-1 rounded-lg">
+                  <QRCodeSVG value={pageUrl} size={70} />
+                </div>
               </div>
             </div>
 
