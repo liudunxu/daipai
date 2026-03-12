@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import html2canvas from 'html2canvas'
-import { QRCodeSVG } from 'qrcode.react'
+import QRCode from 'qrcode'
 
 const questions = [
   {
@@ -123,15 +123,64 @@ export default function OpenClawCheckPage() {
 
     setIsSaving(true)
     try {
+      // 生成二维码
+      const qrDataUrl = await QRCode.toDataURL(pageUrl, {
+        width: 100,
+        margin: 1,
+        color: {
+          dark: '#000000',
+          light: '#ffffff',
+        },
+      })
+
+      // 先截图
       const canvas = await html2canvas(resultRef.current, {
         backgroundColor: '#0f172a',
         scale: 2,
         useCORS: true,
       })
 
+      // 创建新canvas添加二维码水印
+      const finalCanvas = document.createElement('canvas')
+      finalCanvas.width = canvas.width
+      finalCanvas.height = canvas.height + 80 // 底部留出空间放二维码和提示
+      const ctx = finalCanvas.getContext('2d')
+
+      // 填充背景
+      ctx.fillStyle = '#0f172a'
+      ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height)
+
+      // 绘制原图
+      ctx.drawImage(canvas, 0, 0)
+
+      // 绘制二维码
+      const qrImg = new Image()
+      qrImg.src = qrDataUrl
+      await new Promise((resolve) => {
+        qrImg.onload = resolve
+      })
+
+      // 右下角二维码
+      const qrSize = 80
+      const qrX = finalCanvas.width - qrSize - 20
+      const qrY = finalCanvas.height - qrSize - 20
+      ctx.drawImage(qrImg, qrX, qrY, qrSize, qrSize)
+
+      // 绘制提示文字
+      ctx.fillStyle = '#ffffff'
+      ctx.font = '14px sans-serif'
+      ctx.textAlign = 'left'
+      ctx.fillText('扫码进入测试页面', qrX - 100, qrY + 45)
+
+      // 绘制网站水印
+      ctx.fillStyle = 'rgba(255,255,255,0.3)'
+      ctx.font = '12px sans-serif'
+      ctx.textAlign = 'left'
+      ctx.fillText('zkwatcher.top', 20, finalCanvas.height - 25)
+
       const link = document.createElement('a')
       link.download = `openclaw-test-result-${Date.now()}.png`
-      link.href = canvas.toDataURL('image/png')
+      link.href = finalCanvas.toDataURL('image/png')
       link.click()
     } catch (error) {
       console.error('保存图片失败:', error)
@@ -311,19 +360,6 @@ export default function OpenClawCheckPage() {
               <p className="text-3xl font-black text-white">{Math.round(totalScore / (questions.length * 3) * 100)}%</p>
             </div>
 
-            {/* 二维码区域 */}
-            <div className="bg-white rounded-xl p-4 mb-6 inline-block">
-              <QRCodeSVG
-                value={pageUrl}
-                size={120}
-                level="M"
-                includeMargin={false}
-                bgColor="#ffffff"
-                fgColor="#000000"
-              />
-              <p className="text-gray-600 text-xs mt-2">扫码分享你的结果</p>
-            </div>
-
             {/* 按钮区域 - 两行布局 */}
             <div className="space-y-3">
               <div className="flex gap-3">
@@ -332,7 +368,7 @@ export default function OpenClawCheckPage() {
                   disabled={isSaving}
                   className="flex-1 px-4 py-3 bg-green-500 text-white font-bold rounded-full hover:scale-105 transition-transform disabled:opacity-50 disabled:cursor-not-allowed text-sm"
                 >
-                  {isSaving ? '⏳ 保存中...' : '📸 保存结果'}
+                  {isSaving ? '⏳ 生成中...' : '📸 保存图片（含二维码）'}
                 </button>
                 <button
                   onClick={resetTest}
@@ -347,6 +383,9 @@ export default function OpenClawCheckPage() {
               >
                 📰 了解更多
               </a>
+              <p className="text-white/40 text-xs">
+                保存图片分享给朋友，扫码可进入测试
+              </p>
             </div>
           </div>
         )}
