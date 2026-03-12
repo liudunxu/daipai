@@ -1,40 +1,36 @@
 import { NextResponse } from 'next/server'
-import { supabase } from '../../../lib/supabase'
+import { Redis } from '@upstash/redis'
+
+// 初始化 Redis 客户端
+const redis = new Redis({
+  url: process.env.UPSTASH_REDIS_REST_URL,
+  token: process.env.UPSTASH_REDIS_REST_TOKEN,
+})
+
+const SUPPORTERS_KEY = 'supporters:list'
 
 // GET 获取声援者列表
 export async function GET() {
   try {
-    if (!supabase) {
-      return NextResponse.json({ error: '数据库未配置' }, { status: 500 })
-    }
+    // 从 Redis 获取支持者列表
+    const supporters = await redis.lrange(SUPPORTERS_KEY, 0, 99)
 
-    const { data, error } = await supabase
-      .from('supporters')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .limit(100)
-
-    if (error) throw error
-
-    // 按姓名去重
+    // 解析并去重
+    const list = supporters.map(s => JSON.parse(s))
     const uniqueMap = new Map()
-    data.forEach(s => uniqueMap.set(s.name, s))
+    list.forEach(s => uniqueMap.set(s.name, s))
     const unique = Array.from(uniqueMap.values())
 
     return NextResponse.json(unique)
   } catch (error) {
     console.error('获取失败:', error)
-    return NextResponse.json({ error: '获取失败' }, { status: 500 })
+    return NextResponse.json([])
   }
 }
 
 // POST 添加声援者
 export async function POST(request) {
   try {
-    if (!supabase) {
-      return NextResponse.json({ error: '数据库未配置' }, { status: 500 })
-    }
-
     const { name } = await request.json()
 
     if (!name || !name.trim()) {
@@ -44,24 +40,23 @@ export async function POST(request) {
     const trimmedName = name.trim().slice(0, 50)
 
     // 检查是否已存在
-    const { data: existing } = await supabase
-      .from('supporters')
-      .select('*')
-      .eq('name', trimmedName)
-      .single()
+    const supporters = await redis.lrange(SUPPORTERS_KEY, 0, -1)
+    const existing = supporters.find(s => JSON.parse(s).name === trimmedName)
 
     if (existing) {
-      // 已存在，更新时间
-      await supabase
-        .from('supporters')
-        .update({ created_at: new Date().toISOString() })
-        .eq('id', existing.id)
-    } else {
-      // 新增
-      await supabase
-        .from('supporters')
-        .insert([{ name: trimmedName }])
+      // 更新：删除旧的，添加新的到最前面
+      await redis.lrem(SUPPORTERS_KEY, 0, existing)
     }
+
+    // 添加新的
+    const newSupporter = JSON.stringify({
+      name: trimmedName,
+      created_at: new Date().toISOString()
+    })
+    await redis.lpush(SUPPORTERS_KEY, newSupporter)
+
+    // 保留最多200条
+    await redis.ltrim(SUPPORTERS_KEY, 0, 199)
 
     return NextResponse.json({
       success: true,
