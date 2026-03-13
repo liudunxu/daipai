@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import AffiliateLink from '@/components/AffiliateLink'
+import AffiliateLink from '../../../components/AffiliateLink'
 
 export default function PasswordPage() {
   const [length, setLength] = useState(16)

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import AffiliateLink from '@/components/AffiliateLink'
+import AffiliateLink from '../../components/AffiliateLink'
 
 export default function StockPage() {
   const [result, setResult] = useState(null)

@@ -1,8 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import AffiliateLink from '@/components/AffiliateLink'
-import DonateButton from '@/components/DonateButton'
+import AffiliateLink from '../../../components/AffiliateLink'
+import DonateButton from '../../../components/DonateButton'
 
 const zodiacs = [
   { name: '鼠', emoji: '🐭', color: 'from-gray-400 to-gray-600' },

@@ -1,5 +1,5 @@
-import { AdBanner } from '@/components/Ads'
-import WechatGroup from '@/components/WechatGroup'
+import { AdBanner } from '../../components/Ads'
+import WechatGroup from '../../components/WechatGroup'
 
 export const metadata = {
   title: '导航页 - 实用工具集合',

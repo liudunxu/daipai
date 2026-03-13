@@ -1,8 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import VIPBadge from '@/components/VIPBadge'
-import DonateButton from '@/components/DonateButton'
+import VIPBadge from '../../components/VIPBadge'
+import DonateButton from '../../components/DonateButton'
 
 // 中国常见100个人名
 const NAMES = [

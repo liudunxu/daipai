@@ -1,5 +1,5 @@
-import { AdBanner } from '@/components/Ads'
-import AffiliateLink from '@/components/AffiliateLink'
+import { AdBanner } from '../../components/Ads'
+import AffiliateLink from '../../components/AffiliateLink'
 
 export const metadata = {
   title: '今日热搜榜 - 微博、知乎、百度热搜合集',
