@@ -1,13 +1,7 @@
 'use client'
 
 import { Image } from 'next/image'
-import ShareButtons from '../../../components/ShareButtons'
-
-export const metadata = {
-  title: 'AI撞脸测试 - 你像哪个明星？',
-  description: '上传照片，AI智能分析你撞脸哪个明星。趣味测试，看看你是像明星还是网红！',
-  keywords: ['撞脸测试', '明星脸测试', 'AI测脸', '像谁测试', '颜值测试', '明星撞脸'],
-}
+import ShareButtons from '../../components/ShareButtons'
 
 export default function FaceMatch() {
   const celebrities = [

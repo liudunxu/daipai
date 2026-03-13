@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import ShareButtons from '../../../components/ShareButtons'
+import ShareButtons from '../../components/ShareButtons'
 
 const signs = [
   { id: 1, name: '上上签', level: '大吉', desc: '大吉大利，万事如意！', poem: '鱼龙变化跃天门，凤鸟来仪献瑞祥。' },

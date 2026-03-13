@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import ShareButtons from '../../../components/ShareButtons'
+import ShareButtons from '../../components/ShareButtons'
 
 export default function TodayLucky() {
   const [name, setName] = useState('')
