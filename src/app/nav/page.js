@@ -52,6 +52,9 @@ export default function NavPage() {
     { name: '🔮 运势测算', url: '/tool/lucky', desc: '2026年运势测算' },
     { name: '✨ 火星文', url: '/tool/huoxing', desc: '火星文转换器' },
     { name: '🔥 2026话题', url: '/trend/2026', desc: '热门话题聚合' },
+    { name: '📋 功能介绍', url: '/features', desc: '网站功能一览' },
+    { name: '📞 联系我们', url: '/contact', desc: '联系我们' },
+    { name: 'ℹ️ 关于我们', url: '/about', desc: '关于我们' },
   ]
 
   return (
