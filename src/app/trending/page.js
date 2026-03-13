@@ -1,3 +1,6 @@
+import { AdBanner } from '@/components/Ads'
+import AffiliateLink from '@/components/AffiliateLink'
+
 export const metadata = {
   title: '今日热搜榜 - 微博、知乎、百度热搜合集',
   description: '聚合微博热搜、知乎热榜、百度热搜等平台实时热点，一站式了解全网最热话题。',
@@ -189,6 +192,36 @@ export default function TrendingPage() {
                 <span className="flex-1 ml-3 text-white font-medium">{item.title}</span>
               </a>
             ))}
+          </div>
+        </section>
+
+        {/* 广告位 */}
+        <div className="mb-8">
+          <AdBanner />
+        </div>
+
+        {/* 热点相关推荐 */}
+        <section className="mb-8 bg-white/5 backdrop-blur-sm rounded-2xl p-6">
+          <h3 className="text-white font-bold mb-3 text-center">🛍️ 热点好物推荐</h3>
+          <p className="text-white/60 text-sm mb-4 text-center">
+            热搜同款好物，点击了解
+          </p>
+          <div className="flex flex-wrap justify-center gap-3">
+            <AffiliateLink
+              url="https://github.com"
+              text="GitHub"
+              platform="app"
+            />
+            <AffiliateLink
+              url="https://weibo.com"
+              text="微博会员"
+              platform="app"
+            />
+            <AffiliateLink
+              url="https://www.zhihu.com"
+              text="知乎会员"
+              platform="app"
+            />
           </div>
         </section>
 

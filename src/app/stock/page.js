@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import AffiliateLink from '@/components/AffiliateLink'
 
 export default function StockPage() {
   const [result, setResult] = useState(null)
@@ -189,6 +190,31 @@ export default function StockPage() {
             </div>
           </div>
         )}
+      </div>
+
+      {/* 联盟推广 */}
+      <div className="mt-8 bg-white/5 border border-white/10 rounded-2xl p-6 max-w-md mx-auto">
+        <h3 className="text-white font-bold mb-3 text-center">📈 股票开户推荐</h3>
+        <p className="text-white/60 text-sm mb-4 text-center">
+          大券商低佣金开户，扫码享专属福利
+        </p>
+        <div className="flex flex-wrap justify-center gap-3">
+          <AffiliateLink
+            url="https://www.eastmoney.com"
+            text="东方财富"
+            platform="jingdong"
+          />
+          <AffiliateLink
+            url="https://www.xueqiu.com"
+            text="雪球"
+            platform="app"
+          />
+          <AffiliateLink
+            url="https://www.10jqka.com.cn"
+            text="同花顺"
+            platform="app"
+          />
+        </div>
       </div>
 
       {/* 底部 */}

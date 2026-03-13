@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import AffiliateLink from '@/components/AffiliateLink'
 
 export default function PasswordPage() {
   const [length, setLength] = useState(16)
@@ -91,6 +92,31 @@ export default function PasswordPage() {
             </button>
           </div>
         )}
+
+        {/* 联盟推广 */}
+        <div className="mt-8 bg-white/5 border border-white/10 rounded-2xl p-6">
+          <h3 className="text-white font-bold mb-3 text-center">🔐 推荐：密码管理器</h3>
+          <p className="text-white/60 text-sm mb-4 text-center">
+            生成的密码太多记不住？试试专业的密码管理器
+          </p>
+          <div className="flex flex-wrap justify-center gap-3">
+            <AffiliateLink
+              url="https://1password.com"
+              text="1Password"
+              platform="app"
+            />
+            <AffiliateLink
+              url="https://bitwarden.com"
+              text="Bitwarden"
+              platform="app"
+            />
+            <AffiliateLink
+              url="https://dashlane.com"
+              text="Dashlane"
+              platform="app"
+            />
+          </div>
+        </div>
       </div>
     </div>
   )

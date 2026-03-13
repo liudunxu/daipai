@@ -1,6 +1,8 @@
 'use client'
 
 import { useState } from 'react'
+import AffiliateLink from '@/components/AffiliateLink'
+import DonateButton from '@/components/DonateButton'
 
 const zodiacs = [
   { name: '鼠', emoji: '🐭', color: 'from-gray-400 to-gray-600' },
@@ -92,8 +94,34 @@ export default function LuckyPage() {
             <p className="text-white/50 text-sm">
               本测算仅供娱乐，仅供娱乐，仅供娱乐
             </p>
+
+            {/* 付费解锁提示 */}
+            <div className="mt-4 pt-4 border-t border-white/10">
+              <p className="text-white/60 text-sm mb-2">解锁完整版运势解读</p>
+              <DonateButton className="mx-auto" />
+            </div>
           </div>
         )}
+
+        {/* 联盟推广 */}
+        <div className="mt-8 bg-white/5 border border-white/10 rounded-2xl p-6">
+          <h3 className="text-white font-bold mb-3 text-center">📱 推荐运势App</h3>
+          <p className="text-white/60 text-sm mb-4 text-center">
+            更多运势测算，尽在专业App
+          </p>
+          <div className="flex flex-wrap justify-center gap-3">
+            <AffiliateLink
+              url="https://apps.apple.com"
+              text="App Store"
+              platform="app"
+            />
+            <AffiliateLink
+              url="https://play.google.com"
+              text="Google Play"
+              platform="app"
+            />
+          </div>
+        </div>
       </div>
     </div>
   )

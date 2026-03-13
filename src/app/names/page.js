@@ -1,6 +1,8 @@
 'use client'
 
 import { useState } from 'react'
+import VIPBadge from '@/components/VIPBadge'
+import DonateButton from '@/components/DonateButton'
 
 // 中国常见100个人名
 const NAMES = [
@@ -84,10 +86,13 @@ export default function NamesPage() {
           </div>
         )}
 
-        {/* SEO内容 */}
+        {/* VIP付费内容 */}
         <section className="mt-12 p-6 bg-white/5 rounded-2xl">
-          <h2 className="text-xl font-bold text-white mb-4">关于中国姓名</h2>
-          <div className="text-white/60 space-y-3">
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <VIPBadge text="VIP" />
+          </div>
+          <h2 className="text-xl font-bold text-white mb-4 text-center">解锁完整姓名分析</h2>
+          <div className="text-white/60 space-y-3 mb-6">
             <p>
               中国姓氏源远流长，最常见的有王、李、张、刘、陈、杨、赵、黄、周、吴等。
               这些姓氏在中国人口中占比较大，是取名的重要参考。
@@ -97,6 +102,10 @@ export default function NamesPage() {
               可供取名参考、姓名测试等用途。中国人名通常由姓和名组成，
               姓名文化蕴含着丰富的历史和家族传承意义。
             </p>
+          </div>
+          <div className="text-center">
+            <p className="text-white/60 mb-4">打赏支持，解锁更多姓名分析功能</p>
+            <DonateButton />
           </div>
         </section>
 

@@ -5,6 +5,8 @@ import Tips from '../../components/Tips'
 import DaipaiCounter from '../../components/DaipaiCounter'
 import Cta from '../../components/Cta'
 import Footer from '../../components/Footer'
+import ProductCard from '../../components/ProductCard'
+import WechatQR from '../../components/WechatQR'
 
 export const metadata = {
   title: '告别汗脚臭脚 - 专业足部护理产品 | 东北雨姐推荐',
@@ -43,6 +45,35 @@ export default function DaipaiPage() {
 
           <div className="animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
             <Tips />
+          </div>
+
+          {/* 商品推荐 */}
+          <div className="mt-8 pt-6 border-t border-gray-100">
+            <h3 className="text-lg font-bold text-center mb-4">👇 老铁们都在用这些</h3>
+            <div className="grid grid-cols-2 gap-3">
+              <ProductCard
+                title="足部护理喷雾 止汗除臭"
+                description="雨姐同款见效快"
+                price="29.9"
+                originalPrice="59.9"
+                platform="taobao"
+                link="https://s.click.taobao.com/xxxxx"
+              />
+              <ProductCard
+                title="天然草本足浴包"
+                description="泡脚养生祛湿气"
+                price="19.9"
+                originalPrice="39.9"
+                platform="jingdong"
+                link="https://union.jd.com/xxxxx"
+              />
+            </div>
+            <div className="mt-4 text-center">
+              <WechatQR
+                title="联系雨姐"
+                description="获取更多产品推荐，享专属优惠"
+              />
+            </div>
           </div>
         </div>
 

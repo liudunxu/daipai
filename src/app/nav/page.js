@@ -1,3 +1,6 @@
+import { AdBanner } from '@/components/Ads'
+import WechatGroup from '@/components/WechatGroup'
+
 export const metadata = {
   title: '导航页 - 实用工具集合',
   description: '汇集各种实用工具和资讯页面，包括摇骰子、股市预测、姓名大全、热搜榜等。',
@@ -69,6 +72,27 @@ export default function NavPage() {
             </a>
           ))}
         </div>
+
+        {/* 广告位 */}
+        <div className="mt-8">
+          <AdBanner className="mx-auto max-w-2xl" />
+        </div>
+
+        {/* 社群入口 */}
+        <section className="mt-10">
+          <h2 className="text-xl font-bold text-white mb-4 text-center">🎉 加入我们</h2>
+          <div className="flex flex-wrap justify-center gap-3">
+            <WechatGroup
+              title="微信群"
+              description="扫码加入粉丝群，获取最新资讯"
+            />
+            <WechatGroup
+              星球
+              title="知识星球"
+              description="加入付费社群，获取更多干货"
+            />
+          </div>
+        </section>
 
         {/* 外部链接 */}
         <section className="mt-10">
