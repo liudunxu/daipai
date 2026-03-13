@@ -23,6 +23,10 @@ export const metadata = {
 export default function NavPage() {
   const navItems = [
     { name: '🏠 首页', url: '/', desc: 'OpenClaw中文资讯站' },
+    { name: '🎯 今日运势', url: '/today', desc: '每日运势查询' },
+    { name: '🙏 在线抽签', url: '/chouqian', desc: '观音灵签月老灵签' },
+    { name: '📱 手机号测运势', url: '/phone', desc: '号码吉凶查询' },
+    { name: '🤳 AI撞脸测试', url: '/face', desc: '看你像哪个明星' },
     { name: '🎲 摇骰子', url: '/dice', desc: '在线摇骰子，趣味随机' },
     { name: '📊 今天会涨吗', url: '/stock', desc: '股市行情预测，娱乐一下' },
     { name: '📛 姓名大全', url: '/names', desc: '100个常用人名' },
