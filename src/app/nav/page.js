@@ -46,6 +46,7 @@ export default function NavPage() {
     { name: '🖼️ 节日头像', url: '/avatar', desc: '春节、中秋、生日头像' },
     { name: '🎊 祝福语', url: '/blessing', desc: '节日祝福语生成' },
     { name: '🤖 AI提示词', url: '/prompt', desc: 'ChatGPT提示词大全' },
+    { name: '🧠 AI工具导航', url: '/ai', desc: 'DeepSeek/Claude/Coze教程' },
     { name: '📢 引流素材', url: '/share', desc: '社交媒体文案一键复制' },
     { name: '🔐 密码生成', url: '/tool/password', desc: '安全强密码生成' },
     { name: '🔮 运势测算', url: '/tool/lucky', desc: '2026年运势测算' },
