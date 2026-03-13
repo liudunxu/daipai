@@ -1,6 +1,7 @@
 import './globals.css'
 import BaiduAnalytics from '../components/BaiduAnalytics'
 import GoogleAdSense from '../components/GoogleAdSense'
+import GoogleAnalytics from '../components/GoogleAnalytics'
 
 export const metadata = {
   title: 'OpenClaw中文网 | 北京润泽园国学院 | 西海岸手牵手志愿者',
@@ -57,6 +58,7 @@ export default function RootLayout({ children }) {
       <body>
         {children}
         <GoogleAdSense />
+        <GoogleAnalytics />
         <BaiduAnalytics />
       </body>
     </html>
