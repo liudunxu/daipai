@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import ShareButtons from '../../components/ShareButtons'
+import { AdBanner } from '../../components/Ads'
 
 export default function MatchTest() {
   const [name1, setName1] = useState('')
@@ -86,6 +87,7 @@ export default function MatchTest() {
         )}
 
         <div className="mt-6">
+          <AdBanner className="mb-6" />
           <ShareButtons title="姓名配对 - 测测你们的缘分配对指数" url="/match" />
         </div>
 

@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import ShareButtons from '../../components/ShareButtons'
+import { AdBanner } from '../../components/Ads'
 
 const zodiacYear = ['鼠', '牛', '虎', '兔', '龙', '蛇', '马', '羊', '猴', '鸡', '狗', '猪']
 
@@ -96,6 +97,7 @@ export default function ZodiacYear() {
         )}
 
         <div className="mt-6">
+          <AdBanner className="mb-6" />
           <ShareButtons title="十二生肖运势 - 查询你的生肖今年运势" url="/shengxiao" />
         </div>
 

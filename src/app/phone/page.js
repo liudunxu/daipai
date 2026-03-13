@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import ShareButtons from '../../components/ShareButtons'
+import { AdBanner } from '../../components/Ads'
 
 export default function PhoneTest() {
   const [phone, setPhone] = useState('')
@@ -88,6 +89,7 @@ export default function PhoneTest() {
         )}
 
         <div className="mt-6">
+          <AdBanner className="mb-6" />
           <ShareButtons title="手机号测运势 - 号码吉凶查询" url="/phone" />
         </div>
 

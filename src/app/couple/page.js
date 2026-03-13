@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import ShareButtons from '../../components/ShareButtons'
+import { AdBanner } from '../../components/Ads'
 
 const coupleStyles = [
   { id: 1, name: '浪漫韩系', emoji: '💕', bg: 'from-pink-500 to-rose-500' },
@@ -111,6 +112,7 @@ export default function CoupleAvatar() {
         )}
 
         <div className="mt-6">
+          <AdBanner className="mb-6" />
           <ShareButtons title="情侣头像生成 - 专属情侣头像" url="/couple" />
         </div>
 

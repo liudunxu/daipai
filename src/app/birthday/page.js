@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import ShareButtons from '../../components/ShareButtons'
+import { AdBanner } from '../../components/Ads'
 
 export default function Birthday() {
   const [month, setMonth] = useState('')
@@ -128,6 +129,7 @@ export default function Birthday() {
         )}
 
         <div className="mt-6">
+          <AdBanner className="mb-6" />
           <ShareButtons title="生日密语 - 输入生日解读你的专属秘密" url="/birthday" />
         </div>
 

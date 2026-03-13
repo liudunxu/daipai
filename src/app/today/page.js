@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import ShareButtons from '../../components/ShareButtons'
+import { AdBanner } from '../../components/Ads'
 
 export default function TodayLucky() {
   const [name, setName] = useState('')
@@ -94,6 +95,7 @@ export default function TodayLucky() {
         )}
 
         <div className="mt-6">
+          <AdBanner className="mb-6" />
           <ShareButtons title="今日运势 - 测测你今天的运气如何" url="/today" />
         </div>
 

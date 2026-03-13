@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import ShareButtons from '../../components/ShareButtons'
+import { AdBanner } from '../../components/Ads'
 
 const zodiacSigns = [
   { name: '白羊座', dates: '3.21-4.19', symbol: '♈', element: '火', color: '#FF6B6B' },
@@ -90,6 +91,7 @@ export default function Constellation() {
         )}
 
         <div className="mt-6">
+          <AdBanner className="mb-6" />
           <ShareButtons title="星座运势 - 12星座今日运势查询" url="/xingzuo" />
         </div>
 

@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import ShareButtons from '../../components/ShareButtons'
+import { AdBanner } from '../../components/Ads'
 
 // 塔罗牌数据
 const tarotCards = [
@@ -98,6 +99,7 @@ export default function Tarot() {
         )}
 
         <div className="mt-6">
+          <AdBanner className="mb-6" />
           <ShareButtons title="塔罗牌测试 - 3张牌解读你的问题" url="/tarot" />
         </div>
 
