@@ -110,6 +110,13 @@ claude-code/
 - 使用 `git add` 暂存修改的文件
 - 使用 `git commit` 提交，格式：`feat: xxx` 或 `fix: xxx`
 
+### 构建检查
+**推送到 GitHub 之前，必须确保本地构建通过**
+
+- 运行 `npm run build` 确保无编译错误
+- 如有错误自动修复后再次构建验证
+- 确认通过后再执行 `git push`
+
 ### 提交信息格式
 ```
 feat: 添加xxx功能
