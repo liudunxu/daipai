@@ -1,4 +1,7 @@
+'use client'
+
 import { Image } from 'next/image'
+import ShareButtons from '../../../components/ShareButtons'
 
 export const metadata = {
   title: 'AI撞脸测试 - 你像哪个明星？',
@@ -45,6 +48,10 @@ export default function FaceMatch() {
               </div>
             ))}
           </div>
+        </div>
+
+        <div className="mt-6">
+          <ShareButtons title="AI撞脸测试 - 看你像哪个明星" url="/face" />
         </div>
 
         <footer className="mt-8 text-center">

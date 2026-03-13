@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import ShareButtons from '../../../components/ShareButtons'
 
 const signs = [
   { id: 1, name: '上上签', level: '大吉', desc: '大吉大利，万事如意！', poem: '鱼龙变化跃天门，凤鸟来仪献瑞祥。' },
@@ -84,6 +85,10 @@ export default function ChouQian() {
             </p>
           </div>
         )}
+
+        <div className="mt-6">
+          <ShareButtons title="在线抽签 - 观音灵签月老灵签" url="/chouqian" />
+        </div>
 
         <footer className="mt-8 text-center">
           <a href="/nav" className="text-white/40 hover:text-white/60 text-sm">

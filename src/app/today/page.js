@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import ShareButtons from '../../../components/ShareButtons'
 
 export default function TodayLucky() {
   const [name, setName] = useState('')
@@ -91,6 +92,10 @@ export default function TodayLucky() {
             </p>
           </div>
         )}
+
+        <div className="mt-6">
+          <ShareButtons title="今日运势 - 测测你今天的运气如何" url="/today" />
+        </div>
 
         <footer className="mt-8 text-center">
           <a href="/nav" className="text-white/40 hover:text-white/60 text-sm">

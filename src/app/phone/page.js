@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import ShareButtons from '../../../components/ShareButtons'
 
 export default function PhoneTest() {
   const [phone, setPhone] = useState('')
@@ -85,6 +86,10 @@ export default function PhoneTest() {
             </p>
           </div>
         )}
+
+        <div className="mt-6">
+          <ShareButtons title="手机号测运势 - 号码吉凶查询" url="/phone" />
+        </div>
 
         <footer className="mt-8 text-center">
           <a href="/nav" className="text-white/40 hover:text-white/60 text-sm">
