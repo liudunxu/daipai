@@ -39,9 +39,19 @@ export async function GET(request) {
     // 获取当前周期信息
     const currentWeek = getWeekNumber(new Date())
 
+    // 解析 holdings，可能是字符串或对象
+    let holdings = null
+    if (portfolio.holdings) {
+      try {
+        holdings = typeof portfolio.holdings === 'string' ? JSON.parse(portfolio.holdings) : portfolio.holdings
+      } catch (e) {
+        holdings = null
+      }
+    }
+
     return NextResponse.json({
       cash: portfolio.cash ? parseFloat(portfolio.cash) : INITIAL_CAPITAL,
-      holdings: portfolio.holdings ? JSON.parse(portfolio.holdings) : null,
+      holdings,
       currentPrice: portfolio.currentPrice ? parseFloat(portfolio.currentPrice) : null,
       stockCode: portfolio.stockCode || null,
       stockName: portfolio.stockName || null,
@@ -78,7 +88,15 @@ export async function POST(request) {
     // 获取当前持仓
     const portfolio = await redis.hgetall(PORTFOLIO_KEY) || {}
     let cash = portfolio.cash ? parseFloat(portfolio.cash) : INITIAL_CAPITAL
-    let holdings = portfolio.holdings ? JSON.parse(portfolio.holdings) : null
+    // 解析 holdings，可能是字符串或对象
+    let holdings = null
+    if (portfolio.holdings) {
+      try {
+        holdings = typeof portfolio.holdings === 'string' ? JSON.parse(portfolio.holdings) : portfolio.holdings
+      } catch (e) {
+        holdings = null
+      }
+    }
 
     // 检查是否在新周期（每周一重置）
     const now = new Date()
