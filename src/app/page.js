@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import ShareButtons from '../components/ShareButtons'
 
 // 标签颜色映射
 const tagColors = {
@@ -145,8 +146,54 @@ export default function Home() {
         </div>
       </section>
 
+      {/* 热门工具推荐 */}
+      <section className="py-8 px-5 bg-white/5">
+        <div className="max-w-4xl mx-auto">
+          <h2 className="text-xl font-bold text-white mb-4 text-center">
+            🔥 热门工具
+          </h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <a href="/today" className="bg-white/10 hover:bg-white/20 rounded-xl p-4 transition-colors text-center">
+              <div className="text-2xl mb-2">🎯</div>
+              <div className="text-white font-medium text-sm">今日运势</div>
+            </a>
+            <a href="/xingzuo" className="bg-white/10 hover:bg-white/20 rounded-xl p-4 transition-colors text-center">
+              <div className="text-2xl mb-2">✨</div>
+              <div className="text-white font-medium text-sm">星座运势</div>
+            </a>
+            <a href="/chouqian" className="bg-white/10 hover:bg-white/20 rounded-xl p-4 transition-colors text-center">
+              <div className="text-2xl mb-2">🙏</div>
+              <div className="text-white font-medium text-sm">在线抽签</div>
+            </a>
+            <a href="/stock" className="bg-white/10 hover:bg-white/20 rounded-xl p-4 transition-colors text-center">
+              <div className="text-2xl mb-2">📊</div>
+              <div className="text-white font-medium text-sm">股市预测</div>
+            </a>
+            <a href="/dice" className="bg-white/10 hover:bg-white/20 rounded-xl p-4 transition-colors text-center">
+              <div className="text-2xl mb-2">🎲</div>
+              <div className="text-white font-medium text-sm">摇骰子</div>
+            </a>
+            <a href="/shengxiao" className="bg-white/10 hover:bg-white/20 rounded-xl p-4 transition-colors text-center">
+              <div className="text-2xl mb-2">🐭</div>
+              <div className="text-white font-medium text-sm">十二生肖</div>
+            </a>
+            <a href="/tarot" className="bg-white/10 hover:bg-white/20 rounded-xl p-4 transition-colors text-center">
+              <div className="text-2xl mb-2">🔮</div>
+              <div className="text-white font-medium text-sm">塔罗牌</div>
+            </a>
+            <a href="/nav" className="bg-white/10 hover:bg-white/20 rounded-xl p-4 transition-colors text-center">
+              <div className="text-2xl mb-2">🧭</div>
+              <div className="text-white font-medium text-sm">更多工具</div>
+            </a>
+          </div>
+        </div>
+      </section>
+
       {/* 底部 */}
       <footer className="py-8 px-5 text-center border-t border-white/10">
+        <div className="max-w-4xl mx-auto mb-6">
+          <ShareButtons title="极客观察 - AI科技经济资讯" url="/" />
+        </div>
         <p className="text-white/40 text-sm">
           极客观察 · AI 科技 经济资讯
         </p>
