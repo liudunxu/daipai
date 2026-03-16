@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import AffiliateLink from '../../components/AffiliateLink'
+import FAQSchema, { stockFAQs } from '../../components/FAQSchema'
 
 export default function StockPage() {
   const [result, setResult] = useState(null)
@@ -90,7 +91,9 @@ export default function StockPage() {
   }, [isRolling])
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-red-900 to-slate-900 flex flex-col items-center p-4 relative overflow-hidden">
+    <>
+      <FAQSchema faqs={stockFAQs} />
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-red-900 to-slate-900 flex flex-col items-center p-4 relative overflow-hidden">
       {/* 背景装饰 */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-0 left-0 w-full h-1/2 bg-gradient-to-b from-green-500/10 to-transparent"></div>
@@ -245,5 +248,6 @@ export default function StockPage() {
         }
       `}</style>
     </div>
+    </>
   )
 }

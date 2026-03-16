@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import ShareButtons from '../components/ShareButtons'
+import FAQSchema, { homePageFAQs } from '../components/FAQSchema'
 
 // 标签颜色映射
 const tagColors = {
@@ -59,7 +60,9 @@ export default function Home() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+    <>
+      <FAQSchema faqs={homePageFAQs} />
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
       {/* 头部 */}
       <header className="py-12 px-5 text-center">
         <div className="max-w-4xl mx-auto">
@@ -202,5 +205,6 @@ export default function Home() {
         </p>
       </footer>
     </div>
+    </>
   )
 }

@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import ShareButtons from '../../components/ShareButtons'
 import { AdBanner } from '../../components/Ads'
+import FAQSchema, { fortuneFAQs } from '../../components/FAQSchema'
 
 export default function TodayLucky() {
   const [name, setName] = useState('')
@@ -36,7 +37,9 @@ export default function TodayLucky() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-8 px-5">
+    <>
+      <FAQSchema faqs={fortuneFAQs} />
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-8 px-5">
       <div className="max-w-xl mx-auto">
         <header className="text-center mb-8">
           <h1 className="text-3xl font-black text-white mb-2">🎯 今日运势</h1>
@@ -106,5 +109,6 @@ export default function TodayLucky() {
         </footer>
       </div>
     </div>
+    </>
   )
 }

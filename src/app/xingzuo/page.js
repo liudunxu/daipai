@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import ShareButtons from '../../components/ShareButtons'
 import { AdBanner } from '../../components/Ads'
+import FAQSchema, { xingzuoFAQs } from '../../components/FAQSchema'
 
 const zodiacSigns = [
   { name: '白羊座', dates: '3.21-4.19', symbol: '♈', element: '火', color: '#FF6B6B' },
@@ -38,7 +39,9 @@ export default function Constellation() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-8 px-5">
+    <>
+      <FAQSchema faqs={xingzuoFAQs} />
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-8 px-5">
       <div className="max-w-xl mx-auto">
         <header className="text-center mb-8">
           <h1 className="text-3xl font-black text-white mb-2">✨ 星座运势</h1>
@@ -102,5 +105,6 @@ export default function Constellation() {
         </footer>
       </div>
     </div>
+    </>
   )
 }
