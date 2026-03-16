@@ -42,7 +42,9 @@ export default function StockBacktestPage() {
       try {
         const res = await fetch(`/api/stock/history?code=${selectedStock.code}&days=1`)
         const data = await res.json()
-        if (data.data && data.data.length > 0) {
+        if (data.currentPrice) {
+          setCurrentPrice(data.currentPrice)
+        } else if (data.data && data.data.length > 0) {
           setCurrentPrice(data.data[data.data.length - 1].close)
         }
       } catch (err) {

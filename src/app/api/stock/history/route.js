@@ -52,24 +52,25 @@ export async function GET(request) {
     })
 
     // 解析 chart 返回的数据
-    const timestamps = quote.timestamp || []
-    const quotes = quote.indicators?.quote?.[0] || {}
+    // 数据在 quote.quotes 数组中
+    const quotes = quote.quotes || []
 
-    const recentData = timestamps.slice(-days).map((ts, i) => {
-      const index = timestamps.length - days + i
-      return {
-        date: new Date(ts * 1000).toISOString().split('T')[0],
-        open: quotes.open?.[index] || 0,
-        close: quotes.close?.[index] || 0,
-        high: quotes.high?.[index] || 0,
-        low: quotes.low?.[index] || 0,
-        volume: quotes.volume?.[index] || 0,
-      }
-    }).filter(item => item.close > 0) // 过滤无效数据
+    const recentData = quotes.slice(-days).map(item => ({
+      date: new Date(item.date).toISOString().split('T')[0],
+      open: item.open || 0,
+      close: item.close || 0,
+      high: item.high || 0,
+      low: item.low || 0,
+      volume: item.volume || 0,
+    })).filter(item => item.close > 0) // 过滤无效数据
+
+    // 同时返回当前价格
+    const currentPrice = quote.meta?.regularMarketPrice || (recentData.length > 0 ? recentData[recentData.length - 1].close : null)
 
     return NextResponse.json({
       code,
       name: stock.name,
+      currentPrice,
       data: recentData,
     })
   } catch (error) {
