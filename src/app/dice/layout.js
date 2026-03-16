@@ -6,10 +6,15 @@ export const metadata = {
     type: 'website',
     locale: 'zh_CN',
     url: 'https://www.zkwatcher.top/dice',
-    siteName: '在线工具箱',
+    siteName: '极客观察',
     title: '在线摇骰子 - 趣味随机数生成器',
     description: '点击按钮或点击屏幕，摇出你的幸运点数！',
-  }
+  },
+  twitter: {
+    card: 'summary',
+    title: '在线摇骰子 - 趣味随机数生成器',
+    description: '摇出你的幸运点数',
+  },
 }
 
 export default function DiceLayout({ children }) {

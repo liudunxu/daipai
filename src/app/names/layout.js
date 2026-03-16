@@ -6,10 +6,15 @@ export const metadata = {
     type: 'website',
     locale: 'zh_CN',
     url: 'https://www.zkwatcher.top/names',
-    siteName: '实用工具箱',
+    siteName: '极客观察',
     title: '中国常用姓名大全 - 100个常见人名',
     description: '收录中国最常用的100个人名，是取名参考的实用工具。',
-  }
+  },
+  twitter: {
+    card: 'summary',
+    title: '中国常用姓名大全 - 100个常见人名',
+    description: '100个常见人名取名参考',
+  },
 }
 
 export default function NamesLayout({ children }) {
