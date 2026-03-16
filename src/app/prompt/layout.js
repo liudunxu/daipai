@@ -1,0 +1,9 @@
+export const metadata = {
+  title: 'AI提示词 - ChatGPT提示词大全',
+  description: '各类AI提示词模板，写作助手、编程开发、学习辅助、生活技巧，一键复制直接使用。',
+  keywords: ['AI提示词', 'ChatGPT提示词', 'prompt模板', 'AI指令'],
+}
+
+export default function Layout({ children }) {
+  return children
+}
