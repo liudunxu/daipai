@@ -137,20 +137,32 @@ export async function GET() {
     // 尝试从Redis获取缓存
     const cached = await redis.get(CACHE_KEY)
     if (cached) {
-      return NextResponse.json({
-        success: true,
-        data: cached,
-        count: cached.length,
-        cached: true
-      })
+      let data = cached
+      // 如果是字符串，尝试解析
+      if (typeof cached === 'string') {
+        try {
+          data = JSON.parse(cached)
+        } catch {
+          // 解析失败，忽略缓存
+          data = null
+        }
+      }
+      if (data && Array.isArray(data)) {
+        return NextResponse.json({
+          success: true,
+          data: data,
+          count: data.length,
+          cached: true
+        })
+      }
     }
 
     // 获取最新资讯
     const news = await fetchAllNews()
 
-    // 存入Redis缓存
+    // 存入Redis缓存（不转JSON，Upstash会自动处理）
     if (news.length > 0) {
-      await redis.set(CACHE_KEY, JSON.stringify(news), { ex: CACHE_TTL })
+      await redis.set(CACHE_KEY, news, { ex: CACHE_TTL })
     }
 
     return NextResponse.json({
