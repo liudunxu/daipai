@@ -141,28 +141,35 @@ async function fetchCLSNews(source) {
   }
 }
 
-// 交错排列资讯，确保经济、科技内容混排
+// 交错排列资讯，确保来源多样化
 function interleaveNews(news) {
   if (news.length <= 2) return news
 
   // 按日期排序
   news.sort((a, b) => parseDate(b.date) - parseDate(a.date))
 
-  // 按标签分组
-  const economy = news.filter(n => n.tag === '经济')
-  const tech = news.filter(n => n.tag === '科技')
+  // 按来源+标签分组
+  const groups = {}
+  news.forEach(item => {
+    const key = item.source
+    if (!groups[key]) groups[key] = []
+    groups[key].push(item)
+  })
+
+  // 获取所有来源
+  const sources = Object.keys(groups)
 
   const result = []
-  let e = 0, t = 0
+  const indices = sources.map(() => 0)
 
-  // 交替插入，保持比例经济:科技 ≈ 1:3
-  while (e < economy.length || t < tech.length) {
-    // 每4条插入1条经济新闻
-    for (let i = 0; i < 3 && t < tech.length; i++) {
-      result.push(tech[t++])
-    }
-    if (e < economy.length) {
-      result.push(economy[e++])
+  // 轮询各来源，交替取最新的一条
+  let total = 0
+  while (total < news.length) {
+    for (let i = 0; i < sources.length; i++) {
+      if (indices[i] < groups[sources[i]].length) {
+        result.push(groups[sources[i]][indices[i]++])
+        total++
+      }
     }
   }
 
