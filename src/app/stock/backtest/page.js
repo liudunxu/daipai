@@ -44,6 +44,7 @@ export default function StockBacktestPage() {
   const [weekProfit, setWeekProfit] = useState(0)
   const [records, setRecords] = useState([])
   const [currentWeek, setCurrentWeek] = useState(1)
+  const [currentWeekOperations, setCurrentWeekOperations] = useState([])
   const [message, setMessage] = useState(null)
   const [sellStock, setSellStock] = useState(null)
 
@@ -80,6 +81,7 @@ export default function StockBacktestPage() {
       setWeekProfit(data.weekProfit || 0)
       setRecords(data.records || [])
       setCurrentWeek(data.currentWeek)
+      setCurrentWeekOperations(data.currentWeekOperations || [])
 
       // 获取每只持仓股票的价格
       const holdingsData = data.holdings || []
@@ -413,6 +415,37 @@ export default function StockBacktestPage() {
                   </div>
                 )
               })}
+            </div>
+          </div>
+        )}
+
+        {/* 本周操作记录 */}
+        {currentWeekOperations.length > 0 && (
+          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 mb-4 border border-white/10">
+            <h3 className="text-white/70 text-sm font-medium mb-3">📝 本周操作记录</h3>
+            <div className="space-y-2">
+              {currentWeekOperations.map((op, index) => (
+                <div key={index} className="flex justify-between items-center p-2 bg-white/5 rounded-xl">
+                  <div className="flex items-center gap-2">
+                    <span className={`px-2 py-0.5 rounded text-xs font-medium ${op.type === 'buy' ? 'bg-green-500/30 text-green-400' : 'bg-red-500/30 text-red-400'}`}>
+                      {op.type === 'buy' ? '买入' : '卖出'}
+                    </span>
+                    <div>
+                      <p className="text-white font-bold text-sm">{op.name}</p>
+                      <p className="text-white/50 text-xs">
+                        ¥{op.price.toFixed(2)} × {op.shares}股 · {new Date(op.time).toLocaleString('zh-CN', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                      </p>
+                    </div>
+                  </div>
+                  {op.type === 'sell' && (
+                    <div className="text-right">
+                      <p className={`text-sm font-medium ${parseFloat(op.profit) >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                        {parseFloat(op.profit) >= 0 ? '+' : ''}¥{parseFloat(op.profit).toFixed(2)}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
           </div>
         )}

@@ -134,6 +134,27 @@ export async function GET(request) {
       weekStart,
       currentWeek,
       weekProfit,
+      // 本周操作记录（持仓 + 已卖出）
+      currentWeekOperations: [
+        ...holdings.map(h => ({
+          type: 'buy',
+          code: h.code,
+          name: h.name,
+          shares: h.shares,
+          price: h.buyPrice,
+          time: h.buyTime,
+        })),
+        ...currentRecords.map(r => ({
+          type: 'sell',
+          code: r.code,
+          name: r.name,
+          shares: r.shares,
+          price: r.sellPrice,
+          buyPrice: r.buyPrice,
+          profit: r.profit,
+          time: r.tradeTime,
+        })),
+      ].sort((a, b) => new Date(b.time) - new Date(a.time)),
       records: records.map(r => {
         try {
           return typeof r === 'string' ? JSON.parse(r) : r
@@ -151,6 +172,7 @@ export async function GET(request) {
       weekStart: getWeekStart(new Date()),
       currentWeek: getWeekNumber(new Date()),
       weekProfit: 0,
+      currentWeekOperations: [],
       records: [],
       initialCapital: INITIAL_CAPITAL,
     })
