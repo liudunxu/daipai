@@ -141,34 +141,58 @@ async function fetchCLSNews(source) {
   }
 }
 
-// 交错排列资讯，确保来源多样化
+// 交错排列资讯，确保经济科技交叉展示
 function interleaveNews(news) {
   if (news.length <= 2) return news
 
   // 按日期排序
   news.sort((a, b) => parseDate(b.date) - parseDate(a.date))
 
-  // 按来源+标签分组
-  const groups = {}
-  news.forEach(item => {
-    const key = item.source
-    if (!groups[key]) groups[key] = []
-    groups[key].push(item)
+  // 按标签分组
+  const economy = news.filter(n => n.tag === '经济')
+  const tech = news.filter(n => n.tag === '科技')
+
+  // 按来源再细分，每个来源取最新的一条轮询
+  const econBySource = {}
+  economy.forEach(item => {
+    if (!econBySource[item.source]) econBySource[item.source] = []
+    econBySource[item.source].push(item)
   })
 
-  // 获取所有来源
-  const sources = Object.keys(groups)
+  const techBySource = {}
+  tech.forEach(item => {
+    if (!techBySource[item.source]) techBySource[item.source] = []
+    techBySource[item.source].push(item)
+  })
+
+  const econSources = Object.keys(econBySource)
+  const techSources = Object.keys(techBySource)
 
   const result = []
-  const indices = sources.map(() => 0)
+  let eIdx = Array(econSources.length).fill(0)
+  let tIdx = Array(techSources.length).fill(0)
 
-  // 轮询各来源，交替取最新的一条
-  let total = 0
-  while (total < news.length) {
-    for (let i = 0; i < sources.length; i++) {
-      if (indices[i] < groups[sources[i]].length) {
-        result.push(groups[sources[i]][indices[i]++])
-        total++
+  let eTotal = economy.length
+  let tTotal = tech.length
+
+  // 经济:科技 = 1:3 交替
+  while (eTotal > 0 || tTotal > 0) {
+    // 取1条经济
+    for (let i = 0; i < 1 && eTotal > 0; i++) {
+      for (let j = 0; j < econSources.length && eTotal > 0; j++) {
+        if (eIdx[j] < econBySource[econSources[j]].length) {
+          result.push(econBySource[econSources[j]][eIdx[j]++])
+          eTotal--
+        }
+      }
+    }
+    // 取3条科技
+    for (let i = 0; i < 3 && tTotal > 0; i++) {
+      for (let j = 0; j < techSources.length && tTotal > 0; j++) {
+        if (tIdx[j] < techBySource[techSources[j]].length) {
+          result.push(techBySource[techSources[j]][tIdx[j]++])
+          tTotal--
+        }
       }
     }
   }
