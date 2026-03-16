@@ -1,35 +1,10 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-
-// 常用A股股票列表
-const STOCKS = [
-  { code: '600519', name: '贵州茅台', yahoo: '600519.SS' },
-  { code: '300750', name: '宁德时代', yahoo: '300750.SZ' },
-  { code: '002594', name: '比亚迪', yahoo: '002594.SZ' },
-  { code: '513310', name: '中韩半导体ETF', yahoo: '513310.SS' },
-  { code: '603986', name: '兆易创新', yahoo: '603986.SS' },
-  { code: '601138', name: '工业富联', yahoo: '601138.SS' },
-  { code: '002475', name: '立讯精密', yahoo: '002475.SZ' },
-  { code: '002156', name: '通富微电', yahoo: '002156.SZ' },
-  { code: '601020', name: '华钰矿业', yahoo: '601020.SS' },
-  { code: '600036', name: '招商银行', yahoo: '600036.SS' },
-  { code: '000333', name: '美的集团', yahoo: '000333.SZ' },
-  { code: '603191', name: '望变电气', yahoo: '603191.SS' },
-  { code: '600089', name: '特变电工', yahoo: '600089.SS' },
-  { code: '000617', name: '中油资本', yahoo: '000617.SZ' },
-  { code: '601318', name: '中国平安', yahoo: '601318.SS' },
-  { code: '601012', name: '隆基绿能', yahoo: '601012.SS' },
-  { code: '600276', name: '恒瑞医药', yahoo: '600276.SS' },
-  { code: '603259', name: '药明康德', yahoo: '603259.SS' },
-  { code: '000858', name: '五粮液', yahoo: '000858.SZ' },
-  { code: '600900', name: '长江电力', yahoo: '600900.SS' },
-]
-
-const INITIAL_CAPITAL = 1000000
+import { STOCKS_LIST, DEFAULT_STOCK, INITIAL_CAPITAL } from '../../../lib'
 
 export default function StockBacktestPage() {
-  const [selectedStock, setSelectedStock] = useState(STOCKS[5]) // 默认工业富联
+  const [selectedStock, setSelectedStock] = useState(DEFAULT_STOCK)
   const [shares, setShares] = useState(100)
   const [currentPrice, setCurrentPrice] = useState(null)
   const [result, setResult] = useState(null)
@@ -125,7 +100,7 @@ export default function StockBacktestPage() {
     try {
       // 获取所有股票的数据
       const allStockData = await Promise.all(
-        STOCKS.map(async (stock) => {
+        STOCKS_LIST.map(async (stock) => {
           try {
             const res = await fetch(`/api/stock/history?code=${stock.code}&days=7`)
             const data = await res.json()
@@ -446,7 +421,7 @@ export default function StockBacktestPage() {
               </label>
               <select
                 value={selectedStock.code}
-                onChange={(e) => setSelectedStock(STOCKS.find(s => s.code === e.target.value))}
+                onChange={(e) => setSelectedStock(STOCKS_LIST.find(s => s.code === e.target.value))}
                 className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white appearance-none cursor-pointer hover:bg-white/15 transition-colors"
                 style={{
                   backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='white'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
@@ -455,7 +430,7 @@ export default function StockBacktestPage() {
                   backgroundSize: '20px',
                 }}
               >
-                {STOCKS.map(stock => (
+                {STOCKS_LIST.map(stock => (
                   <option key={stock.code} value={stock.code} className="bg-slate-800 text-white">
                     {stock.name} ({stock.code})
                   </option>

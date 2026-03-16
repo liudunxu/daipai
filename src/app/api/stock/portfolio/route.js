@@ -1,59 +1,14 @@
 import { NextResponse } from 'next/server'
 import { redis } from '../../../../lib/redis'
+import { STOCKS, INITIAL_CAPITAL, REDIS_KEYS, getWeekStart, getWeekNumber } from '../../../../lib'
 
-const PORTFOLIO_KEY = 'stock:portfolio'
-const TRADES_KEY = 'stock:trades'
-
-// 股票代码映射
-const STOCKS = {
-  '600519': { name: '贵州茅台' },
-  '300750': { name: '宁德时代' },
-  '002594': { name: '比亚迪' },
-  '513310': { name: '中韩半导体ETF' },
-  '603986': { name: '兆易创新' },
-  '601138': { name: '工业富联' },
-  '002475': { name: '立讯精密' },
-  '002156': { name: '通富微电' },
-  '601020': { name: '华钰矿业' },
-  '600036': { name: '招商银行' },
-  '000333': { name: '美的集团' },
-  '603191': { name: '望变电气' },
-  '600089': { name: '特变电工' },
-  '000617': { name: '中油资本' },
-  '601318': { name: '中国平安' },
-  '601012': { name: '隆基绿能' },
-  '600276': { name: '恒瑞医药' },
-  '603259': { name: '药明康德' },
-  '000858': { name: '五粮液' },
-  '600900': { name: '长江电力' },
-}
-
-const INITIAL_CAPITAL = 1000000
-
-// 获取本周开始日期（周一）
-function getWeekStart(date) {
-  const d = new Date(date)
-  const day = d.getDay()
-  const diff = d.getDate() - day + (day === 0 ? -6 : 1)
-  d.setDate(diff)
-  d.setHours(0, 0, 0, 0)
-  return d.toISOString().split('T')[0]
-}
-
-// 获取周数
-function getWeekNumber(date) {
-  const d = new Date(date)
-  d.setHours(0, 0, 0, 0)
-  d.setDate(d.getDate() + 4 - (d.getDay() || 7))
-  const yearStart = new Date(d.getFullYear(), 0, 1)
-  return Math.ceil((((d - yearStart) / 86400000) + 1) / 7)
-}
+const { PORTFOLIO, TRADES } = REDIS_KEYS
 
 // GET 获取持仓和历史记录
 export async function GET(request) {
   try {
-    const portfolio = await redis.hgetall(PORTFOLIO_KEY) || {}
-    const records = await redis.lrange(TRADES_KEY, 0, 49)
+    const portfolio = await redis.hgetall(PORTFOLIO) || {}
+    const records = await redis.lrange(TRADES, 0, 49)
 
     const now = new Date()
     const weekStart = getWeekStart(now)
@@ -97,15 +52,15 @@ export async function GET(request) {
               profit: portfolio.weekProfit ? parseFloat(portfolio.weekProfit) : 0,
               endTime: now.toISOString(),
             }
-            await redis.lpush(TRADES_KEY, JSON.stringify(weekRecord))
-            await redis.ltrim(TRADES_KEY, 0, 49)
+            await redis.lpush(TRADES, JSON.stringify(weekRecord))
+            await redis.ltrim(TRADES, 0, 49)
           }
         }
       }
       // 重置
       cash = INITIAL_CAPITAL
       holdings = []
-      await redis.hdel(PORTFOLIO_KEY, 'holdings', 'stockCode', 'stockName', 'weekProfit')
+      await redis.hdel(PORTFOLIO, 'holdings', 'stockCode', 'stockName', 'weekProfit')
     }
 
     // 获取本周交易记录
@@ -197,7 +152,7 @@ export async function POST(request) {
     const weekStart = getWeekStart(now)
 
     // 获取当前持仓
-    const portfolio = await redis.hgetall(PORTFOLIO_KEY) || {}
+    const portfolio = await redis.hgetall(PORTFOLIO) || {}
     let cash = portfolio.cash ? parseFloat(portfolio.cash) : INITIAL_CAPITAL
 
     // 检查是否新周期
@@ -205,7 +160,7 @@ export async function POST(request) {
     if (savedWeekStart !== weekStart) {
       // 新周期，重置
       cash = INITIAL_CAPITAL
-      await redis.hset(PORTFOLIO_KEY, {
+      await redis.hset(PORTFOLIO, {
         cash: cash.toString(),
         weekStart,
       })
@@ -262,7 +217,7 @@ export async function POST(request) {
         holdings.push(newHolding)
       }
 
-      await redis.hset(PORTFOLIO_KEY, {
+      await redis.hset(PORTFOLIO, {
         cash: cash.toString(),
         holdings: JSON.stringify(holdings),
         weekStart,
@@ -304,8 +259,8 @@ export async function POST(request) {
         profitPercent: ((price - holding.buyPrice) / holding.buyPrice * 100).toFixed(2),
         tradeTime: now.toISOString(),
       }
-      await redis.lpush(TRADES_KEY, JSON.stringify(tradeRecord))
-      await redis.ltrim(TRADES_KEY, 0, 49)
+      await redis.lpush(TRADES, JSON.stringify(tradeRecord))
+      await redis.ltrim(TRADES, 0, 49)
 
       // 更新持仓
       holdings[holdingIndex].shares -= shareCount
@@ -313,7 +268,7 @@ export async function POST(request) {
         holdings.splice(holdingIndex, 1)
       }
 
-      await redis.hset(PORTFOLIO_KEY, {
+      await redis.hset(PORTFOLIO, {
         cash: cash.toString(),
         holdings: JSON.stringify(holdings),
         weekStart,
