@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { redis } from '../../../../lib/redis'
 
 const PORTFOLIO_KEY = 'stock:portfolio'
+const TRADES_KEY = 'stock:trades'
 
 // 股票代码映射
 const STOCKS = {
@@ -27,19 +28,38 @@ const STOCKS = {
   '600900': { name: '长江电力' },
 }
 
-// 初始资金
 const INITIAL_CAPITAL = 100000
+
+// 获取本周开始日期（周一）
+function getWeekStart(date) {
+  const d = new Date(date)
+  const day = d.getDay()
+  const diff = d.getDate() - day + (day === 0 ? -6 : 1)
+  d.setDate(diff)
+  d.setHours(0, 0, 0, 0)
+  return d.toISOString().split('T')[0]
+}
+
+// 获取周数
+function getWeekNumber(date) {
+  const d = new Date(date)
+  d.setHours(0, 0, 0, 0)
+  d.setDate(d.getDate() + 4 - (d.getDay() || 7))
+  const yearStart = new Date(d.getFullYear(), 0, 1)
+  return Math.ceil((((d - yearStart) / 86400000) + 1) / 7)
+}
 
 // GET 获取持仓和历史记录
 export async function GET(request) {
   try {
     const portfolio = await redis.hgetall(PORTFOLIO_KEY) || {}
-    const records = await redis.lrange('stock:trades', 0, 49)
+    const records = await redis.lrange(TRADES_KEY, 0, 49)
 
-    // 获取当前周期信息
-    const currentWeek = getWeekNumber(new Date())
+    const now = new Date()
+    const weekStart = getWeekStart(now)
+    const currentWeek = getWeekNumber(now)
 
-    // 解析 holdings，可能是字符串或对象
+    // 解析 holdings
     let holdings = null
     if (portfolio.holdings) {
       try {
@@ -49,15 +69,68 @@ export async function GET(request) {
       }
     }
 
+    // 检查是否需要重置（每周一）
+    const savedWeekStart = portfolio.weekStart || null
+    let cash = INITIAL_CAPITAL
+    let weekProfit = 0
+    let weekRecords = []
+
+    if (savedWeekStart === weekStart) {
+      // 本周
+      cash = portfolio.cash ? parseFloat(portfolio.cash) : INITIAL_CAPITAL
+    } else {
+      // 新周，结算上周
+      if (holdings && holdings.shares > 0) {
+        // 上周有持仓，需要结算
+        const weekRecord = {
+          weekStart: savedWeekStart,
+          code: portfolio.stockCode,
+          name: portfolio.stockName,
+          shares: holdings.shares,
+          buyPrice: holdings.buyPrice,
+          sellPrice: holdings.sellPrice || 0,
+          profit: portfolio.weekProfit ? parseFloat(portfolio.weekProfit) : 0,
+          endTime: now.toISOString(),
+        }
+        await redis.lpush(TRADES_KEY, JSON.stringify(weekRecord))
+        await redis.ltrim(TRADES_KEY, 0, 49)
+      }
+      // 重置
+      cash = INITIAL_CAPITAL
+      holdings = null
+      await redis.hdel(PORTFOLIO_KEY, 'holdings', 'stockCode', 'stockName', 'weekProfit')
+    }
+
+    // 获取本周交易记录
+    const currentRecords = records.filter(r => {
+      try {
+        const record = typeof r === 'string' ? JSON.parse(r) : r
+        return record.weekStart === weekStart
+      } catch {
+        return false
+      }
+    })
+
+    // 计算本周总盈亏
+    weekProfit = currentRecords.reduce((sum, r) => {
+      try {
+        const record = typeof r === 'string' ? JSON.parse(r) : r
+        return sum + (record.profit || 0)
+      } catch {
+        return sum
+      }
+    }, 0)
+
     return NextResponse.json({
-      cash: portfolio.cash ? parseFloat(portfolio.cash) : INITIAL_CAPITAL,
+      cash,
       holdings,
       currentPrice: portfolio.currentPrice ? parseFloat(portfolio.currentPrice) : null,
       stockCode: portfolio.stockCode || null,
       stockName: portfolio.stockName || null,
-      weekStart: portfolio.weekStart || null,
+      weekStart,
       currentWeek,
-      records: records.map(r => JSON.parse(r)),
+      weekProfit,
+      records: records.map(r => JSON.parse(r)).filter(Boolean),
       initialCapital: INITIAL_CAPITAL,
     })
   } catch (error) {
@@ -65,6 +138,9 @@ export async function GET(request) {
     return NextResponse.json({
       cash: INITIAL_CAPITAL,
       holdings: null,
+      weekStart: getWeekStart(new Date()),
+      currentWeek: getWeekNumber(new Date()),
+      weekProfit: 0,
       records: [],
       initialCapital: INITIAL_CAPITAL,
     })
@@ -85,10 +161,25 @@ export async function POST(request) {
       return NextResponse.json({ error: '无效的股票代码' }, { status: 400 })
     }
 
+    const now = new Date()
+    const weekStart = getWeekStart(now)
+
     // 获取当前持仓
     const portfolio = await redis.hgetall(PORTFOLIO_KEY) || {}
     let cash = portfolio.cash ? parseFloat(portfolio.cash) : INITIAL_CAPITAL
-    // 解析 holdings，可能是字符串或对象
+
+    // 检查是否新周期
+    const savedWeekStart = portfolio.weekStart || null
+    if (savedWeekStart !== weekStart) {
+      // 新周期，重置
+      cash = INITIAL_CAPITAL
+      await redis.hset(PORTFOLIO_KEY, {
+        cash: cash.toString(),
+        weekStart,
+      })
+    }
+
+    // 解析 holdings
     let holdings = null
     if (portfolio.holdings) {
       try {
@@ -98,42 +189,13 @@ export async function POST(request) {
       }
     }
 
-    // 检查是否在新周期（每周一重置）
-    const now = new Date()
-    const weekStart = getWeekStart(now)
-    const savedWeekStart = portfolio.weekStart || null
-
-    // 如果是新周期，重置持仓
-    if (savedWeekStart && savedWeekStart !== weekStart) {
-      // 保存上周记录
-      if (holdings && holdings.shares > 0) {
-        const weekRecord = {
-          weekStart: savedWeekStart,
-          code: portfolio.stockCode,
-          name: portfolio.stockName,
-          shares: holdings.shares,
-          buyPrice: holdings.buyPrice,
-          sellPrice: price,
-          profit: (price - holdings.buyPrice) * holdings.shares,
-          profitPercent: ((price - holdings.buyPrice) / holdings.buyPrice * 100).toFixed(2),
-          endTime: now.toISOString(),
-        }
-        await redis.lpush('stock:trades', JSON.stringify(weekRecord))
-        await redis.ltrim('stock:trades', 0, 49)
-      }
-
-      // 重置
-      cash = INITIAL_CAPITAL
-      holdings = null
-    }
-
     const shareCount = parseInt(shares) || 100
 
     if (action === 'buy') {
       // 买入
       const cost = price * shareCount
       if (cost > cash) {
-        return NextResponse.json({ error: '资金不足' }, { status: 400 })
+        return NextResponse.json({ error: `资金不足，需要 ¥${cost.toFixed(2)}，可用 ¥${cash.toFixed(2)}` }, { status: 400 })
       }
 
       cash -= cost
@@ -174,13 +236,28 @@ export async function POST(request) {
 
       const revenue = price * shareCount
       cash += revenue
-      holdings.shares -= shareCount
-
       const profit = (price - holdings.buyPrice) * shareCount
 
+      // 记录这笔交易
+      const tradeRecord = {
+        weekStart,
+        code,
+        name: stock.name,
+        shares: shareCount,
+        buyPrice: holdings.buyPrice,
+        sellPrice: price,
+        profit,
+        profitPercent: ((price - holdings.buyPrice) / holdings.buyPrice * 100).toFixed(2),
+        tradeTime: now.toISOString(),
+      }
+      await redis.lpush(TRADES_KEY, JSON.stringify(tradeRecord))
+      await redis.ltrim(TRADES_KEY, 0, 49)
+
+      // 更新持仓
+      holdings.shares -= shareCount
       if (holdings.shares === 0) {
         holdings = null
-        await redis.hdel(PORTFOLIO_KEY, 'stockCode', 'stockName', 'holdings')
+        await redis.hdel(PORTFOLIO_KEY, 'holdings', 'stockCode', 'stockName')
       } else {
         await redis.hset(PORTFOLIO_KEY, {
           holdings: JSON.stringify(holdings),
@@ -199,6 +276,7 @@ export async function POST(request) {
         cash,
         holdings,
         profit,
+        profitPercent: holdings ? ((price - holdings.buyPrice) / holdings.buyPrice * 100).toFixed(2) : '0',
         message: `卖出 ${stock.name} ${shareCount}股，收入 ¥${revenue.toFixed(2)}，盈亏 ¥${profit.toFixed(2)}`,
       })
     }
@@ -208,22 +286,4 @@ export async function POST(request) {
     console.error('操作失败:', error)
     return NextResponse.json({ error: '操作失败' }, { status: 500 })
   }
-}
-
-// 获取本周开始日期（周一）
-function getWeekStart(date) {
-  const d = new Date(date)
-  const day = d.getDay()
-  const diff = d.getDate() - day + (day === 0 ? -6 : 1)
-  d.setDate(diff)
-  return d.toISOString().split('T')[0]
-}
-
-// 获取周数
-function getWeekNumber(date) {
-  const d = new Date(date)
-  d.setHours(0, 0, 0, 0)
-  d.setDate(d.getDate() + 4 - (d.getDay() || 7))
-  const yearStart = new Date(d.getFullYear(), 0, 1)
-  return Math.ceil((((d - yearStart) / 86400000) + 1) / 7)
 }

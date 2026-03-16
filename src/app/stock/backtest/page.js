@@ -42,6 +42,7 @@ export default function StockBacktestPage() {
   const [stockCode, setStockCode] = useState(null)
   const [stockName, setStockName] = useState(null)
   const [weekStart, setWeekStart] = useState(null)
+  const [weekProfit, setWeekProfit] = useState(0)
   const [records, setRecords] = useState([])
   const [currentWeek, setCurrentWeek] = useState(1)
   const [message, setMessage] = useState(null)
@@ -78,6 +79,7 @@ export default function StockBacktestPage() {
       setStockCode(data.stockCode)
       setStockName(data.stockName)
       setWeekStart(data.weekStart)
+      setWeekProfit(data.weekProfit || 0)
       setRecords(data.records || [])
       setCurrentWeek(data.currentWeek)
     } catch (err) {
@@ -111,7 +113,7 @@ export default function StockBacktestPage() {
 
       // 计算每天的表现（以当天开盘价买入，最后一天收盘价计算）
       const basePrice = historyData[0].open
-      const dailyData = historyData.map((day, index) => {
+      const dailyData = historyData.map((day) => {
         const profitLoss = (day.close - basePrice) * shares
         const profitLossPercent = ((day.close - basePrice) / basePrice) * 100
 
@@ -211,8 +213,8 @@ export default function StockBacktestPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: 'sell',
-          code: selectedStock.code,
-          shares: holdings.shares, // 全部卖出
+          code: holdings.code,
+          shares: holdings.shares,
           price: currentPrice,
         })
       })
@@ -231,45 +233,78 @@ export default function StockBacktestPage() {
     setIsLoading(false)
   }
 
-  // 当前持仓市值
+  // 当前持仓市值和盈亏
   const holdingsValue = holdings && currentPrice ? (holdings.shares * currentPrice).toFixed(2) : null
   const holdingsProfit = holdings && currentPrice ? ((currentPrice - holdings.buyPrice) * holdings.shares).toFixed(2) : null
+  const holdingsProfitPercent = holdings && currentPrice ? ((currentPrice - holdings.buyPrice) / holdings.buyPrice * 100).toFixed(2) : null
+
+  // 本周收益
+  const totalAsset = cash + (holdingsValue ? parseFloat(holdingsValue) : 0)
+  const weekTotalProfit = weekProfit + (holdingsProfit ? parseFloat(holdingsProfit) : 0)
+  const weekProfitPercent = ((totalAsset - INITIAL_CAPITAL) / INITIAL_CAPITAL * 100).toFixed(2)
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4 md:p-8">
       <div className="max-w-4xl mx-auto">
         {/* 标题 */}
-        <header className="text-center mb-8">
-          <h1 className="text-3xl md:text-4xl font-black text-white mb-3">
+        <header className="text-center mb-6">
+          <h1 className="text-3xl md:text-4xl font-black text-white mb-2">
             📈 股票实盘模拟
           </h1>
           <p className="text-white/60">
-            初始资金 ¥{INITIAL_CAPITAL.toLocaleString()} · 每周结算
+            第{currentWeek}周 · 初始资金 ¥{INITIAL_CAPITAL.toLocaleString()}
           </p>
         </header>
 
-        {/* 资金状态 */}
-        <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 mb-6 border border-white/10">
-          <div className="grid grid-cols-3 gap-4 text-center">
+        {/* 本周收益 */}
+        <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 mb-4 border border-white/10">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
             <div>
               <p className="text-white/50 text-xs">可用资金</p>
-              <p className="text-white text-xl font-bold">¥{cash.toLocaleString()}</p>
+              <p className="text-white text-lg font-bold">¥{cash.toLocaleString()}</p>
             </div>
             <div>
-              <p className="text-white/50 text-xs">持仓</p>
-              <p className="text-white text-xl font-bold">
-                {holdings ? `${holdings.name} ${holdings.shares}股` : '-'}
+              <p className="text-white/50 text-xs">持仓市值</p>
+              <p className="text-white text-lg font-bold">
+                {holdingsValue ? `¥${parseFloat(holdingsValue).toLocaleString()}` : '-'}
               </p>
             </div>
             <div>
-              <p className="text-white/50 text-xs">市值/盈亏</p>
-              <p className={`text-xl font-bold ${holdingsProfit && parseFloat(holdingsProfit) >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                {holdingsValue ? `¥${parseFloat(holdingsValue).toLocaleString()}` : '-'}
-                {holdingsProfit && ` (${parseFloat(holdingsProfit) >= 0 ? '+' : ''}${holdingsProfit})`}
+              <p className="text-white/50 text-xs">持仓盈亏</p>
+              <p className={`text-lg font-bold ${holdingsProfit && parseFloat(holdingsProfit) >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                {holdingsProfit ? `${parseFloat(holdingsProfit) >= 0 ? '+' : ''}¥${holdingsProfit}` : '-'}
+              </p>
+            </div>
+            <div>
+              <p className="text-white/50 text-xs">本周总收益</p>
+              <p className={`text-lg font-bold ${parseFloat(weekTotalProfit) >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                {parseFloat(weekTotalProfit) >= 0 ? '+' : ''}¥{weekTotalProfit.toFixed(2)} ({weekProfitPercent}%)
               </p>
             </div>
           </div>
         </div>
+
+        {/* 当前持仓 */}
+        {holdings && (
+          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 mb-4 border border-white/10">
+            <div className="flex justify-between items-center">
+              <div>
+                <p className="text-white font-bold">{holdings.name}</p>
+                <p className="text-white/50 text-sm">
+                  买入价 ¥{holdings.buyPrice.toFixed(2)} × {holdings.shares}股
+                </p>
+              </div>
+              <div className="text-right">
+                <p className="text-white font-bold">
+                  {currentPrice ? `¥${currentPrice.toFixed(2)}` : '加载中...'}
+                </p>
+                <p className={`text-sm ${holdingsProfitPercent && parseFloat(holdingsProfitPercent) >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                  {holdingsProfitPercent && `${parseFloat(holdingsProfitPercent) >= 0 ? '+' : ''}${holdingsProfitPercent}%`}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* 选择区域 */}
         <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 mb-6 border border-white/10">
@@ -384,20 +419,20 @@ export default function StockBacktestPage() {
           <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 mb-6 border border-white/10">
             <h2 className="text-white font-bold text-lg mb-4">📋 历史交易</h2>
             <div className="space-y-3">
-              {records.map((record, index) => (
+              {records.slice(0, 10).map((record, index) => (
                 <div key={index} className="p-3 bg-white/5 rounded-xl flex justify-between items-center">
                   <div>
                     <p className="text-white font-bold">{record.name}</p>
                     <p className="text-white/50 text-xs">
-                      买: ¥{record.buyPrice} → 卖: ¥{record.sellPrice} · {record.shares}股
+                      买: ¥{record.buyPrice} → 卖: ¥{record.sellPrice} · {record.shares}股 · 第{record.weekStart}周
                     </p>
                   </div>
                   <div className="text-right">
                     <p className={`font-bold ${parseFloat(record.profit) >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                      {parseFloat(record.profit) >= 0 ? '+' : ''}¥{record.profit.toFixed(2)}
+                      {parseFloat(record.profit) >= 0 ? '+' : ''}¥{parseFloat(record.profit).toFixed(2)}
                     </p>
                     <p className={`text-xs ${parseFloat(record.profitPercent) >= 0 ? 'text-green-400/70' : 'text-red-400/70'}`}>
-                      {parseFloat(record.profitPercent) >= 0 ? '+' : ''}{record.profitPercent}%
+                      {record.profitPercent && `${parseFloat(record.profitPercent) >= 0 ? '+' : ''}${record.profitPercent}%`}
                     </p>
                   </div>
                 </div>
