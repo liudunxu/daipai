@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import ShareButtons from '../../components/ShareButtons'
 
 // 2026年吉日（简化版）
@@ -57,9 +57,11 @@ export default function WeddingPage() {
   const [year, setYear] = useState(2026)
   const [month, setMonth] = useState(0) // 0 表示全年
 
-  const filteredDays = month === 0
-    ? goodDays.filter(d => d.month >= new Date().getMonth() + 1)
-    : goodDays.filter(d => d.month === month)
+  const filteredDays = useMemo(() => {
+    return month === 0
+      ? goodDays.filter(d => d.month >= new Date().getMonth() + 1)
+      : goodDays.filter(d => d.month === month)
+  }, [month])
 
   const years = [2026, 2027, 2028, 2029, 2030]
 

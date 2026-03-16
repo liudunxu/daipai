@@ -61,10 +61,18 @@ export default function HuangliPage() {
     const info = getTodayInfo()
     setTodayInfo(info)
 
-    // 根据日期生成宜忌（伪随机）
-    const seed = info.year + info.month + info.day
-    const randomYiji = [...yijiList].sort(() => Math.sin(seed) - 0.5).slice(0, 6)
-    const randomJiji = [...jijiList].sort(() => Math.cos(seed) - 0.5).slice(0, 3)
+    // 根据日期生成确定的宜忌
+    const seed = info.year * 10000 + info.month * 100 + info.day
+    const yijiCount = 6
+    const jijiCount = 3
+    const randomYiji = []
+    const randomJiji = []
+    for (let i = 0; i < yijiCount; i++) {
+      randomYiji.push(yijiList[(seed + i) % yijiList.length])
+    }
+    for (let i = 0; i < jijiCount; i++) {
+      randomJiji.push(jijiList[(seed + i) % jijiList.length])
+    }
     setYiji(randomYiji)
     setJiji(randomJiji)
   }, [])

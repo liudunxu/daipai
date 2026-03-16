@@ -34,6 +34,21 @@ function getBazi(year, month, day, hour) {
   return { gan, zhi, wux }
 }
 
+// Pre-computed date arrays
+const years = Array.from({ length: 100 }, (_, i) => 1950 + i)
+const months = Array.from({ length: 12 }, (_, i) => i + 1)
+const days = Array.from({ length: 31 }, (_, i) => i + 1)
+const hours = Array.from({ length: 24 }, (_, i) => i)
+
+// Pre-defined wuxing analysis
+const wuxingAnalysis = {
+  '木': '你属木，木主仁，个性温和善良，有生发之气。',
+  '火': '你属火，火主礼，热情开朗，精力充沛。',
+  '土': '你属土，土主信，为人稳重，诚实可靠。',
+  '金': '你属金，金主义，性格刚毅，有决断力。',
+  '水': '你属水，水主智，聪明灵活，富有创造力。',
+}
+
 export default function BaziPage() {
   const [birth, setBirth] = useState({ year: 2000, month: 1, day: 1, hour: 12 })
   const [result, setResult] = useState(null)
@@ -42,15 +57,6 @@ export default function BaziPage() {
     const bazi = getBazi(birth.year, birth.month, birth.day, birth.hour)
     const key = `${bazi.gan}${bazi.zhi}的`
     const desc = baziDesc[key] || '命运掌握在自己手中，努力创造美好未来！'
-
-    // 五行分析
-    const wuxingAnalysis = {
-      '木': '你属木，木主仁，个性温和善良，有生发之气。',
-      '火': '你属火，火主礼，热情开朗，精力充沛。',
-      '土': '你属土，土主信，为人稳重，诚实可靠。',
-      '金': '你属金，金主义，性格刚毅，有决断力。',
-      '水': '你属水，水主智，聪明灵活，适应力强。',
-    }
 
     setResult({
       bazi: `${bazi.gan}${bazi.zhi}`,
@@ -63,11 +69,6 @@ export default function BaziPage() {
       hour: birth.hour,
     })
   }
-
-  const years = Array.from({ length: 100 }, (_, i) => 1950 + i)
-  const months = Array.from({ length: 12 }, (_, i) => i + 1)
-  const days = Array.from({ length: 31 }, (_, i) => i + 1)
-  const hours = Array.from({ length: 24 }, (_, i) => i)
 
   return (
     <>

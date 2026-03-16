@@ -47,6 +47,12 @@ const fateDesc = {
   22: '命运中平，需靠努力才能成功。',
 }
 
+// Pre-computed date arrays
+const years = Array.from({ length: 90 }, (_, i) => 1940 + i)
+const months = Array.from({ length: 12 }, (_, i) => i + 1)
+const days = Array.from({ length: 31 }, (_, i) => i + 1)
+const hours = Array.from({ length: 24 }, (_, i) => i)
+
 export default function ChengguPage() {
   const [birth, setBirth] = useState({ year: 2000, month: 1, day: 1, hour: 12 })
   const [result, setResult] = useState(null)
@@ -66,11 +72,6 @@ export default function ChengguPage() {
       desc,
     })
   }
-
-  const years = Array.from({ length: 90 }, (_, i) => 1940 + i)
-  const months = Array.from({ length: 12 }, (_, i) => i + 1)
-  const days = Array.from({ length: 31 }, (_, i) => i + 1)
-  const hours = Array.from({ length: 24 }, (_, i) => i)
 
   return (
     <>

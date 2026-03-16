@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef } from 'react'
+import ShareButtons from '../../components/ShareButtons'
 
 const cakeColors = [
   { name: '粉色浪漫', bg: 'from-pink-400 to-rose-400', candle: 'pink' },
@@ -117,6 +118,8 @@ export default function CakePage() {
           <p className="text-white/50 text-sm text-center mb-4">
             📸 截图保存蛋糕图片，分享给朋友！
           </p>
+
+          <ShareButtons title="生日蛋糕许愿 - 生成你的生日祝福" url="/cake" />
 
           <footer className="mt-8 text-center">
             <a href="/nav" className="text-white/40 hover:text-white/60 text-sm">
