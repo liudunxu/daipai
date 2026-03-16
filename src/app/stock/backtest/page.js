@@ -29,7 +29,7 @@ const STOCKS = [
 const INITIAL_CAPITAL = 1000000
 
 export default function StockBacktestPage() {
-  const [selectedStock, setSelectedStock] = useState(STOCKS[0])
+  const [selectedStock, setSelectedStock] = useState(STOCKS[5]) // 默认工业富联
   const [shares, setShares] = useState(100)
   const [currentPrice, setCurrentPrice] = useState(null)
   const [result, setResult] = useState(null)
@@ -577,7 +577,7 @@ export default function StockBacktestPage() {
                   <div>
                     <p className="text-white font-bold">{record.name}</p>
                     <p className="text-white/50 text-xs">
-                      买: ¥{record.buyPrice} → 卖: ¥{record.sellPrice} · {record.shares}股 · 第{record.weekStart}周
+                      买: ¥{record.buyPrice} → 卖: ¥{record.sellPrice} · {record.shares}股 · 第{record.weekStart}周 · {new Date(record.tradeTime).toLocaleString('zh-CN', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                     </p>
                   </div>
                   <div className="text-right">
