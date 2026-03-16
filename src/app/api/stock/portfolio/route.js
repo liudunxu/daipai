@@ -233,22 +233,34 @@ export async function POST(request) {
         return NextResponse.json({ error: `资金不足，需要 ¥${cost.toFixed(2)}，可用 ¥${cash.toFixed(2)}` }, { status: 400 })
       }
 
-      // 检查是否已持有该股票
+      // 检查是否已持有该股票，如果是则累加股数并更新成本价
       const existingIndex = holdings.findIndex(h => h.code === code)
       if (existingIndex >= 0) {
-        return NextResponse.json({ error: `已持有 ${stock.name}，请先卖出后再买入` }, { status: 400 })
-      }
+        // 累加股数，按加权平均计算新的买入价
+        const existingHolding = holdings[existingIndex]
+        const totalShares = existingHolding.shares + shareCount
+        const newBuyPrice = ((existingHolding.shares * existingHolding.buyPrice) + (shareCount * price)) / totalShares
 
-      cash -= cost
-      // 添加新持仓到数组
-      const newHolding = {
-        code,
-        name: stock.name,
-        shares: shareCount,
-        buyPrice: price,
-        buyTime: now.toISOString(),
+        holdings[existingIndex] = {
+          ...existingHolding,
+          shares: totalShares,
+          buyPrice: newBuyPrice,
+          buyTime: now.toISOString(),
+        }
+
+        cash -= cost
+      } else {
+        cash -= cost
+        // 添加新持仓到数组
+        const newHolding = {
+          code,
+          name: stock.name,
+          shares: shareCount,
+          buyPrice: price,
+          buyTime: now.toISOString(),
+        }
+        holdings.push(newHolding)
       }
-      holdings.push(newHolding)
 
       await redis.hset(PORTFOLIO_KEY, {
         cash: cash.toString(),
