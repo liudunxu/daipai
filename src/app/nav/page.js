@@ -36,6 +36,7 @@ export default function NavPage() {
     { name: '🤳 AI撞脸测试', url: '/face', desc: '看你像哪个明星' },
     { name: '🎲 摇骰子', url: '/dice', desc: '在线摇骰子，趣味随机' },
     { name: '📊 今天会涨吗', url: '/stock', desc: '股市行情预测，娱乐一下' },
+    { name: '📈 股票回测', url: '/stock/backtest', desc: '模拟一周股票表现' },
     { name: '📛 姓名大全', url: '/names', desc: '100个常用人名' },
     { name: '🔥 热搜榜', url: '/trending', desc: '微博、知乎、百度热搜' },
     { name: '🦶 足部护理', url: '/daipai', desc: '东北雨姐推荐' },
