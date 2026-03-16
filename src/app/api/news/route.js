@@ -10,24 +10,20 @@ const CACHE_KEY = 'geekwatch:news'
 
 // 资讯源配置
 const NEWS_SOURCES = [
+  // 经济资讯 - 财联社
+  {
+    name: '财联社',
+    tag: '经济',
+    color: 'emerald',
+    feedUrl: 'https://newsnow.busiyi.world/api/s?id=cls-telegraph',
+    type: 'api'
+  },
   // 经济资讯
   {
     name: '凤凰财经',
     tag: '经济',
-    color: 'emerald',
-    feedUrl: 'https://finance.ifeng.com/rss/'
-  },
-  {
-    name: '新浪财经',
-    tag: '经济',
     color: 'green',
-    feedUrl: 'https://rss.sina.com.cn/finance/yxw.xml'
-  },
-  {
-    name: '华尔街见闻',
-    tag: '经济',
-    color: 'yellow',
-    feedUrl: 'https://api.wallstreetcn.com/apiv1/content/rices?channel=global'
+    feedUrl: 'https://finance.ifeng.com/rss/'
   },
   // 科技/AI资讯
   {
@@ -115,10 +111,43 @@ async function fetchRSSNews(source) {
   }
 }
 
+// 获取财联社API数据
+async function fetchCLSNews(source) {
+  try {
+    const res = await fetch(source.feedUrl, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+      },
+      next: { revalidate: CACHE_TTL }
+    })
+    if (!res.ok) return []
+    const data = await res.json()
+    if (data.items && Array.isArray(data.items)) {
+      return data.items.slice(0, 15).map((item) => ({
+        id: item.id || item.url,
+        title: item.title,
+        desc: item.title,
+        url: item.url,
+        date: new Date(item.pubDate).toISOString(),
+        source: source.name,
+        tag: source.tag,
+        color: source.color
+      }))
+    }
+    return []
+  } catch (error) {
+    console.error(`Error fetching ${source.name}:`, error)
+    return []
+  }
+}
+
 // 获取所有资讯
 async function fetchAllNews() {
   const results = await Promise.all(
     NEWS_SOURCES.map(async (source) => {
+      if (source.type === 'api') {
+        return fetchCLSNews(source)
+      }
       return fetchRSSNews(source)
     })
   )
