@@ -42,23 +42,30 @@ export async function GET(request) {
 
     // 计算日期范围（最近N个交易日）
     const period1 = new Date(now)
-    period1.setDate(period1.getDate() - days - 5) // 多取几天确保有足够数据
+    period1.setDate(period1.getDate() - days - 10) // 多取几天确保有足够数据
 
-    const quote = await yahooFinance.historical(stock.yahoo, {
-      period1,
-      period2: now,
-      period: '1d',
+    // 使用 chart API 获取数据
+    const quote = await yahooFinance.chart(stock.yahoo, {
+      period1: period1.toISOString().split('T')[0],
+      period2: now.toISOString().split('T')[0],
+      interval: '1d',
     })
 
-    // 只取最近 days 天的数据
-    const recentData = quote.slice(-days).map(item => ({
-      date: item.date.toISOString().split('T')[0],
-      open: item.open,
-      close: item.close,
-      high: item.high,
-      low: item.low,
-      volume: item.volume,
-    }))
+    // 解析 chart 返回的数据
+    const timestamps = quote.timestamp || []
+    const quotes = quote.indicators?.quote?.[0] || {}
+
+    const recentData = timestamps.slice(-days).map((ts, i) => {
+      const index = timestamps.length - days + i
+      return {
+        date: new Date(ts * 1000).toISOString().split('T')[0],
+        open: quotes.open?.[index] || 0,
+        close: quotes.close?.[index] || 0,
+        high: quotes.high?.[index] || 0,
+        low: quotes.low?.[index] || 0,
+        volume: quotes.volume?.[index] || 0,
+      }
+    }).filter(item => item.close > 0) // 过滤无效数据
 
     return NextResponse.json({
       code,
