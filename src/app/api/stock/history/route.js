@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server'
-import yahooFinance from 'yahoo-finance2'
+import YahooFinance from 'yahoo-finance2'
+
+const yahooFinance = new YahooFinance()
 
 // 股票代码映射：显示名称 -> Yahoo Finance 代码
 const STOCKS = {
