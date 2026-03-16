@@ -219,13 +219,6 @@ export default function StockBacktestPage() {
     setIsLoading(true)
     setMessage(null)
 
-    // 确认买入信息
-    const confirmMessage = `确认买入 ${selectedStock.name} ${shares}股，价格 ¥${currentPrice.toFixed(2)}，总计 ¥${(currentPrice * shares).toFixed(2)}？`
-    if (!confirm(confirmMessage)) {
-      setIsLoading(false)
-      return
-    }
-
     try {
       const res = await fetch('/api/stock/portfolio', {
         method: 'POST',
@@ -273,13 +266,6 @@ export default function StockBacktestPage() {
 
     setIsLoading(true)
     setMessage(null)
-
-    // 确认卖出信息
-    const confirmMessage = `确认卖出 ${holdingToSell.name} ${holdingToSell.shares}股，价格 ¥${price.toFixed(2)}，总计 ¥${(price * holdingToSell.shares).toFixed(2)}？`
-    if (!confirm(confirmMessage)) {
-      setIsLoading(false)
-      return
-    }
 
     try {
       const res = await fetch('/api/stock/portfolio', {
