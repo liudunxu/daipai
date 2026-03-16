@@ -151,7 +151,15 @@ export default function StockBacktestPage() {
 
   // 买入
   const handleBuy = async () => {
-    if (!currentPrice) return
+    if (!currentPrice) {
+      setMessage({ type: 'error', text: '价格加载中，请稍后重试' })
+      return
+    }
+
+    if (currentPrice * shares > cash) {
+      setMessage({ type: 'error', text: `资金不足，需要 ¥${(currentPrice * shares).toFixed(2)}，可用 ¥${cash.toFixed(2)}` })
+      return
+    }
 
     setIsLoading(true)
     setMessage(null)
@@ -184,7 +192,15 @@ export default function StockBacktestPage() {
 
   // 卖出
   const handleSell = async () => {
-    if (!currentPrice || !holdings) return
+    if (!holdings) {
+      setMessage({ type: 'error', text: '当前没有持仓' })
+      return
+    }
+
+    if (!currentPrice) {
+      setMessage({ type: 'error', text: '价格加载中，请稍后重试' })
+      return
+    }
 
     setIsLoading(true)
     setMessage(null)
@@ -343,7 +359,7 @@ export default function StockBacktestPage() {
 
             <button
               onClick={handleBuy}
-              disabled={isLoading || !currentPrice || (currentPrice * shares > cash)}
+              disabled={isLoading}
               className={`px-4 py-4 bg-gradient-to-r from-green-400 to-emerald-500 text-white font-bold text-lg rounded-xl shadow-lg transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed ${
                 isLoading ? 'animate-pulse' : ''
               }`}
@@ -353,7 +369,7 @@ export default function StockBacktestPage() {
 
             <button
               onClick={handleSell}
-              disabled={isLoading || !holdings || holdings.code !== selectedStock.code}
+              disabled={isLoading}
               className={`px-4 py-4 bg-gradient-to-r from-red-400 to-rose-500 text-white font-bold text-lg rounded-xl shadow-lg transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed ${
                 isLoading ? 'animate-pulse' : ''
               }`}
