@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 
-// 常用A股股票列表（使用 Yahoo Finance 代码格式）
+// 常用A股股票列表
 const STOCKS = [
   { code: '600519', name: '贵州茅台', yahoo: '600519.SS' },
   { code: '300750', name: '宁德时代', yahoo: '300750.SZ' },
@@ -26,16 +26,25 @@ const STOCKS = [
   { code: '600900', name: '长江电力', yahoo: '600900.SS' },
 ]
 
+const INITIAL_CAPITAL = 100000
+
 export default function StockBacktestPage() {
   const [selectedStock, setSelectedStock] = useState(STOCKS[0])
   const [shares, setShares] = useState(100)
   const [currentPrice, setCurrentPrice] = useState(null)
   const [result, setResult] = useState(null)
   const [isLoading, setIsLoading] = useState(false)
-  const [isRecording, setIsRecording] = useState(false)
-  const [records, setRecords] = useState([])
-  const [showRecords, setShowRecords] = useState(false)
   const [error, setError] = useState(null)
+
+  // 持仓状态
+  const [cash, setCash] = useState(INITIAL_CAPITAL)
+  const [holdings, setHoldings] = useState(null)
+  const [stockCode, setStockCode] = useState(null)
+  const [stockName, setStockName] = useState(null)
+  const [weekStart, setWeekStart] = useState(null)
+  const [records, setRecords] = useState([])
+  const [currentWeek, setCurrentWeek] = useState(1)
+  const [message, setMessage] = useState(null)
 
   // 获取当前股票价格
   useEffect(() => {
@@ -55,22 +64,28 @@ export default function StockBacktestPage() {
     fetchPrice()
   }, [selectedStock.code])
 
-  // 获取历史记录
+  // 获取持仓数据
   useEffect(() => {
-    fetchRecords()
+    fetchPortfolio()
   }, [])
 
-  const fetchRecords = async () => {
+  const fetchPortfolio = async () => {
     try {
-      const res = await fetch('/api/stock/record')
+      const res = await fetch('/api/stock/portfolio')
       const data = await res.json()
-      setRecords(data)
+      setCash(data.cash)
+      setHoldings(data.holdings)
+      setStockCode(data.stockCode)
+      setStockName(data.stockName)
+      setWeekStart(data.weekStart)
+      setRecords(data.records || [])
+      setCurrentWeek(data.currentWeek)
     } catch (err) {
-      console.error('获取记录失败:', err)
+      console.error('获取持仓失败:', err)
     }
   }
 
-  // 开始回测（获取真实历史数据展示）
+  // 查看历史表现
   const handleBacktest = async () => {
     if (isLoading) return
     setIsLoading(true)
@@ -94,7 +109,7 @@ export default function StockBacktestPage() {
         return
       }
 
-      // 计算每天的表现
+      // 计算每天的表现（以当天开盘价买入，最后一天收盘价计算）
       const basePrice = historyData[0].open
       const dailyData = historyData.map((day, index) => {
         const profitLoss = (day.close - basePrice) * shares
@@ -102,7 +117,6 @@ export default function StockBacktestPage() {
 
         return {
           date: new Date(day.date).toLocaleDateString('zh-CN', { month: 'numeric', day: 'numeric' }),
-          fullDate: new Date(day.date).toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' }),
           open: day.open.toFixed(2),
           close: day.close.toFixed(2),
           change: ((day.close - day.open) / day.open * 100).toFixed(2),
@@ -111,7 +125,6 @@ export default function StockBacktestPage() {
         }
       })
 
-      // 汇总
       const lastClose = historyData[historyData.length - 1].close
       const totalProfitLoss = (lastClose - basePrice) * shares
       const totalProfitLossPercent = ((lastClose - basePrice) / basePrice) * 100
@@ -124,8 +137,6 @@ export default function StockBacktestPage() {
           lastPrice: lastClose.toFixed(2),
           totalProfitLoss: totalProfitLoss.toFixed(2),
           totalProfitLossPercent: totalProfitLossPercent.toFixed(2),
-          totalValue: (lastClose * shares).toFixed(2),
-          totalCost: (basePrice * shares).toFixed(2),
           winDays: dailyData.filter(d => parseFloat(d.profitLoss) >= 0).length,
           totalDays: dailyData.length,
         }
@@ -138,16 +149,19 @@ export default function StockBacktestPage() {
     setIsLoading(false)
   }
 
-  // 记录买入选择
-  const handleRecord = async () => {
-    if (isRecording || !currentPrice) return
-    setIsRecording(true)
+  // 买入
+  const handleBuy = async () => {
+    if (!currentPrice) return
+
+    setIsLoading(true)
+    setMessage(null)
 
     try {
-      const res = await fetch('/api/stock/record', {
+      const res = await fetch('/api/stock/portfolio', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          action: 'buy',
           code: selectedStock.code,
           shares,
           price: currentPrice,
@@ -156,15 +170,54 @@ export default function StockBacktestPage() {
 
       const data = await res.json()
       if (data.success) {
-        await fetchRecords()
-        setShowRecords(true)
+        setMessage({ type: 'success', text: data.message })
+        await fetchPortfolio()
+      } else {
+        setMessage({ type: 'error', text: data.error })
       }
     } catch (err) {
-      console.error('记录失败:', err)
+      setMessage({ type: 'error', text: '操作失败' })
     }
 
-    setIsRecording(false)
+    setIsLoading(false)
   }
+
+  // 卖出
+  const handleSell = async () => {
+    if (!currentPrice || !holdings) return
+
+    setIsLoading(true)
+    setMessage(null)
+
+    try {
+      const res = await fetch('/api/stock/portfolio', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'sell',
+          code: selectedStock.code,
+          shares: holdings.shares, // 全部卖出
+          price: currentPrice,
+        })
+      })
+
+      const data = await res.json()
+      if (data.success) {
+        setMessage({ type: data.profit >= 0 ? 'success' : 'error', text: data.message })
+        await fetchPortfolio()
+      } else {
+        setMessage({ type: 'error', text: data.error })
+      }
+    } catch (err) {
+      setMessage({ type: 'error', text: '操作失败' })
+    }
+
+    setIsLoading(false)
+  }
+
+  // 当前持仓市值
+  const holdingsValue = holdings && currentPrice ? (holdings.shares * currentPrice).toFixed(2) : null
+  const holdingsProfit = holdings && currentPrice ? ((currentPrice - holdings.buyPrice) * holdings.shares).toFixed(2) : null
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4 md:p-8">
@@ -172,12 +225,35 @@ export default function StockBacktestPage() {
         {/* 标题 */}
         <header className="text-center mb-8">
           <h1 className="text-3xl md:text-4xl font-black text-white mb-3">
-            📈 股票回测
+            📈 股票实盘模拟
           </h1>
           <p className="text-white/60">
-            真实历史数据展示你的选择表现
+            初始资金 ¥{INITIAL_CAPITAL.toLocaleString()} · 每周结算
           </p>
         </header>
+
+        {/* 资金状态 */}
+        <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 mb-6 border border-white/10">
+          <div className="grid grid-cols-3 gap-4 text-center">
+            <div>
+              <p className="text-white/50 text-xs">可用资金</p>
+              <p className="text-white text-xl font-bold">¥{cash.toLocaleString()}</p>
+            </div>
+            <div>
+              <p className="text-white/50 text-xs">持仓</p>
+              <p className="text-white text-xl font-bold">
+                {holdings ? `${holdings.name} ${holdings.shares}股` : '-'}
+              </p>
+            </div>
+            <div>
+              <p className="text-white/50 text-xs">市值/盈亏</p>
+              <p className={`text-xl font-bold ${holdingsProfit && parseFloat(holdingsProfit) >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                {holdingsValue ? `¥${parseFloat(holdingsValue).toLocaleString()}` : '-'}
+                {holdingsProfit && ` (${parseFloat(holdingsProfit) >= 0 ? '+' : ''}${holdingsProfit})`}
+              </p>
+            </div>
+          </div>
+        </div>
 
         {/* 选择区域 */}
         <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 mb-6 border border-white/10">
@@ -209,7 +285,7 @@ export default function StockBacktestPage() {
             {/* 买入数量 */}
             <div>
               <label className="block text-white/70 text-sm mb-2 font-medium">
-                买入数量（股）
+                数量（股）
               </label>
               <input
                 type="number"
@@ -217,12 +293,12 @@ export default function StockBacktestPage() {
                 onChange={(e) => setShares(Math.max(1, parseInt(e.target.value) || 1))}
                 min="1"
                 className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-yellow-400/50 focus:border-transparent transition-colors"
-                placeholder="请输入买入数量"
+                placeholder="请输入数量"
               />
             </div>
           </div>
 
-          {/* 股票信息展示 */}
+          {/* 当前价格 */}
           <div className="mt-4 p-4 bg-white/5 rounded-xl">
             <div className="flex justify-between items-center">
               <div>
@@ -240,78 +316,79 @@ export default function StockBacktestPage() {
             </div>
           </div>
 
-          {/* 错误提示 */}
+          {/* 错误/提示信息 */}
           {error && (
             <div className="mt-4 p-3 bg-red-500/20 border border-red-500/30 rounded-xl text-red-300 text-sm text-center">
               {error}
             </div>
           )}
 
+          {message && (
+            <div className={`mt-4 p-3 rounded-xl text-sm text-center ${message.type === 'success' ? 'bg-green-500/20 border border-green-500/30 text-green-300' : 'bg-red-500/20 border border-red-500/30 text-red-300'}`}>
+              {message.text}
+            </div>
+          )}
+
           {/* 操作按钮 */}
-          <div className="grid md:grid-cols-2 gap-4 mt-6">
+          <div className="grid md:grid-cols-3 gap-4 mt-6">
             <button
               onClick={handleBacktest}
               disabled={isLoading}
-              className={`px-6 py-4 bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 text-white font-bold text-lg rounded-xl shadow-lg transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed ${
+              className={`px-4 py-4 bg-gradient-to-r from-blue-400 to-blue-600 text-white font-bold text-lg rounded-xl shadow-lg transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed ${
                 isLoading ? 'animate-pulse' : ''
               }`}
             >
-              {isLoading ? '🧐 获取数据中...' : '📊 查看历史表现'}
+              {isLoading ? '🧐...' : '📊 查走势'}
             </button>
 
             <button
-              onClick={handleRecord}
-              disabled={isRecording || !currentPrice}
-              className={`px-6 py-4 bg-gradient-to-r from-green-400 to-emerald-500 text-white font-bold text-lg rounded-xl shadow-lg transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed ${
-                isRecording ? 'animate-pulse' : ''
+              onClick={handleBuy}
+              disabled={isLoading || !currentPrice || (currentPrice * shares > cash)}
+              className={`px-4 py-4 bg-gradient-to-r from-green-400 to-emerald-500 text-white font-bold text-lg rounded-xl shadow-lg transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed ${
+                isLoading ? 'animate-pulse' : ''
               }`}
             >
-              {isRecording ? '💾 记录中...' : '💾 记录今日选择'}
+              {isLoading ? '💾...' : '✅ 买'}
+            </button>
+
+            <button
+              onClick={handleSell}
+              disabled={isLoading || !holdings || holdings.code !== selectedStock.code}
+              className={`px-4 py-4 bg-gradient-to-r from-red-400 to-rose-500 text-white font-bold text-lg rounded-xl shadow-lg transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed ${
+                isLoading ? 'animate-pulse' : ''
+              }`}
+            >
+              {isLoading ? '💰...' : '❌ 卖'}
             </button>
           </div>
         </div>
 
-        {/* 历史记录面板 */}
-        <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 mb-6 border border-white/10">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-white font-bold text-lg">📋 我的记录</h2>
-            <button
-              onClick={() => setShowRecords(!showRecords)}
-              className="text-white/60 hover:text-white text-sm"
-            >
-              {showRecords ? '收起' : '展开'}
-            </button>
-          </div>
-
-          {showRecords && records.length > 0 && (
+        {/* 历史交易记录 */}
+        {records.length > 0 && (
+          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 mb-6 border border-white/10">
+            <h2 className="text-white font-bold text-lg mb-4">📋 历史交易</h2>
             <div className="space-y-3">
               {records.map((record, index) => (
-                <div key={index} className="p-4 bg-white/5 rounded-xl">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <p className="text-white font-bold">{record.name}</p>
-                      <p className="text-white/50 text-sm">
-                        买入价: ¥{record.price.toFixed(2)} × {record.shares}股
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-white font-bold">¥{record.totalCost.toFixed(2)}</p>
-                      <p className="text-white/50 text-sm">{record.createdDate}</p>
-                    </div>
+                <div key={index} className="p-3 bg-white/5 rounded-xl flex justify-between items-center">
+                  <div>
+                    <p className="text-white font-bold">{record.name}</p>
+                    <p className="text-white/50 text-xs">
+                      买: ¥{record.buyPrice} → 卖: ¥{record.sellPrice} · {record.shares}股
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className={`font-bold ${parseFloat(record.profit) >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                      {parseFloat(record.profit) >= 0 ? '+' : ''}¥{record.profit.toFixed(2)}
+                    </p>
+                    <p className={`text-xs ${parseFloat(record.profitPercent) >= 0 ? 'text-green-400/70' : 'text-red-400/70'}`}>
+                      {parseFloat(record.profitPercent) >= 0 ? '+' : ''}{record.profitPercent}%
+                    </p>
                   </div>
                 </div>
               ))}
             </div>
-          )}
-
-          {showRecords && records.length === 0 && (
-            <p className="text-white/40 text-center py-4">暂无记录</p>
-          )}
-
-          {!showRecords && records.length > 0 && (
-            <p className="text-white/40 text-sm">点击展开查看 {records.length} 条记录</p>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* 回测结果 */}
         {result && (
@@ -382,7 +459,7 @@ export default function StockBacktestPage() {
 
         {/* 免责声明 */}
         <p className="text-white/30 text-xs text-center mt-8 px-4">
-          ⚠️ 股票数据来源于 Yahoo Finance，仅供参考，投资有风险，入市需谨慎
+          ⚠️ 股票数据来源于 Yahoo Finance，仅供模拟练习，投资有风险，入市需谨慎
         </p>
 
         {/* 底部 */}
