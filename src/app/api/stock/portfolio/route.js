@@ -28,7 +28,7 @@ const STOCKS = {
   '600900': { name: '长江电力' },
 }
 
-const INITIAL_CAPITAL = 100000
+const INITIAL_CAPITAL = 1000000
 
 // 获取本周开始日期（周一）
 function getWeekStart(date) {
