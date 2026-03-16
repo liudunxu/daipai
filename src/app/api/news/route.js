@@ -70,8 +70,8 @@ const NEWS_SOURCES = [
   }
 ]
 
-// 缓存时间（秒）- 5分钟
-const CACHE_TTL = 300
+// 缓存时间（秒）- 10分钟
+const CACHE_TTL = 600
 
 // 解析日期
 function parseDate(dateStr) {
@@ -218,28 +218,33 @@ async function fetchAllNews() {
   return interleaveNews(allNews)
 }
 
-export async function GET() {
+export async function GET(request) {
   try {
-    // 尝试从Redis获取缓存
-    const cached = await redis.get(CACHE_KEY)
-    if (cached) {
-      let data = cached
-      // 如果是字符串，尝试解析
-      if (typeof cached === 'string') {
-        try {
-          data = JSON.parse(cached)
-        } catch {
-          // 解析失败，忽略缓存
-          data = null
+    const { searchParams } = new URL(request.url)
+    const refresh = searchParams.get('refresh') === 'true'
+
+    // 除非明确要求刷新，否则尝试从缓存获取
+    if (!refresh) {
+      const cached = await redis.get(CACHE_KEY)
+      if (cached) {
+        let data = cached
+        // 如果是字符串，尝试解析
+        if (typeof cached === 'string') {
+          try {
+            data = JSON.parse(cached)
+          } catch {
+            // 解析失败，忽略缓存
+            data = null
+          }
         }
-      }
-      if (data && Array.isArray(data)) {
-        return NextResponse.json({
-          success: true,
-          data: data,
-          count: data.length,
-          cached: true
-        })
+        if (data && Array.isArray(data)) {
+          return NextResponse.json({
+            success: true,
+            data: data,
+            count: data.length,
+            cached: true
+          })
+        }
       }
     }
 
