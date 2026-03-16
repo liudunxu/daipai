@@ -10,35 +10,67 @@ const CACHE_KEY = 'geekwatch:news'
 
 // 资讯源配置
 const NEWS_SOURCES = [
-  // 经济资讯 - 凤凰网财经
+  // 经济资讯
   {
     name: '凤凰财经',
     tag: '经济',
     color: 'emerald',
-    feedUrl: 'https://finance.ifeng.com/rss/',
-    type: 'rss'
+    feedUrl: 'https://finance.ifeng.com/rss/'
+  },
+  {
+    name: '新浪财经',
+    tag: '经济',
+    color: 'green',
+    feedUrl: 'https://rss.sina.com.cn/finance/yxw.xml'
+  },
+  {
+    name: '华尔街见闻',
+    tag: '经济',
+    color: 'yellow',
+    feedUrl: 'https://api.wallstreetcn.com/apiv1/content/rices?channel=global'
   },
   // 科技/AI资讯
   {
     name: '36氪',
     tag: '科技',
     color: 'orange',
-    feedUrl: 'https://36kr.com/feed',
-    type: 'rss'
+    feedUrl: 'https://36kr.com/feed'
   },
   {
     name: '虎嗅',
     tag: '科技',
     color: 'red',
-    feedUrl: 'https://rss.huxiu.com/',
-    type: 'rss'
+    feedUrl: 'https://rss.huxiu.com/'
   },
   {
     name: 'IT之家',
     tag: '科技',
     color: 'blue',
-    feedUrl: 'https://www.ithome.com/rss',
-    type: 'rss'
+    feedUrl: 'https://www.ithome.com/rss'
+  },
+  {
+    name: '爱范儿',
+    tag: '科技',
+    color: 'purple',
+    feedUrl: 'https://www.ifanr.com/feed'
+  },
+  {
+    name: '少数派',
+    tag: '科技',
+    color: 'cyan',
+    feedUrl: 'https://sspai.com/feed'
+  },
+  {
+    name: '腾讯科技',
+    tag: '科技',
+    color: 'indigo',
+    feedUrl: 'https://new.qq.com/omf/RSS/tech.xml'
+  },
+  {
+    name: '网易科技',
+    tag: '科技',
+    color: 'pink',
+    feedUrl: 'https://tech.163.com/special/cm_yaowen20200213/'
   }
 ]
 
