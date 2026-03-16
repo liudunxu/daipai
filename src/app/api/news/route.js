@@ -71,7 +71,7 @@ const NEWS_SOURCES = [
 ]
 
 // 缓存时间（秒）- 10分钟
-const CACHE_TTL = 600
+const CACHE_TTL = 900
 
 // 解析日期
 function parseDate(dateStr) {
