@@ -4,19 +4,19 @@ import GoogleAdSense from '../components/GoogleAdSense'
 import GoogleAnalytics from '../components/GoogleAnalytics'
 
 export const metadata = {
-  title: 'OpenClaw中文网 | 北京润泽园国学院 | 西海岸手牵手志愿者',
-  description: 'OpenClaw资讯第一站、北京润泽园国学院、西海岸手牵手志愿者团队 - 关注2026科技前沿与公益事业',
-  keywords: ['OpenClaw', 'AI Agent', '王阳明', '国学', '志愿服务', '公益'],
+  title: '极客观察 - AI科技经济资讯',
+  description: '极客观察 - 混排AI、科技、经济相关资讯，36氪、虎嗅、IT之家、经济时报，一站获取最新科技动态',
+  keywords: ['极客观察', 'AI', '科技', '经济', '资讯', '36氪', '虎嗅', 'IT之家', 'AI资讯', '科技新闻'],
   openGraph: {
     type: 'website',
     locale: 'zh_CN',
     url: 'https://www.zkwatcher.top',
-    siteName: '综合资讯平台',
+    siteName: '极客观察',
   },
   twitter: {
     card: 'summary',
-    title: '综合资讯平台 - OpenClaw中文网 | 国学院 | 公益',
-    description: '关注2026科技前沿与公益事业',
+    title: '极客观察 - AI科技经济资讯',
+    description: '混排AI、科技、经济相关资讯',
   },
   robots: {
     index: true,
@@ -29,12 +29,12 @@ const jsonLd = {
   '@graph': [
     {
       '@type': 'WebSite',
-      name: '综合资讯平台',
+      name: '极客观察',
       url: 'https://www.zkwatcher.top',
-      description: 'OpenClaw资讯第一站、北京润泽园国学院、西海岸手牵手志愿者团队',
+      description: '混排AI、科技、经济相关资讯',
       publisher: {
         '@type': 'Organization',
-        name: '综合资讯平台'
+        name: '极客观察'
       }
     },
     {
