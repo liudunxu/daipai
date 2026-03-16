@@ -38,14 +38,14 @@ export default function StockBacktestPage() {
 
   // 持仓状态
   const [cash, setCash] = useState(INITIAL_CAPITAL)
-  const [holdings, setHoldings] = useState(null)
-  const [stockCode, setStockCode] = useState(null)
-  const [stockName, setStockName] = useState(null)
+  const [holdings, setHoldings] = useState([])
+  const [holdingsPrices, setHoldingsPrices] = useState({})
   const [weekStart, setWeekStart] = useState(null)
   const [weekProfit, setWeekProfit] = useState(0)
   const [records, setRecords] = useState([])
   const [currentWeek, setCurrentWeek] = useState(1)
   const [message, setMessage] = useState(null)
+  const [sellStock, setSellStock] = useState(null)
 
   // 获取当前股票价格
   useEffect(() => {
@@ -75,13 +75,39 @@ export default function StockBacktestPage() {
       const res = await fetch('/api/stock/portfolio')
       const data = await res.json()
       setCash(data.cash)
-      setHoldings(data.holdings)
-      setStockCode(data.stockCode)
-      setStockName(data.stockName)
+      setHoldings(data.holdings || [])
       setWeekStart(data.weekStart)
       setWeekProfit(data.weekProfit || 0)
       setRecords(data.records || [])
       setCurrentWeek(data.currentWeek)
+
+      // 获取每只持仓股票的价格
+      const holdingsData = data.holdings || []
+      if (holdingsData.length > 0) {
+        const priceMap = {}
+        await Promise.all(
+          holdingsData.map(async (holding) => {
+            try {
+              const priceRes = await fetch(`/api/stock/history?code=${holding.code}&days=1`)
+              const priceData = await priceRes.json()
+              if (priceData.data && priceData.data.length > 0) {
+                priceMap[holding.code] = priceData.data[priceData.data.length - 1].close
+              }
+            } catch (err) {
+              console.error(`获取持仓 ${holding.code} 价格失败:`, err)
+            }
+          })
+        )
+        setHoldingsPrices(priceMap)
+
+        // 设置默认卖出选择
+        if (sellStock === null && holdingsData.length > 0) {
+          setSellStock(holdingsData[0].code)
+        }
+      } else {
+        setHoldingsPrices({})
+        setSellStock(null)
+      }
     } catch (err) {
       console.error('获取持仓失败:', err)
     }
@@ -95,28 +121,56 @@ export default function StockBacktestPage() {
     setResult(null)
 
     try {
-      const res = await fetch(`/api/stock/history?code=${selectedStock.code}&days=7`)
-      const data = await res.json()
+      // 获取所有股票的数据
+      const allStockData = await Promise.all(
+        STOCKS.map(async (stock) => {
+          try {
+            const res = await fetch(`/api/stock/history?code=${stock.code}&days=7`)
+            const data = await res.json()
+            if (data.data && data.data.length > 0) {
+              const historyData = data.data
+              const basePrice = historyData[0].open
+              const lastClose = historyData[historyData.length - 1].close
+              const profitLoss = (lastClose - basePrice) * shares
+              const profitLossPercent = ((lastClose - basePrice) / basePrice) * 100
+              return {
+                code: stock.code,
+                name: stock.name,
+                basePrice,
+                lastClose,
+                profitLoss,
+                profitLossPercent,
+                historyData,
+              }
+            }
+          } catch (e) {
+            console.error(`获取 ${stock.code} 失败:`, e)
+          }
+          return null
+        })
+      )
 
-      if (data.error) {
-        setError(data.error)
-        setIsLoading(false)
-        return
-      }
+      const validData = allStockData.filter(d => d !== null)
 
-      const historyData = data.data
-      if (!historyData || historyData.length === 0) {
+      if (validData.length === 0) {
         setError('暂无数据')
         setIsLoading(false)
         return
       }
 
-      // 计算每天的表现（以当天开盘价买入，最后一天收盘价计算）
-      const basePrice = historyData[0].open
-      const dailyData = historyData.map((day) => {
-        const profitLoss = (day.close - basePrice) * shares
-        const profitLossPercent = ((day.close - basePrice) / basePrice) * 100
+      // 计算所有股票的总盈亏
+      const totalProfitLoss = validData.reduce((sum, d) => sum + d.profitLoss, 0)
+      const avgProfitLossPercent = validData.reduce((sum, d) => sum + d.profitLossPercent, 0) / validData.length
+      const winStocks = validData.filter(d => d.profitLoss >= 0).length
+      const loseStocks = validData.length - winStocks
 
+      // 当前选中股票的数据
+      const currentStockData = validData.find(d => d.code === selectedStock.code) || validData[0]
+
+      // 生成每日明细（按日期降序）
+      const dailyData = currentStockData.historyData.map((day) => {
+        const profitLoss = (day.close - currentStockData.basePrice) * shares
+        const profitLossPercent = ((day.close - currentStockData.basePrice) / currentStockData.basePrice) * 100
         return {
           date: new Date(day.date).toLocaleDateString('zh-CN', { month: 'numeric', day: 'numeric' }),
           open: day.open.toFixed(2),
@@ -125,22 +179,19 @@ export default function StockBacktestPage() {
           profitLoss: profitLoss.toFixed(2),
           profitLossPercent: profitLossPercent.toFixed(2),
         }
-      })
-
-      const lastClose = historyData[historyData.length - 1].close
-      const totalProfitLoss = (lastClose - basePrice) * shares
-      const totalProfitLossPercent = ((lastClose - basePrice) / basePrice) * 100
+      }).reverse()
 
       setResult({
-        stock: { code: selectedStock.code, name: selectedStock.name },
+        stock: { code: currentStockData.code, name: currentStockData.name },
         daily: dailyData,
         summary: {
-          basePrice: basePrice.toFixed(2),
-          lastPrice: lastClose.toFixed(2),
+          basePrice: currentStockData.basePrice.toFixed(2),
+          lastPrice: currentStockData.lastClose.toFixed(2),
           totalProfitLoss: totalProfitLoss.toFixed(2),
-          totalProfitLossPercent: totalProfitLossPercent.toFixed(2),
-          winDays: dailyData.filter(d => parseFloat(d.profitLoss) >= 0).length,
-          totalDays: dailyData.length,
+          totalProfitLossPercent: avgProfitLossPercent.toFixed(2),
+          winDays: winStocks,
+          totalDays: validData.length,
+          loseStocks,
         }
       })
     } catch (err) {
@@ -165,6 +216,13 @@ export default function StockBacktestPage() {
 
     setIsLoading(true)
     setMessage(null)
+
+    // 确认买入信息
+    const confirmMessage = `确认买入 ${selectedStock.name} ${shares}股，价格 ¥${currentPrice.toFixed(2)}，总计 ¥${(currentPrice * shares).toFixed(2)}？`
+    if (!confirm(confirmMessage)) {
+      setIsLoading(false)
+      return
+    }
 
     try {
       const res = await fetch('/api/stock/portfolio', {
@@ -194,12 +252,19 @@ export default function StockBacktestPage() {
 
   // 卖出
   const handleSell = async () => {
-    if (!holdings) {
+    if (!holdings || holdings.length === 0) {
       setMessage({ type: 'error', text: '当前没有持仓' })
       return
     }
 
-    if (!currentPrice) {
+    const holdingToSell = holdings.find(h => h.code === sellStock)
+    if (!holdingToSell) {
+      setMessage({ type: 'error', text: '请选择要卖出的股票' })
+      return
+    }
+
+    const price = holdingsPrices[holdingToSell.code]
+    if (!price) {
       setMessage({ type: 'error', text: '价格加载中，请稍后重试' })
       return
     }
@@ -207,15 +272,22 @@ export default function StockBacktestPage() {
     setIsLoading(true)
     setMessage(null)
 
+    // 确认卖出信息
+    const confirmMessage = `确认卖出 ${holdingToSell.name} ${holdingToSell.shares}股，价格 ¥${price.toFixed(2)}，总计 ¥${(price * holdingToSell.shares).toFixed(2)}？`
+    if (!confirm(confirmMessage)) {
+      setIsLoading(false)
+      return
+    }
+
     try {
       const res = await fetch('/api/stock/portfolio', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: 'sell',
-          code: holdings.code,
-          shares: holdings.shares,
-          price: currentPrice,
+          code: holdingToSell.code,
+          shares: holdingToSell.shares,
+          price: price,
         })
       })
 
@@ -233,10 +305,19 @@ export default function StockBacktestPage() {
     setIsLoading(false)
   }
 
-  // 当前持仓市值和盈亏
-  const holdingsValue = holdings && currentPrice ? (holdings.shares * currentPrice).toFixed(2) : null
-  const holdingsProfit = holdings && currentPrice ? ((currentPrice - holdings.buyPrice) * holdings.shares).toFixed(2) : null
-  const holdingsProfitPercent = holdings && currentPrice ? ((currentPrice - holdings.buyPrice) / holdings.buyPrice * 100).toFixed(2) : null
+  // 当前持仓市值和盈亏（使用持仓股票的实际价格）
+  const holdingsValue = holdings && holdings.length > 0
+    ? holdings.reduce((sum, h) => {
+        const price = holdingsPrices[h.code] || h.buyPrice
+        return sum + (h.shares * price)
+      }, 0).toFixed(2)
+    : null
+  const holdingsProfit = holdings && holdings.length > 0
+    ? holdings.reduce((sum, h) => {
+        const price = holdingsPrices[h.code] || h.buyPrice
+        return sum + ((price - h.buyPrice) * h.shares)
+      }, 0).toFixed(2)
+    : null
 
   // 本周收益
   const totalAsset = cash + (holdingsValue ? parseFloat(holdingsValue) : 0)
@@ -285,23 +366,53 @@ export default function StockBacktestPage() {
         </div>
 
         {/* 当前持仓 */}
-        {holdings && (
+        {holdings && holdings.length > 0 && (
           <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 mb-4 border border-white/10">
-            <div className="flex justify-between items-center">
-              <div>
-                <p className="text-white font-bold">{holdings.name}</p>
-                <p className="text-white/50 text-sm">
-                  买入价 ¥{holdings.buyPrice.toFixed(2)} × {holdings.shares}股
-                </p>
-              </div>
-              <div className="text-right">
-                <p className="text-white font-bold">
-                  {currentPrice ? `¥${currentPrice.toFixed(2)}` : '加载中...'}
-                </p>
-                <p className={`text-sm ${holdingsProfitPercent && parseFloat(holdingsProfitPercent) >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                  {holdingsProfitPercent && `${parseFloat(holdingsProfitPercent) >= 0 ? '+' : ''}${holdingsProfitPercent}%`}
-                </p>
-              </div>
+            <div className="flex justify-between items-center mb-3">
+              <p className="text-white/70 text-sm font-medium">当前持仓（{holdings.length}只）</p>
+              {/* 卖出选择 */}
+              <select
+                value={sellStock || ''}
+                onChange={(e) => setSellStock(e.target.value)}
+                className="px-3 py-1 bg-white/10 border border-white/20 rounded-lg text-white text-sm appearance-none cursor-pointer"
+                style={{
+                  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='white'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
+                  backgroundRepeat: 'no-repeat',
+                  backgroundPosition: 'right 8px center',
+                  backgroundSize: '16px',
+                }}
+              >
+                {holdings.map(h => (
+                  <option key={h.code} value={h.code} className="bg-slate-800 text-white">
+                    卖出 {h.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="space-y-3">
+              {holdings.map((holding) => {
+                const price = holdingsPrices[holding.code]
+                const profit = price ? ((price - holding.buyPrice) * holding.shares).toFixed(2) : null
+                const profitPercent = price ? ((price - holding.buyPrice) / holding.buyPrice * 100).toFixed(2) : null
+                return (
+                  <div key={holding.code} className="flex justify-between items-center p-2 bg-white/5 rounded-xl">
+                    <div>
+                      <p className="text-white font-bold">{holding.name}</p>
+                      <p className="text-white/50 text-xs">
+                        买入价 ¥{holding.buyPrice.toFixed(2)} × {holding.shares}股
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-white font-bold">
+                        {price ? `¥${price.toFixed(2)}` : '加载中...'}
+                      </p>
+                      <p className={`text-xs ${profit && parseFloat(profit) >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                        {profit && `${parseFloat(profit) >= 0 ? '+' : ''}¥${profit}`} ({profitPercent && `${parseFloat(profitPercent) >= 0 ? '+' : ''}${profitPercent}%`})
+                      </p>
+                    </div>
+                  </div>
+                )
+              })}
             </div>
           </div>
         )}
@@ -338,14 +449,23 @@ export default function StockBacktestPage() {
               <label className="block text-white/70 text-sm mb-2 font-medium">
                 数量（股）
               </label>
-              <input
-                type="number"
-                value={shares}
-                onChange={(e) => setShares(Math.max(1, parseInt(e.target.value) || 1))}
-                min="1"
-                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-yellow-400/50 focus:border-transparent transition-colors"
-                placeholder="请输入数量"
-              />
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setShares(Math.max(100, shares - 100))}
+                  className="px-3 py-3 bg-white/10 border border-white/20 rounded-xl text-white hover:bg-white/20 transition-colors"
+                >
+                  -
+                </button>
+                <div className="flex-1 px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white text-center font-bold">
+                  {shares}
+                </div>
+                <button
+                  onClick={() => setShares(shares + 100)}
+                  className="px-3 py-3 bg-white/10 border border-white/20 rounded-xl text-white hover:bg-white/20 transition-colors"
+                >
+                  +
+                </button>
+              </div>
             </div>
           </div>
 
@@ -447,17 +567,9 @@ export default function StockBacktestPage() {
             {/* 汇总卡片 */}
             <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 mb-6 border border-white/10">
               <h2 className="text-white font-bold text-lg mb-4">
-                📊 {result.stock.name} 近7日表现
+                📊 全部20只股票 近7日总体表现
               </h2>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="bg-white/5 rounded-xl p-4 text-center">
-                  <p className="text-white/50 text-xs mb-1">买入价</p>
-                  <p className="text-white text-xl font-bold">¥{result.summary.basePrice}</p>
-                </div>
-                <div className="bg-white/5 rounded-xl p-4 text-center">
-                  <p className="text-white/50 text-xs mb-1">当前价</p>
-                  <p className="text-white text-xl font-bold">¥{result.summary.lastPrice}</p>
-                </div>
                 <div className="bg-white/5 rounded-xl p-4 text-center">
                   <p className="text-white/50 text-xs mb-1">总盈亏</p>
                   <p className={`text-xl font-bold ${parseFloat(result.summary.totalProfitLoss) >= 0 ? 'text-green-400' : 'text-red-400'}`}>
@@ -465,10 +577,35 @@ export default function StockBacktestPage() {
                   </p>
                 </div>
                 <div className="bg-white/5 rounded-xl p-4 text-center">
-                  <p className="text-white/50 text-xs mb-1">涨跌幅</p>
+                  <p className="text-white/50 text-xs mb-1">平均涨跌幅</p>
                   <p className={`text-xl font-bold ${parseFloat(result.summary.totalProfitLossPercent) >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                     {parseFloat(result.summary.totalProfitLossPercent) >= 0 ? '+' : ''}{result.summary.totalProfitLossPercent}%
                   </p>
+                </div>
+                <div className="bg-white/5 rounded-xl p-4 text-center">
+                  <p className="text-white/50 text-xs mb-1">上涨股票</p>
+                  <p className="text-green-400 text-xl font-bold">{result.summary.winDays}只</p>
+                </div>
+                <div className="bg-white/5 rounded-xl p-4 text-center">
+                  <p className="text-white/50 text-xs mb-1">下跌股票</p>
+                  <p className="text-red-400 text-xl font-bold">{result.summary.loseStocks}只</p>
+                </div>
+              </div>
+            </div>
+
+            {/* 当前选中股票 */}
+            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 mb-6 border border-white/10">
+              <h2 className="text-white font-bold text-lg mb-4">
+                📈 {result.stock.name} ({result.stock.code}) 走势
+              </h2>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-white/5 rounded-xl p-4 text-center">
+                  <p className="text-white/50 text-xs mb-1">买入价</p>
+                  <p className="text-white text-xl font-bold">¥{result.summary.basePrice}</p>
+                </div>
+                <div className="bg-white/5 rounded-xl p-4 text-center">
+                  <p className="text-white/50 text-xs mb-1">当前价</p>
+                  <p className="text-white text-xl font-bold">¥{result.summary.lastPrice}</p>
                 </div>
               </div>
             </div>
@@ -488,7 +625,7 @@ export default function StockBacktestPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {result.daily.map((day, index) => (
+                    {result.daily.slice().reverse().map((day, index) => (
                       <tr key={index} className="border-b border-white/5 hover:bg-white/5 transition-colors">
                         <td className="py-3 px-2 text-white">{day.date}</td>
                         <td className="py-3 px-2 text-right text-white/70">¥{day.open}</td>

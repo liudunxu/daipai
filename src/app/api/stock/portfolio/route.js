@@ -59,13 +59,16 @@ export async function GET(request) {
     const weekStart = getWeekStart(now)
     const currentWeek = getWeekNumber(now)
 
-    // 解析 holdings
-    let holdings = null
+    // 解析 holdings (现在是数组)
+    let holdings = []
     if (portfolio.holdings) {
       try {
         holdings = typeof portfolio.holdings === 'string' ? JSON.parse(portfolio.holdings) : portfolio.holdings
+        if (!Array.isArray(holdings)) {
+          holdings = holdings.code ? [holdings] : []
+        }
       } catch (e) {
-        holdings = null
+        holdings = []
       }
     }
 
@@ -80,24 +83,28 @@ export async function GET(request) {
       cash = portfolio.cash ? parseFloat(portfolio.cash) : INITIAL_CAPITAL
     } else {
       // 新周，结算上周
-      if (holdings && holdings.shares > 0) {
+      if (holdings && holdings.length > 0) {
         // 上周有持仓，需要结算
-        const weekRecord = {
-          weekStart: savedWeekStart,
-          code: portfolio.stockCode,
-          name: portfolio.stockName,
-          shares: holdings.shares,
-          buyPrice: holdings.buyPrice,
-          sellPrice: holdings.sellPrice || 0,
-          profit: portfolio.weekProfit ? parseFloat(portfolio.weekProfit) : 0,
-          endTime: now.toISOString(),
+        for (const holding of holdings) {
+          if (holding.shares > 0) {
+            const weekRecord = {
+              weekStart: savedWeekStart,
+              code: holding.code,
+              name: holding.name,
+              shares: holding.shares,
+              buyPrice: holding.buyPrice,
+              sellPrice: holding.sellPrice || 0,
+              profit: portfolio.weekProfit ? parseFloat(portfolio.weekProfit) : 0,
+              endTime: now.toISOString(),
+            }
+            await redis.lpush(TRADES_KEY, JSON.stringify(weekRecord))
+            await redis.ltrim(TRADES_KEY, 0, 49)
+          }
         }
-        await redis.lpush(TRADES_KEY, JSON.stringify(weekRecord))
-        await redis.ltrim(TRADES_KEY, 0, 49)
       }
       // 重置
       cash = INITIAL_CAPITAL
-      holdings = null
+      holdings = []
       await redis.hdel(PORTFOLIO_KEY, 'holdings', 'stockCode', 'stockName', 'weekProfit')
     }
 
@@ -124,20 +131,23 @@ export async function GET(request) {
     return NextResponse.json({
       cash,
       holdings,
-      currentPrice: portfolio.currentPrice ? parseFloat(portfolio.currentPrice) : null,
-      stockCode: portfolio.stockCode || null,
-      stockName: portfolio.stockName || null,
       weekStart,
       currentWeek,
       weekProfit,
-      records: records.map(r => JSON.parse(r)).filter(Boolean),
+      records: records.map(r => {
+        try {
+          return typeof r === 'string' ? JSON.parse(r) : r
+        } catch {
+          return null
+        }
+      }).filter(Boolean),
       initialCapital: INITIAL_CAPITAL,
     })
   } catch (error) {
     console.error('获取数据失败:', error)
     return NextResponse.json({
       cash: INITIAL_CAPITAL,
-      holdings: null,
+      holdings: [],
       weekStart: getWeekStart(new Date()),
       currentWeek: getWeekNumber(new Date()),
       weekProfit: 0,
@@ -179,13 +189,16 @@ export async function POST(request) {
       })
     }
 
-    // 解析 holdings
-    let holdings = null
+    // 解析 holdings (现在是数组)
+    let holdings = []
     if (portfolio.holdings) {
       try {
         holdings = typeof portfolio.holdings === 'string' ? JSON.parse(portfolio.holdings) : portfolio.holdings
+        if (!Array.isArray(holdings)) {
+          holdings = holdings.code ? [holdings] : []
+        }
       } catch (e) {
-        holdings = null
+        holdings = []
       }
     }
 
@@ -198,21 +211,26 @@ export async function POST(request) {
         return NextResponse.json({ error: `资金不足，需要 ¥${cost.toFixed(2)}，可用 ¥${cash.toFixed(2)}` }, { status: 400 })
       }
 
+      // 检查是否已持有该股票
+      const existingIndex = holdings.findIndex(h => h.code === code)
+      if (existingIndex >= 0) {
+        return NextResponse.json({ error: `已持有 ${stock.name}，请先卖出后再买入` }, { status: 400 })
+      }
+
       cash -= cost
-      holdings = {
+      // 添加新持仓到数组
+      const newHolding = {
         code,
         name: stock.name,
         shares: shareCount,
         buyPrice: price,
         buyTime: now.toISOString(),
       }
+      holdings.push(newHolding)
 
       await redis.hset(PORTFOLIO_KEY, {
         cash: cash.toString(),
         holdings: JSON.stringify(holdings),
-        stockCode: code,
-        stockName: stock.name,
-        currentPrice: price.toString(),
         weekStart,
       })
 
@@ -225,18 +243,20 @@ export async function POST(request) {
       })
 
     } else if (action === 'sell') {
-      // 卖出
-      if (!holdings || holdings.code !== code) {
+      // 卖出 - 查找对应持仓
+      const holdingIndex = holdings.findIndex(h => h.code === code)
+      if (holdingIndex < 0) {
         return NextResponse.json({ error: '没有持有该股票' }, { status: 400 })
       }
 
-      if (shareCount > holdings.shares) {
+      const holding = holdings[holdingIndex]
+      if (shareCount > holding.shares) {
         return NextResponse.json({ error: '持有股份不足' }, { status: 400 })
       }
 
       const revenue = price * shareCount
       cash += revenue
-      const profit = (price - holdings.buyPrice) * shareCount
+      const profit = (price - holding.buyPrice) * shareCount
 
       // 记录这笔交易
       const tradeRecord = {
@@ -244,29 +264,24 @@ export async function POST(request) {
         code,
         name: stock.name,
         shares: shareCount,
-        buyPrice: holdings.buyPrice,
+        buyPrice: holding.buyPrice,
         sellPrice: price,
         profit,
-        profitPercent: ((price - holdings.buyPrice) / holdings.buyPrice * 100).toFixed(2),
+        profitPercent: ((price - holding.buyPrice) / holding.buyPrice * 100).toFixed(2),
         tradeTime: now.toISOString(),
       }
       await redis.lpush(TRADES_KEY, JSON.stringify(tradeRecord))
       await redis.ltrim(TRADES_KEY, 0, 49)
 
       // 更新持仓
-      holdings.shares -= shareCount
-      if (holdings.shares === 0) {
-        holdings = null
-        await redis.hdel(PORTFOLIO_KEY, 'holdings', 'stockCode', 'stockName')
-      } else {
-        await redis.hset(PORTFOLIO_KEY, {
-          holdings: JSON.stringify(holdings),
-        })
+      holdings[holdingIndex].shares -= shareCount
+      if (holdings[holdingIndex].shares === 0) {
+        holdings.splice(holdingIndex, 1)
       }
 
       await redis.hset(PORTFOLIO_KEY, {
         cash: cash.toString(),
-        currentPrice: price.toString(),
+        holdings: JSON.stringify(holdings),
         weekStart,
       })
 
@@ -276,7 +291,7 @@ export async function POST(request) {
         cash,
         holdings,
         profit,
-        profitPercent: holdings ? ((price - holdings.buyPrice) / holdings.buyPrice * 100).toFixed(2) : '0',
+        profitPercent: holdings.length > 0 && holdings[holdingIndex] ? ((price - holdings[holdingIndex].buyPrice) / holdings[holdingIndex].buyPrice * 100).toFixed(2) : '0',
         message: `卖出 ${stock.name} ${shareCount}股，收入 ¥${revenue.toFixed(2)}，盈亏 ¥${profit.toFixed(2)}`,
       })
     }
