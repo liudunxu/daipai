@@ -26,7 +26,7 @@ const STOCKS = [
   { code: '600900', name: '长江电力', yahoo: '600900.SS' },
 ]
 
-const INITIAL_CAPITAL = 100000
+const INITIAL_CAPITAL = 1000000
 
 export default function StockBacktestPage() {
   const [selectedStock, setSelectedStock] = useState(STOCKS[0])
