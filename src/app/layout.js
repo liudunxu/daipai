@@ -1,5 +1,6 @@
 import './globals.css'
 import BaiduAnalytics from '../components/BaiduAnalytics'
+import BaiduAdScript from '../components/BaiduAd'
 import GoogleAdSense from '../components/GoogleAdSense'
 import GoogleAnalytics from '../components/GoogleAnalytics'
 
@@ -60,6 +61,7 @@ export default function RootLayout({ children }) {
         <GoogleAdSense />
         <GoogleAnalytics />
         <BaiduAnalytics />
+        <BaiduAdScript />
       </body>
     </html>
   )

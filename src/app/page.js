@@ -34,34 +34,26 @@ function formatDate(dateStr) {
 export default function Home() {
   const [news, setNews] = useState([])
   const [loading, setLoading] = useState(true)
-  const [refreshing, setRefreshing] = useState(false)
   const [error, setError] = useState(null)
 
-  async function fetchNews(isRefresh = false) {
-    try {
-      if (isRefresh) {
-        setRefreshing(true)
-      } else {
-        setLoading(true)
-      }
-      const url = isRefresh ? '/api/news?refresh=true' : '/api/news'
-      const res = await fetch(url)
-      const data = await res.json()
-      if (data.success && data.data) {
-        setNews(data.data)
-      } else {
-        setError('获取资讯失败')
-      }
-    } catch (err) {
-      setError('网络错误，请稍后重试')
-      console.error('Error fetching news:', err)
-    } finally {
-      setLoading(false)
-      setRefreshing(false)
-    }
-  }
-
   useEffect(() => {
+    async function fetchNews() {
+      try {
+        setLoading(true)
+        const res = await fetch('/api/news')
+        const data = await res.json()
+        if (data.success && data.data) {
+          setNews(data.data)
+        } else {
+          setError('获取资讯失败')
+        }
+      } catch (err) {
+        setError('网络错误，请稍后重试')
+        console.error('Error fetching news:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
     fetchNews()
   }, [])
 
@@ -78,19 +70,9 @@ export default function Home() {
             AI · 科技 · 经济
             <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent"> 资讯</span>
           </h1>
-          <p className="text-lg text-white/70 mb-4">
+          <p className="text-lg text-white/70 mb-8">
             混排AI、科技、经济相关资讯 · 每日更新
           </p>
-          <button
-            onClick={() => fetchNews(true)}
-            disabled={refreshing}
-            className="px-4 py-2 bg-white/10 text-white font-medium rounded-full hover:bg-white/20 transition-colors disabled:opacity-50 flex items-center gap-2 mx-auto"
-          >
-            <svg className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
-            {refreshing ? '刷新中...' : '刷新资讯'}
-          </button>
         </div>
       </header>
 
