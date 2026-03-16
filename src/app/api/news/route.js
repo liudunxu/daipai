@@ -218,6 +218,34 @@ async function fetchAllNews() {
   return interleaveNews(allNews)
 }
 
+export async function POST() {
+  try {
+    // 强制刷新缓存：先删除缓存，再重新获取
+    await redis.del(CACHE_KEY)
+
+    // 获取最新资讯
+    const news = await fetchAllNews()
+
+    // 存入Redis缓存
+    if (news.length > 0) {
+      await redis.set(CACHE_KEY, news, { ex: CACHE_TTL })
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: '缓存已刷新',
+      data: news,
+      count: news.length
+    })
+  } catch (error) {
+    console.error('Error refreshing news cache:', error)
+    return NextResponse.json({
+      success: false,
+      error: '刷新缓存失败'
+    }, { status: 500 })
+  }
+}
+
 export async function GET() {
   try {
     // 尝试从Redis获取缓存
