@@ -33,7 +33,7 @@ const INITIAL_CAPITAL = 100000
 // GET 获取持仓和历史记录
 export async function GET(request) {
   try {
-    const portfolio = await redis.hgetall(PORTFOLIO_KEY)
+    const portfolio = await redis.hgetall(PORTFOLIO_KEY) || {}
     const records = await redis.lrange('stock:trades', 0, 49)
 
     // 获取当前周期信息
@@ -76,17 +76,17 @@ export async function POST(request) {
     }
 
     // 获取当前持仓
-    const portfolio = await redis.hgetall(PORTFOLIO_KEY)
+    const portfolio = await redis.hgetall(PORTFOLIO_KEY) || {}
     let cash = portfolio.cash ? parseFloat(portfolio.cash) : INITIAL_CAPITAL
     let holdings = portfolio.holdings ? JSON.parse(portfolio.holdings) : null
 
     // 检查是否在新周期（每周一重置）
     const now = new Date()
     const weekStart = getWeekStart(now)
-    const savedWeekStart = portfolio.weekStart
+    const savedWeekStart = portfolio.weekStart || null
 
     // 如果是新周期，重置持仓
-    if (savedWeekStart !== weekStart) {
+    if (savedWeekStart && savedWeekStart !== weekStart) {
       // 保存上周记录
       if (holdings && holdings.shares > 0) {
         const weekRecord = {
