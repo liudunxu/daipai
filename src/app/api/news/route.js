@@ -141,6 +141,34 @@ async function fetchCLSNews(source) {
   }
 }
 
+// 交错排列资讯，确保经济、科技内容混排
+function interleaveNews(news) {
+  if (news.length <= 2) return news
+
+  // 按日期排序
+  news.sort((a, b) => parseDate(b.date) - parseDate(a.date))
+
+  // 按标签分组
+  const economy = news.filter(n => n.tag === '经济')
+  const tech = news.filter(n => n.tag === '科技')
+
+  const result = []
+  let e = 0, t = 0
+
+  // 交替插入，保持比例经济:科技 ≈ 1:3
+  while (e < economy.length || t < tech.length) {
+    // 每4条插入1条经济新闻
+    for (let i = 0; i < 3 && t < tech.length; i++) {
+      result.push(tech[t++])
+    }
+    if (e < economy.length) {
+      result.push(economy[e++])
+    }
+  }
+
+  return result
+}
+
 // 获取所有资讯
 async function fetchAllNews() {
   const results = await Promise.all(
@@ -155,10 +183,8 @@ async function fetchAllNews() {
   // 合并所有资讯
   const allNews = results.flat()
 
-  // 按日期排序（最新的在前）
-  allNews.sort((a, b) => parseDate(b.date) - parseDate(a.date))
-
-  return allNews
+  // 交错排列
+  return interleaveNews(allNews)
 }
 
 export async function GET() {
