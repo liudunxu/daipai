@@ -192,6 +192,23 @@ export default function Home() {
         </div>
       </section>
 
+      {/* 常见问题 - Google SEO 要求内容必须可见 */}
+      <section className="py-8 px-5 bg-white/5">
+        <div className="max-w-4xl mx-auto">
+          <h2 className="text-xl font-bold text-white mb-4 text-center">
+            ❓ 常见问题
+          </h2>
+          <div className="space-y-4">
+            {homePageFAQs.map((faq, index) => (
+              <div key={index} className="bg-white/5 border border-white/10 rounded-xl p-4">
+                <h3 className="text-white font-medium mb-2">{faq.question}</h3>
+                <p className="text-white/60 text-sm">{faq.answer}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* 底部 */}
       <footer className="py-8 px-5 text-center border-t border-white/10">
         <div className="max-w-4xl mx-auto mb-6">

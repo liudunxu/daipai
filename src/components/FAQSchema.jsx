@@ -1,6 +1,7 @@
 'use client'
 
 // FAQ Schema 组件 - 用于 GEO 优化，让 AI 搜索引擎更容易理解和引用
+// Google 要求：结构化数据中的内容必须在页面上对用户可见
 export default function FAQSchema({ faqs }) {
   if (!faqs || faqs.length === 0) return null
 

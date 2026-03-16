@@ -102,6 +102,19 @@ export default function TodayLucky() {
           <ShareButtons title="今日运势 - 测测你今天的运气如何" url="/today" />
         </div>
 
+        {/* 常见问题 - Google SEO 要求内容必须可见 */}
+        <div className="mt-8 bg-white/5 border border-white/10 rounded-2xl p-6">
+          <h2 className="text-lg font-bold text-white mb-4 text-center">❓ 常见问题</h2>
+          <div className="space-y-4">
+            {fortuneFAQs.map((faq, index) => (
+              <div key={index}>
+                <h3 className="text-white font-medium mb-1 text-sm">{faq.question}</h3>
+                <p className="text-white/50 text-xs">{faq.answer}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
         <footer className="mt-8 text-center">
           <a href="/nav" className="text-white/40 hover:text-white/60 text-sm">
             ← 更多工具

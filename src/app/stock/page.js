@@ -220,6 +220,19 @@ export default function StockPage() {
         </div>
       </div>
 
+      {/* 常见问题 - Google SEO 要求内容必须可见 */}
+      <div className="mt-8 bg-white/5 border border-white/10 rounded-2xl p-6 max-w-md mx-auto">
+        <h2 className="text-lg font-bold text-white mb-4 text-center">❓ 常见问题</h2>
+        <div className="space-y-4">
+          {stockFAQs.map((faq, index) => (
+            <div key={index}>
+              <h3 className="text-white font-medium mb-1 text-sm">{faq.question}</h3>
+              <p className="text-white/50 text-xs">{faq.answer}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* 底部 */}
       <footer className="absolute bottom-4 w-full text-center">
         <a href="/" className="text-white/30 hover:text-white/60 text-sm transition-colors">
