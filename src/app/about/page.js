@@ -4,6 +4,30 @@ export const metadata = {
 }
 
 export default function AboutPage() {
+  // 统计数据
+  const stats = [
+    { label: '在线工具', value: '43+', icon: '🛠️' },
+    { label: '功能分类', value: '5', icon: '📂' },
+    { label: '日均访问', value: '1000+', icon: '👥' },
+    { label: '服务覆盖', value: '全国', icon: '🌍' },
+  ]
+
+  // 联系方式
+  const contactMethods = [
+    {
+      name: '电子邮件',
+      value: 'contact@zkwatcher.top',
+      icon: '📧',
+      href: 'mailto:contact@zkwatcher.top',
+    },
+    {
+      name: 'GitHub',
+      value: 'openclaw',
+      icon: '🐙',
+      href: 'https://github.com/openclaw',
+    },
+  ]
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-8 px-5">
       <div className="max-w-3xl mx-auto">
@@ -13,6 +37,20 @@ export default function AboutPage() {
           </h1>
           <p className="text-white/60">了解我们背后的故事</p>
         </header>
+
+        {/* 统计数据 */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          {stats.map((stat, index) => (
+            <div
+              key={index}
+              className="bg-white/5 border border-white/10 rounded-2xl p-5 text-center hover:bg-white/10 transition-colors"
+            >
+              <div className="text-3xl mb-2">{stat.icon}</div>
+              <div className="text-2xl font-bold text-white mb-1">{stat.value}</div>
+              <div className="text-white/50 text-sm">{stat.label}</div>
+            </div>
+          ))}
+        </div>
 
         <div className="bg-white/5 border border-white/10 rounded-2xl p-8 mb-8">
           <h2 className="text-xl font-bold text-white mb-4">🎯 我们的使命</h2>
@@ -57,10 +95,58 @@ export default function AboutPage() {
           </div>
         </div>
 
-        <div className="text-center">
-          <a href="/nav" className="inline-block px-6 py-3 bg-white/10 hover:bg-white/20 text-white rounded-xl transition-colors">
+        {/* 联系方式 */}
+        <div className="bg-white/5 border border-white/10 rounded-2xl p-8 mb-8">
+          <h2 className="text-xl font-bold text-white mb-4">📮 联系我们</h2>
+          <div className="space-y-4">
+            {contactMethods.map((method, index) => (
+              <a
+                key={index}
+                href={method.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-4 p-4 bg-white/5 rounded-xl hover:bg-white/10 transition-colors group"
+              >
+                <span className="text-2xl">{method.icon}</span>
+                <div>
+                  <div className="text-white/50 text-sm">{method.name}</div>
+                  <div className="text-white font-medium group-hover:text-yellow-400 transition-colors">
+                    {method.value}
+                  </div>
+                </div>
+              </a>
+            ))}
+          </div>
+          <p className="text-white/50 text-sm mt-4">
+            工作日我们将在24小时内回复您
+          </p>
+        </div>
+
+        {/* 底部链接 */}
+        <div className="flex flex-wrap justify-center gap-4 mb-8">
+          <a
+            href="/nav"
+            className="inline-block px-6 py-3 bg-white/10 hover:bg-white/20 text-white rounded-xl transition-colors"
+          >
             ← 返回导航
           </a>
+          <a
+            href="/privacy"
+            className="inline-block px-6 py-3 bg-white/10 hover:bg-white/20 text-white/70 hover:text-white rounded-xl transition-colors"
+          >
+            隐私政策
+          </a>
+          <a
+            href="/terms"
+            className="inline-block px-6 py-3 bg-white/10 hover:bg-white/20 text-white/70 hover:text-white rounded-xl transition-colors"
+          >
+            用户协议
+          </a>
+        </div>
+
+        {/* 版权信息 */}
+        <div className="text-center text-white/30 text-sm">
+          <p>© 2024-2026 实用工具箱. All rights reserved.</p>
         </div>
       </div>
     </div>

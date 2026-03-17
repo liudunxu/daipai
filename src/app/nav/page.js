@@ -67,6 +67,8 @@ export default function NavPage() {
     { name: '📋 功能介绍', url: '/features', desc: '网站功能一览' },
     { name: '📞 联系我们', url: '/contact', desc: '联系我们' },
     { name: 'ℹ️ 关于我们', url: '/about', desc: '关于我们' },
+    { name: '🔒 隐私政策', url: '/privacy', desc: '隐私政策说明' },
+    { name: '📜 用户协议', url: '/terms', desc: '用户服务协议' },
   ]
 
   return (
