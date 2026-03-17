@@ -1,8 +1,10 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
+import { QRCodeSVG } from 'qrcode.react'
+import html2canvas from 'html2canvas'
 
-// PUA话术库 - 通用版，不管用户输入什么都可以随机回复
+// PUA话术库
 const puaResponses = [
   // 阿里味
   "你这个方案的底层逻辑是什么？顶层设计在哪里？抓手在哪？如何保证闭环？",
@@ -40,7 +42,7 @@ const puaResponses = [
   "你做的事情叫自嗨——自己觉得做完了，但没有任何客观证据。",
 
   // 华为味
-  "以奋斗者为本。你现在这个状态，连奋斗者都算不上。",
+  "以奋斗者为本。你现在这个状态，连奋斗者都谈不上。",
   "烧不死的鸟是凤凰。现在就是烧的时候，烧完才是凤凰。",
   "胜则举杯相庆，败则拼死相救——现在是救的时刻，不是放弃的时刻。",
   "力出一孔，把所有精力集中在这一个问题上。",
@@ -204,7 +206,6 @@ const puaResponses = [
   "你知道自己该怎么改吗？",
   "你知道自己还有救吗？",
   "你这个人没救了。",
-  "你这个人没救了。",
   "你这个人无可救药了。",
   "你这种情况我见多了。",
   "你这种人我见多了。",
@@ -218,22 +219,8 @@ const puaResponses = [
   "你这种表现是有问题的。",
   "你这种产出是有问题的。",
   "你这种结果是有问题的。",
-  "你这种过程是有问题的。",
-  "你这种思路是有问题的。",
-  "你这种方案是有问题的。",
-  "你这种设计是有问题的。",
-  "你这种代码是有问题的。",
-  "你这种产品是有问题的。",
-  "你这种需求是有问题的。",
-  "你这种项目是有问题的。",
-  "你这种团队是有问题的。",
-  "你这种公司是有问题的。",
-  "你这种行业是有问题的。",
-  "你这种职业是有问题的。",
-  "你这种人生是有问题的。",
 ]
 
-// 随机选择一个PUA话术
 const getRandomPuaResponse = () => {
   return puaResponses[Math.floor(Math.random() * puaResponses.length)]
 }
@@ -247,7 +234,10 @@ export default function PuaChat() {
   ])
   const [input, setInput] = useState('')
   const [isTyping, setIsTyping] = useState(false)
+  const [showShare, setShowShare] = useState(false)
+  const [shareImage, setShareImage] = useState('')
   const messagesEndRef = useRef(null)
+  const shareRef = useRef(null)
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -257,16 +247,18 @@ export default function PuaChat() {
     scrollToBottom()
   }, [messages])
 
+  // 判断是否达到4句（用户发送了4条消息）
+  const userMessageCount = messages.filter(m => m.role === 'user').length
+  const canShare = userMessageCount >= 4
+
   const handleSend = () => {
     if (!input.trim() || isTyping) return
 
-    // 添加用户消息
     const userMessage = { role: 'user', content: input.trim() }
     setMessages(prev => [...prev, userMessage])
     setInput('')
     setIsTyping(true)
 
-    // 模拟输入延迟
     setTimeout(() => {
       const response = getRandomPuaResponse()
       setMessages(prev => [...prev, { role: 'assistant', content: response }])
@@ -274,23 +266,117 @@ export default function PuaChat() {
     }, 500 + Math.random() * 1000)
   }
 
-  const handleKeyPress = (e) => {
+  const handleKeyDown = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
       handleSend()
     }
   }
 
+  const generateShareImage = async () => {
+    if (!shareRef.current) return
+
+    try {
+      setShowShare(true)
+      // 等待UI渲染
+      await new Promise(resolve => setTimeout(resolve, 100))
+
+      const canvas = await html2canvas(shareRef.current, {
+        backgroundColor: '#0f172a',
+        scale: 2,
+        useCORS: true,
+      })
+
+      const dataUrl = canvas.toDataURL('image/png')
+      setShareImage(dataUrl)
+    } catch (err) {
+      console.error('生成图片失败:', err)
+    }
+  }
+
+  const downloadImage = () => {
+    if (!shareImage) return
+
+    const link = document.createElement('a')
+    link.download = `pua-chat-${Date.now()}.png`
+    link.href = shareImage
+    link.click()
+  }
+
+  const shareToWechat = () => {
+    // 提示用户长按保存图片
+    alert('请长按图片保存，然后发送到微信')
+  }
+
+  const restartChat = () => {
+    setMessages([
+      {
+        role: 'assistant',
+        content: '有什么问题？说出来让我看看你能做到什么程度。',
+      },
+    ])
+    setShowShare(false)
+    setShareImage('')
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-4 md:py-8 px-2 md:px-5">
       <div className="max-w-2xl mx-auto h-[calc(100vh-8rem)] flex flex-col">
         {/* 头部 */}
-        <header className="text-center mb-4">
-          <h1 className="text-2xl md:text-3xl font-black text-white mb-2">
-            💼 PUA <span className="bg-gradient-to-r from-orange-400 to-red-500 bg-clip-text text-transparent">Chat</span>
-          </h1>
-          <p className="text-white/50 text-sm">不管你说什么，都会得到一顿输出</p>
+        <header className="text-center mb-4 flex items-center justify-between px-2">
+          <div className="text-left">
+            <h1 className="text-2xl md:text-3xl font-black text-white">
+              💼 PUA <span className="bg-gradient-to-r from-orange-400 to-red-500 bg-clip-text text-transparent">Chat</span>
+            </h1>
+            <p className="text-white/50 text-xs">互联网职场PUA体验</p>
+          </div>
+          {canShare && !showShare && (
+            <button
+              onClick={generateShareImage}
+              className="px-3 py-2 bg-green-500 hover:bg-green-600 text-white text-sm font-bold rounded-lg flex items-center gap-1 transition-colors"
+            >
+              <span>📤</span> 分享
+            </button>
+          )}
+          {showShare && (
+            <button
+              onClick={restartChat}
+              className="px-3 py-2 bg-gray-500 hover:bg-gray-600 text-white text-sm font-bold rounded-lg flex items-center gap-1 transition-colors"
+            >
+              <span>🔄</span> 重来
+            </button>
+          )}
         </header>
+
+        {/* 分享预览/生成 */}
+        {showShare && (
+          <div className="mb-4 p-4 bg-black/50 rounded-2xl border border-white/10">
+            {shareImage ? (
+              <div className="space-y-3">
+                <img src={shareImage} alt="分享图片" className="w-full rounded-lg" />
+                <div className="flex gap-2">
+                  <button
+                    onClick={downloadImage}
+                    className="flex-1 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-bold rounded-lg"
+                  >
+                    📥 下载图片
+                  </button>
+                  <button
+                    onClick={shareToWechat}
+                    className="flex-1 py-2 bg-green-500 hover:bg-green-600 text-white text-sm font-bold rounded-lg"
+                  >
+                    💬 微信分享
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <div className="animate-spin text-4xl mb-4">⏳</div>
+                <p className="text-white/60">正在生成分享图片...</p>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* 聊天区域 */}
         <div className="flex-1 bg-black/30 rounded-2xl border border-white/10 overflow-hidden flex flex-col">
@@ -327,32 +413,89 @@ export default function PuaChat() {
           </div>
 
           {/* 输入区域 */}
-          <div className="p-4 border-t border-white/10 bg-black/20">
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyPress={handleKeyPress}
-                placeholder="说点什么..."
-                className="flex-1 px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/40 focus:outline-none focus:border-orange-500"
-                disabled={isTyping}
-              />
-              <button
-                onClick={handleSend}
-                disabled={!input.trim() || isTyping}
-                className="px-6 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white font-bold rounded-xl disabled:opacity-50 hover:opacity-90 transition-opacity"
-              >
-                {isTyping ? '...' : '发送'}
-              </button>
+          {!showShare && (
+            <div className="p-4 border-t border-white/10 bg-black/20">
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  placeholder="说点什么..."
+                  className="flex-1 px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/40 focus:outline-none focus:border-orange-500"
+                  disabled={isTyping}
+                />
+                <button
+                  onClick={handleSend}
+                  disabled={!input.trim() || isTyping}
+                  className="px-6 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white font-bold rounded-xl disabled:opacity-50 hover:opacity-90 transition-opacity"
+                >
+                  {isTyping ? '...' : '发送'}
+                </button>
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* 底部提示 */}
         <p className="text-center text-white/30 text-xs mt-3">
           本页面内容仅供娱乐，请勿当真
         </p>
+
+        {/* 隐藏的分享模板（用于生成图片） */}
+        <div className="fixed -left-[9999px] top-0">
+          <div
+            ref={shareRef}
+            className="w-[375px] p-4 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900"
+          >
+            {/* 标题 */}
+            <div className="text-center mb-4 pb-3 border-b border-white/20">
+              <h1 className="text-lg font-black text-white mb-1">
+                💼 PUA Chat
+              </h1>
+              <p className="text-white/50 text-xs">互联网职场PUA体验</p>
+            </div>
+
+            {/* 聊天记录（最多显示8条） */}
+            <div className="space-y-2 mb-4 max-h-[400px] overflow-hidden">
+              {messages.slice(-8).map((msg, idx) => (
+                <div
+                  key={idx}
+                  className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                >
+                  <div
+                    className={`max-[85%] rounded-xl px-3 py-2 ${
+                      msg.role === 'user'
+                        ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs'
+                        : 'bg-white/10 text-white/90 text-xs'
+                    }`}
+                  >
+                    <p className="leading-snug">{msg.content}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* 底部信息 */}
+            <div className="flex items-center justify-between pt-3 border-t border-white/20">
+              <div className="text-xs text-white/60">
+                <p>点击体验 →</p>
+              </div>
+              <div className="bg-white p-1 rounded-lg">
+                <QRCodeSVG
+                  value="https://www.zkwatcher.top/pua/chat"
+                  size={60}
+                  fgColor="#0f172a"
+                />
+              </div>
+            </div>
+
+            {/* 水印 */}
+            <p className="text-center text-white/30 text-[10px] mt-3">
+              zkwatcher.top/pua/chat
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   )
