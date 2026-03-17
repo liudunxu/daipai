@@ -247,9 +247,9 @@ export default function PuaChat() {
     scrollToBottom()
   }, [messages])
 
-  // 判断是否达到4句（用户发送了4条消息）
+  // 判断是否达到2句（用户发送了2条消息）即可分享
   const userMessageCount = messages.filter(m => m.role === 'user').length
-  const canShare = userMessageCount >= 4
+  const canShare = userMessageCount >= 2
 
   const handleSend = () => {
     if (!input.trim() || isTyping) return
@@ -326,9 +326,9 @@ export default function PuaChat() {
         <header className="text-center mb-4 flex items-center justify-between px-2">
           <div className="text-left">
             <h1 className="text-2xl md:text-3xl font-black text-white">
-              💼 PUA <span className="bg-gradient-to-r from-orange-400 to-red-500 bg-clip-text text-transparent">Chat</span>
+              🔥 PUA <span className="bg-gradient-to-r from-orange-400 to-red-500 bg-clip-text text-transparent">聊天器</span>
             </h1>
-            <p className="text-white/50 text-xs">互联网职场PUA体验</p>
+            <p className="text-white/50 text-xs">互联网大厂PUA话术模拟器</p>
           </div>
           {canShare && !showShare && (
             <button
@@ -451,9 +451,9 @@ export default function PuaChat() {
             {/* 标题 */}
             <div className="text-center mb-4 pb-3 border-b border-white/20">
               <h1 className="text-lg font-black text-white mb-1">
-                💼 PUA Chat
+                🔥 PUA聊天器
               </h1>
-              <p className="text-white/50 text-xs">互联网职场PUA体验</p>
+              <p className="text-white/50 text-xs">互联网大厂PUA话术模拟器</p>
             </div>
 
             {/* 聊天记录（最多显示8条） */}
