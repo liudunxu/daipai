@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import ShareButtons from '../components/ShareButtons'
 import FAQSchema, { homePageFAQs } from '../components/FAQSchema'
+import { popularTools } from '../lib/constants'
 
 // 标签颜色映射
 const tagColors = {
@@ -156,38 +157,12 @@ export default function Home() {
             🔥 热门工具
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <a href="/today" className="bg-white/10 hover:bg-white/20 rounded-xl p-4 transition-colors text-center">
-              <div className="text-2xl mb-2">🎯</div>
-              <div className="text-white font-medium text-sm">今日运势</div>
-            </a>
-            <a href="/xingzuo" className="bg-white/10 hover:bg-white/20 rounded-xl p-4 transition-colors text-center">
-              <div className="text-2xl mb-2">✨</div>
-              <div className="text-white font-medium text-sm">星座运势</div>
-            </a>
-            <a href="/chouqian" className="bg-white/10 hover:bg-white/20 rounded-xl p-4 transition-colors text-center">
-              <div className="text-2xl mb-2">🙏</div>
-              <div className="text-white font-medium text-sm">在线抽签</div>
-            </a>
-            <a href="/stock" className="bg-white/10 hover:bg-white/20 rounded-xl p-4 transition-colors text-center">
-              <div className="text-2xl mb-2">📊</div>
-              <div className="text-white font-medium text-sm">股市预测</div>
-            </a>
-            <a href="/dice" className="bg-white/10 hover:bg-white/20 rounded-xl p-4 transition-colors text-center">
-              <div className="text-2xl mb-2">🎲</div>
-              <div className="text-white font-medium text-sm">摇骰子</div>
-            </a>
-            <a href="/shengxiao" className="bg-white/10 hover:bg-white/20 rounded-xl p-4 transition-colors text-center">
-              <div className="text-2xl mb-2">🐭</div>
-              <div className="text-white font-medium text-sm">十二生肖</div>
-            </a>
-            <a href="/tarot" className="bg-white/10 hover:bg-white/20 rounded-xl p-4 transition-colors text-center">
-              <div className="text-2xl mb-2">🔮</div>
-              <div className="text-white font-medium text-sm">塔罗牌</div>
-            </a>
-            <a href="/nav" className="bg-white/10 hover:bg-white/20 rounded-xl p-4 transition-colors text-center">
-              <div className="text-2xl mb-2">🧭</div>
-              <div className="text-white font-medium text-sm">更多工具</div>
-            </a>
+            {popularTools.map((tool) => (
+              <a key={tool.href} href={tool.href} className="bg-white/10 hover:bg-white/20 rounded-xl p-4 transition-colors text-center">
+                <div className="text-2xl mb-2">{tool.emoji}</div>
+                <div className="text-white font-medium text-sm">{tool.name}</div>
+              </a>
+            ))}
           </div>
         </div>
       </section>

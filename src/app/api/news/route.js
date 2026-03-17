@@ -202,14 +202,24 @@ function interleaveNews(news) {
 
 // 获取所有资讯
 async function fetchAllNews() {
-  const results = await Promise.all(
-    NEWS_SOURCES.map(async (source) => {
+  // 使用串行 + 延迟方式获取，避免触发目标站点限流
+  const results = []
+  for (const source of NEWS_SOURCES) {
+    try {
+      let news
       if (source.type === 'api') {
-        return fetchCLSNews(source)
+        news = await fetchCLSNews(source)
+      } else {
+        news = await fetchRSSNews(source)
       }
-      return fetchRSSNews(source)
-    })
-  )
+      results.push(news)
+      // 每个源之间增加 200ms 延迟，避免并发过高
+      await new Promise(resolve => setTimeout(resolve, 200))
+    } catch (error) {
+      console.error(`Error fetching ${source.name}:`, error)
+      results.push([])
+    }
+  }
 
   // 合并所有资讯
   const allNews = results.flat()
@@ -267,6 +277,10 @@ export async function GET() {
           data: data,
           count: data.length,
           cached: true
+        }, {
+          headers: {
+            'Cache-Control': 'public, s-maxage=600, stale-while-revalidate=300'
+          }
         })
       }
     }
@@ -284,6 +298,10 @@ export async function GET() {
       data: news,
       count: news.length,
       cached: false
+    }, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=600, stale-while-revalidate=300'
+      }
     })
   } catch (error) {
     console.error('Error fetching news:', error)
