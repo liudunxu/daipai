@@ -200,24 +200,33 @@ function interleaveNews(news) {
   return result
 }
 
-// 获取所有资讯
+// 获取所有资讯 - 使用受控并发避免限流
 async function fetchAllNews() {
-  // 使用串行 + 延迟方式获取，避免触发目标站点限流
+  const CONCURRENCY_LIMIT = 3  // 最多同时请求3个源
   const results = []
-  for (const source of NEWS_SOURCES) {
-    try {
-      let news
-      if (source.type === 'api') {
-        news = await fetchCLSNews(source)
-      } else {
-        news = await fetchRSSNews(source)
-      }
-      results.push(news)
-      // 每个源之间增加 200ms 延迟，避免并发过高
+
+  // 分批处理，每批最多 CONCURRENCY_LIMIT 个并行
+  for (let i = 0; i < NEWS_SOURCES.length; i += CONCURRENCY_LIMIT) {
+    const batch = NEWS_SOURCES.slice(i, i + CONCURRENCY_LIMIT)
+    const batchResults = await Promise.all(
+      batch.map(async (source) => {
+        try {
+          if (source.type === 'api') {
+            return await fetchCLSNews(source)
+          } else {
+            return await fetchRSSNews(source)
+          }
+        } catch (error) {
+          console.error(`Error fetching ${source.name}:`, error)
+          return []
+        }
+      })
+    )
+    results.push(...batchResults)
+
+    // 批次之间增加延迟，避免触发限流
+    if (i + CONCURRENCY_LIMIT < NEWS_SOURCES.length) {
       await new Promise(resolve => setTimeout(resolve, 200))
-    } catch (error) {
-      console.error(`Error fetching ${source.name}:`, error)
-      results.push([])
     }
   }
 
