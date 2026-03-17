@@ -52,6 +52,7 @@ export default function NavPage() {
     { name: '🦞 QClaw资讯', url: '/news/openclaw', desc: '腾讯QClaw最新消息' },
     { name: '📝 适合性测试', url: '/news/openclaw/check', desc: '测测你适合用OpenClaw吗' },
     { name: '💼 PUA话术', url: '/pua', desc: '互联网大厂PUA大全' },
+    { name: '💬 PUA聊天', url: '/pua/chat', desc: '和PUA聊聊天' },
     { name: '📖 国学院', url: '/guoxue', desc: '北京润泽园国学院' },
     { name: '✋ 手相术', url: '/guoxue/shouqianshou', desc: '手相看命运' },
     { name: '🖼️ 节日头像', url: '/avatar', desc: '春节、中秋、生日头像' },
