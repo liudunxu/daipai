@@ -247,9 +247,9 @@ export default function PuaChat() {
     scrollToBottom()
   }, [messages])
 
-  // 判断是否达到2句（用户发送了2条消息）即可分享
+  // 判断是否达到1句（用户发送了1条消息）即可分享
   const userMessageCount = messages.filter(m => m.role === 'user').length
-  const canShare = userMessageCount >= 2
+  const canShare = userMessageCount >= 1
 
   const handleSend = () => {
     if (!input.trim() || isTyping) return
@@ -325,10 +325,10 @@ export default function PuaChat() {
         {/* 头部 */}
         <header className="text-center mb-4 flex items-center justify-between px-2">
           <div className="text-left">
-            <h1 className="text-2xl md:text-3xl font-black text-white">
-              🔥 PUA <span className="bg-gradient-to-r from-orange-400 to-red-500 bg-clip-text text-transparent">聊天器</span>
+            <h1 className="text-2xl md:text-4xl font-black bg-gradient-to-r from-orange-400 via-red-500 to-purple-500 bg-clip-text text-transparent">
+              🔥 PUA聊天器
             </h1>
-            <p className="text-white/50 text-xs">互联网大厂PUA话术模拟器</p>
+            <p className="text-white/60 text-sm font-medium mt-1">互联网大厂PUA话术模拟器</p>
           </div>
           {canShare && !showShare && (
             <button
@@ -450,10 +450,10 @@ export default function PuaChat() {
           >
             {/* 标题 */}
             <div className="text-center mb-4 pb-3 border-b border-white/20">
-              <h1 className="text-lg font-black text-white mb-1">
+              <h1 className="text-xl font-black bg-gradient-to-r from-orange-400 via-red-500 to-purple-500 bg-clip-text text-transparent">
                 🔥 PUA聊天器
               </h1>
-              <p className="text-white/50 text-xs">互联网大厂PUA话术模拟器</p>
+              <p className="text-white/60 text-sm font-medium mt-1">互联网大厂PUA话术模拟器</p>
             </div>
 
             {/* 聊天记录（最多显示8条） */}
@@ -478,13 +478,14 @@ export default function PuaChat() {
 
             {/* 底部信息 */}
             <div className="flex items-center justify-between pt-3 border-t border-white/20">
-              <div className="text-xs text-white/60">
-                <p>点击体验 →</p>
+              <div className="flex-1">
+                <p className="text-sm font-bold text-orange-400">扫码我也试试 →</p>
+                <p className="text-[10px] text-white/40 mt-1">长按二维码识别体验</p>
               </div>
               <div className="bg-white p-1 rounded-lg">
                 <QRCodeSVG
                   value="https://www.zkwatcher.top/pua/chat"
-                  size={60}
+                  size={70}
                   fgColor="#0f172a"
                 />
               </div>
