@@ -239,6 +239,9 @@ export default function PuaChat() {
   const messagesEndRef = useRef(null)
   const shareRef = useRef(null)
 
+  // 检测是否在微信浏览器中
+  const isWechat = typeof window !== 'undefined' && /MicroMessenger/i.test(navigator.userAgent)
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
@@ -321,7 +324,7 @@ export default function PuaChat() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-4 md:py-8 px-2 md:px-5">
-      <div className="max-w-2xl mx-auto h-[calc(100vh-8rem)] flex flex-col">
+      <div className="max-w-2xl mx-auto h-[calc(100vh-6rem)] flex flex-col">
         {/* 头部 */}
         <header className="text-center mb-4 flex items-center justify-between px-2">
           <div className="text-left">
@@ -330,7 +333,7 @@ export default function PuaChat() {
             </h1>
             <p className="text-white/60 text-sm font-medium mt-1">互联网大厂PUA话术模拟器</p>
           </div>
-          {canShare && !showShare && (
+          {canShare && !showShare && !isWechat && (
             <button
               onClick={generateShareImage}
               className="px-3 py-2 bg-green-500 hover:bg-green-600 text-white text-sm font-bold rounded-lg flex items-center gap-1 transition-colors"
@@ -381,7 +384,7 @@ export default function PuaChat() {
         {/* 聊天区域 */}
         <div className="flex-1 bg-black/30 rounded-2xl border border-white/10 overflow-hidden flex flex-col">
           {/* 消息列表 */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4">
             {messages.map((msg, idx) => (
               <div
                 key={idx}
