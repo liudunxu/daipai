@@ -349,6 +349,22 @@ export default function PuaChat() {
               <span>🔄</span> 重来
             </button>
           )}
+          {/* 微信浏览器提示 */}
+          {canShare && isWechat && (
+            <div className="bg-yellow-500/20 border border-yellow-500/50 rounded-lg p-3 text-center">
+              <p className="text-yellow-300 text-sm">
+                微信无法生成图片，长按复制链接分享 👉 <button
+                  onClick={() => {
+                    navigator.clipboard.writeText('https://www.zkwatcher.top/pua/chat')
+                    alert('链接已复制！')
+                  }}
+                  className="underline font-bold"
+                >
+                  复制链接
+                </button>
+              </p>
+            </div>
+          )}
         </header>
 
         {/* 分享预览/生成 */}
