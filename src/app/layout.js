@@ -3,57 +3,93 @@ import BaiduAnalytics from '../components/BaiduAnalytics'
 import BaiduAdScript from '../components/BaiduAd'
 import GoogleAdSense from '../components/GoogleAdSense'
 import GoogleAnalytics from '../components/GoogleAnalytics'
+import { OrganizationSchema, WebSiteSchema } from '../components/SchemaMarkup'
 
 export const metadata = {
-  title: '极客观察 - AI科技经济资讯',
+  metadataBase: new URL('https://www.zkwatcher.top'),
+  title: {
+    default: '极客观察 - AI科技经济资讯',
+    template: '%s - 极客观察'
+  },
   description: '极客观察 - 混排AI、科技、经济相关资讯，36氪、虎嗅、IT之家、经济时报，一站获取最新科技动态',
   keywords: ['极客观察', 'AI', '科技', '经济', '资讯', '36氪', '虎嗅', 'IT之家', 'AI资讯', '科技新闻'],
+  authors: [{ name: '极客观察' }],
+  creator: '极客观察',
+  publisher: '极客观察',
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
   openGraph: {
     type: 'website',
     locale: 'zh_CN',
     url: 'https://www.zkwatcher.top',
     siteName: '极客观察',
-  },
-  twitter: {
-    card: 'summary',
     title: '极客观察 - AI科技经济资讯',
     description: '混排AI、科技、经济相关资讯',
+    images: [
+      {
+        url: '/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: '极客观察'
+      }
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: '极客观察 - AI科技经济资讯',
+    description: '混排AI、科技、经济相关资讯',
+    images: ['/og-image.png'],
   },
   robots: {
     index: true,
     follow: true,
+    googleBot: [
+      'index',
+      'follow',
+      'max-video-preview: -1',
+      'max-image-preview: large',
+      'max-snippet: -1',
+    ],
+    baiduspider: [
+      'index',
+      'follow',
+    ],
   },
-}
-
-const jsonLd = {
-  '@context': 'https://schema.org',
-  '@graph': [
-    {
-      '@type': 'WebSite',
-      name: '极客观察',
-      url: 'https://www.zkwatcher.top',
-      description: '混排AI、科技、经济相关资讯',
-      publisher: {
-        '@type': 'Organization',
-        name: '极客观察'
-      }
+  alternates: {
+    canonical: 'https://www.zkwatcher.top',
+    languages: {
+      'zh-CN': 'https://www.zkwatcher.top',
     },
-    {
-      '@type': 'CollectionPage',
-      name: '热门工具',
-      url: 'https://www.zkwatcher.top/nav',
-      description: '包含摇骰子、股市预测、姓名大全等实用工具'
-    }
-  ]
+  },
+  verification: {
+    google: 'google-site-verification-code',
+    baidu: 'baidu-site-verification-code',
+    yandex: 'yandex-verification-code',
+  },
 }
 
 export default function RootLayout({ children }) {
   return (
     <html lang="zh-CN">
       <head>
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        {/* 百度搜索资源平台验证 */}
+        <meta name="baidu-site-verification" content="codeva-XXXXXXXXXX" />
+
+        {/* 360 站长平台验证 */}
+        <meta name="360-site-verification" content="XXXXXXXXXX" />
+
+        {/* 搜狗站长平台验证 */}
+        <meta name="sogou_site_verification" content="XXXXXXXXXX" />
+
+        {/* 结构化数据 */}
+        <OrganizationSchema />
+        <WebSiteSchema
+          name="极客观察"
+          url="https://www.zkwatcher.top"
+          description="AI科技经济资讯平台"
         />
       </head>
       <body>

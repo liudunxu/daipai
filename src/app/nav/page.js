@@ -2,14 +2,14 @@ import { AdBanner } from '../../components/Ads'
 import WechatGroup from '../../components/WechatGroup'
 
 export const metadata = {
-  title: '导航页 - 实用工具集合',
-  description: '汇集各种实用工具和资讯页面，包括摇骰子、股市预测、姓名大全、热搜榜等。',
-  keywords: ['导航', '工具箱', '实用工具', '在线工具'],
+  title: '导航页 - 实用工具集合 - 极客观察',
+  description: '汇集各种实用工具和资讯页面，包括摇骰子、股市预测、姓名大全、热搜榜、星座运势、塔罗牌测试等。极客观察工具箱一触即达。',
+  keywords: ['导航', '工具箱', '实用工具', '在线工具', '运势查询', '算命工具', 'AI工具'],
   openGraph: {
     type: 'website',
     locale: 'zh_CN',
     url: 'https://www.zkwatcher.top/nav',
-    siteName: '实用工具箱',
+    siteName: '极客观察',
     title: '导航页 - 实用工具集合',
     description: '汇集各种实用工具和资讯页面。',
   },
@@ -17,6 +17,9 @@ export const metadata = {
     card: 'summary',
     title: '导航页 - 实用工具集合',
     description: '汇集各种实用工具和资讯页面',
+  },
+  alternates: {
+    canonical: 'https://www.zkwatcher.top/nav',
   },
 }
 

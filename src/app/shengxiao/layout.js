@@ -1,7 +1,7 @@
 export const metadata = {
-  title: '十二生肖 - 生肖运势查询',
-  description: '查看十二生肖运势，鼠、牛、虎、兔、龙、蛇、马、羊、猴、鸡、狗、猪各年份属相性格和运势。',
-  keywords: ['十二生肖', '生肖查询', '属相运势', '生肖配对'],
+  title: '十二生肖 - 生肖运势查询 - 极客观察',
+  description: '查看十二生肖运势，鼠、牛、虎、兔、龙、蛇、马、羊、猴、鸡、狗、猪各年份属相性格和运势。在线生肖运势查询免费看。',
+  keywords: ['十二生肖', '生肖查询', '属相运势', '生肖配对', '属鼠运势', '属牛运势', '属虎运势'],
   openGraph: {
     type: 'website',
     locale: 'zh_CN',
@@ -14,6 +14,9 @@ export const metadata = {
     card: 'summary',
     title: '十二生肖 - 生肖运势查询',
     description: '查看十二生肖运势',
+  },
+  alternates: {
+    canonical: 'https://www.zkwatcher.top/shengxiao',
   },
 }
 
