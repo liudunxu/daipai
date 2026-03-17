@@ -221,6 +221,64 @@ const puaResponses = [
   "你这种结果是有问题的。",
 ]
 
+// 欢迎语/开场白 - 随机显示，激发用户聊天欲望
+const welcomeResponses = [
+  "就这？你也行？",
+  "有话快说，有屁快放。",
+  "给你个机会，说说看。",
+  "想被骂？尽管开口。",
+  "我倒要看看你能说出什么花样。",
+  "又是来摸鱼的？",
+  "今天的kpi完成了吗就来聊天？",
+  "说吧，想挨哪方面的批评？",
+  "赶紧的，我很忙。",
+  "别废话，直接说。",
+  "又是一个来求助的？",
+  "让你说话了吗？",
+  "我给你三秒钟组织语言。",
+  "给你个表现的机会。",
+  "说吧，是不是想被PUA了？",
+  "又菜又爱玩？",
+  "来，让我看看你的水平。",
+  "给你一个展示自己的机会。",
+  "说吧，想让我怎么收拾你？",
+  "是不是闲的？",
+  "你的需求我来实现，你的苦难我来承受。",
+  "又来一个找虐的？",
+  "让我看看你能坚持多久。",
+  "说吧，想被哪种风格PUA？",
+  "给你个台阶下，快说吧。",
+  "别怂，有什么说什么。",
+  "我准备好了，你尽管说。",
+  "说吧，是不是觉得自己很行？",
+  "让你开口你就开口。",
+  "给你点颜色看看？",
+  "是不是欠收拾？",
+  "我看你是不想好了。",
+  "又来找刺激了？",
+  "说吧，想听真话还是假话？",
+  "让你说你就说，别客气。",
+  "我倒要看看你能说出什么花儿来。",
+  "给你个机会表现。",
+  "说吧，是不是憋坏了？",
+  "让你嘴硬。",
+  "我看看你还能撑多久。",
+  "说吧，想被怎么夸？",
+  "给你个台阶，别不知抬举。",
+  "说，我听着呢。",
+  "让你狂。",
+  "又觉得自己行了？",
+  "来，让我教育教育你。",
+  "给你点阳光就灿烂。",
+  "说吧，想被表扬还是批评？",
+  "我看看你几斤几两。",
+  "说吧，是不是皮痒了？",
+]
+
+const getRandomWelcome = () => {
+  return welcomeResponses[Math.floor(Math.random() * welcomeResponses.length)]
+}
+
 const getRandomPuaResponse = () => {
   return puaResponses[Math.floor(Math.random() * puaResponses.length)]
 }
@@ -229,7 +287,7 @@ export default function PuaChat() {
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
-      content: '有什么问题？说出来让我看看你能做到什么程度。',
+      content: getRandomWelcome(),
     },
   ])
   const [input, setInput] = useState('')
@@ -315,7 +373,7 @@ export default function PuaChat() {
     setMessages([
       {
         role: 'assistant',
-        content: '有什么问题？说出来让我看看你能做到什么程度。',
+        content: getRandomWelcome(),
       },
     ])
     setShowShare(false)
