@@ -4,6 +4,7 @@ import { useState } from 'react'
 import ShareButtons from '../../components/ShareButtons'
 import { AdBanner } from '../../components/Ads'
 import RelatedTools from '../../components/RelatedTools'
+import FAQSchema, { chouqianFAQs } from '../../components/FAQSchema'
 
 const signs = [
   { id: 1, name: '上上签', level: '大吉', desc: '大吉大利，万事如意！', poem: '鱼龙变化跃天门，凤鸟来仪献瑞祥。' },
@@ -42,7 +43,9 @@ export default function ChouQian() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-8 px-5">
+    <>
+      <FAQSchema faqs={chouqianFAQs} />
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-8 px-5">
       <div className="max-w-xl mx-auto">
         <header className="text-center mb-8">
           <h1 className="text-3xl font-black text-white mb-2">🙏 在线抽签</h1>
@@ -96,12 +99,26 @@ export default function ChouQian() {
         {/* 相关推荐 - SEO 内部链接 */}
         <RelatedTools category="chouqian" />
 
+        {/* 常见问题 */}
+        <div className="mt-8 bg-white/5 border border-white/10 rounded-2xl p-6">
+          <h2 className="text-lg font-bold text-white mb-4 text-center">❓ 常见问题</h2>
+          <div className="space-y-4">
+            {chouqianFAQs.map((faq, index) => (
+              <div key={index}>
+                <h3 className="text-white font-medium mb-1 text-sm">{faq.question}</h3>
+                <p className="text-white/50 text-xs">{faq.answer}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
         <footer className="mt-8 text-center">
           <a href="/nav" className="text-white/40 hover:text-white/60 text-sm">
             ← 更多工具
           </a>
         </footer>
       </div>
-    </div>
+      </div>
+    </>
   )
 }

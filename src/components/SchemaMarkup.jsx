@@ -154,3 +154,43 @@ export function LocalBusinessSchema({ name, address, phone, hours }) {
 
   return <JsonLd data={schema} />
 }
+
+/**
+ * 面包屑导航结构化数据
+ */
+export function BreadcrumbSchema({ items }) {
+  if (!items || items.length === 0) return null
+
+  const schema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: items.map((item, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: item.name,
+      item: item.url ? `https://www.zkwatcher.top${item.url}` : undefined
+    }))
+  }
+
+  return <JsonLd data={schema} />
+}
+
+/**
+ * WebPage 结构化数据
+ */
+export function WebPageSchema({ name, description, url }) {
+  const schema = {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: name,
+    description: description,
+    url: `https://www.zkwatcher.top${url}`,
+    isPartOf: {
+      '@type': 'WebSite',
+      name: '极客观察',
+      url: 'https://www.zkwatcher.top'
+    }
+  }
+
+  return <JsonLd data={schema} />
+}

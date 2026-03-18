@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import ShareButtons from '../../components/ShareButtons'
+import FAQSchema, { baziFAQs } from '../../components/FAQSchema'
 
 const tiangan = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸']
 const dizhi = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥']
@@ -72,6 +73,7 @@ export default function BaziPage() {
 
   return (
     <>
+      <FAQSchema faqs={baziFAQs} />
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-8 px-5">
         <div className="max-w-xl mx-auto">
           <header className="text-center mb-8">
@@ -157,6 +159,19 @@ export default function BaziPage() {
           )}
 
           <ShareButtons title="八字算命 - 生辰八字在线查询" url="/bazi" />
+
+          {/* 常见问题 */}
+          <div className="mt-8 bg-white/5 border border-white/10 rounded-2xl p-6">
+            <h2 className="text-lg font-bold text-white mb-4 text-center">❓ 常见问题</h2>
+            <div className="space-y-4">
+              {baziFAQs.map((faq, index) => (
+                <div key={index}>
+                  <h3 className="text-white font-medium mb-1 text-sm">{faq.question}</h3>
+                  <p className="text-white/50 text-xs">{faq.answer}</p>
+                </div>
+              ))}
+            </div>
+          </div>
 
           <footer className="mt-8 text-center">
             <a href="/nav" className="text-white/40 hover:text-white/60 text-sm">

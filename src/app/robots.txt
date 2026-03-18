@@ -1,0 +1,28 @@
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://www.zkwatcher.top/sitemap.xml
+
+# Baidu
+User-agent: Baiduspider
+Allow: /
+Crawl-delay: 1
+
+# Google
+User-agent: Googlebot
+Allow: /
+
+# Sogou
+User-agent: Sogou
+Allow: /
+
+# 360
+User-agent: 360Spider
+Allow: /
+
+# 屏蔽后台和私有路径
+Disallow: /api/
+Disallow: /admin/
+Disallow: /*.json$

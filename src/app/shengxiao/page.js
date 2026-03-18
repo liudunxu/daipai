@@ -4,6 +4,7 @@ import { useState } from 'react'
 import ShareButtons from '../../components/ShareButtons'
 import { AdBanner } from '../../components/Ads'
 import RelatedTools from '../../components/RelatedTools'
+import FAQSchema, { shengxiaoFAQs } from '../../components/FAQSchema'
 import { FortuneTellingSchema, PageContentSummary } from '../../components/RAGTools'
 
 const zodiacYear = ['鼠', '牛', '虎', '兔', '龙', '蛇', '马', '羊', '猴', '鸡', '狗', '猪']
@@ -49,6 +50,8 @@ export default function ZodiacYear() {
 
   return (
     <>
+      {/* FAQ 结构化数据 */}
+      <FAQSchema faqs={shengxiaoFAQs} />
       {/* RAG 优化结构化数据 */}
       <FortuneTellingSchema
         name="十二生肖运势查询"
@@ -118,6 +121,19 @@ export default function ZodiacYear() {
 
         {/* 相关推荐 - SEO 内部链接 */}
         <RelatedTools category="shengxiao" />
+
+        {/* 常见问题 */}
+        <div className="mt-8 bg-white/5 border border-white/10 rounded-2xl p-6">
+          <h2 className="text-lg font-bold text-white mb-4 text-center">❓ 常见问题</h2>
+          <div className="space-y-4">
+            {shengxiaoFAQs.map((faq, index) => (
+              <div key={index}>
+                <h3 className="text-white font-medium mb-1 text-sm">{faq.question}</h3>
+                <p className="text-white/50 text-xs">{faq.answer}</p>
+              </div>
+            ))}
+          </div>
+        </div>
 
         <footer className="mt-8 text-center">
           <a href="/nav" className="text-white/40 hover:text-white/60 text-sm">← 更多工具</a>
