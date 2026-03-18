@@ -7,6 +7,11 @@ export const metadata = {
   keywords: ['2026热搜', '热门话题', '微博热搜', '知乎热榜', '抖音热门', '今日热点'],
 }
 
+// 基于日期的确定性随机数生成
+function dateSeedRandom(seed, max = 500) {
+  return ((seed * 9301 + 49297) % 233280) / 233280 * max + 100
+}
+
 // 动态生成热搜数据
 function generateTrends() {
   const topics = [
@@ -61,7 +66,7 @@ function generateTrends() {
   const trends = shuffled.slice(0, 10).map((item, i) => ({
     rank: i + 1,
     title: item.title,
-    hot: `${Math.floor(Math.random() * 500 + 100)}万`,
+    hot: `${Math.floor(dateSeedRandom(dateNum + i))}万`,
     tag: item.tag,
   }))
 

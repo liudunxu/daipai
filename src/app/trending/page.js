@@ -23,101 +23,121 @@ export const metadata = {
   },
 }
 
-// 模拟热搜数据生成器（基于日期生成不同内容）
-function generateHotData() {
-  const today = new Date()
-  const dateStr = today.toISOString().slice(0, 10).replace(/-/g, '')
-  const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / (1000 * 60 * 60 * 24))
-
-  // 微博热搜
-  const weiboTopics = [
-    'AI人工智能', 'ChatGPT更新', '特斯拉新品', '娱乐圈八卦', '世界杯',
-    '春节档电影', '冬奥会', '科技圈大事件', '明星官宣', '综艺节目',
-    '股票市场', '新能源车', '手机新品', '游戏发售', '电视剧热播'
-  ]
-
-  const weiboHot = weiboTopics.map((topic, i) => ({
-    rank: i + 1,
-    title: topic,
-    hot: `${Math.floor(Math.random() * 500 + 100)}万`,
-    url: 'https://s.weibo.com'
-  }))
-
-  // 知乎热榜
-  const zhihuTopics = [
-    'AI将如何改变2026年的生活',
-    '2026年最值得投资的领域',
-    '普通人如何抓住AI红利',
-    '新能源汽车取代燃油车还要多久',
-    '下一代互联网技术发展方向',
-    '如何培养面向未来的孩子',
-    '中国科技创新的机遇与挑战',
-    '程序员35岁后的职业选择',
-    'AI会不会取代人类工作',
-    '下一个风口行业是什么'
-  ]
-
-  const zhihuHot = zhihuTopics.map((topic, i) => ({
-    rank: i + 1,
-    title: topic,
-    url: 'https://www.zhihu.com'
-  }))
-
-  // 百度热搜
-  const baiduTopics = [
-    '2026年春节档票房',
-    'AI大模型最新进展',
-    '新能源汽车销量',
-    '全国两会热点',
-    '天气变化',
-    '教育改革新政策',
-    '医疗健康新政策',
-    '房价走势分析',
-    '就业形势分析',
-    '科技创新动态'
-  ]
-
-  const baiduHot = baiduTopics.map((topic, i) => ({
-    rank: i + 1,
-    title: topic,
-    url: 'https://top.baidu.com'
-  }))
-
-  // 科技热点
-  const techTopics = [
-    '国产大模型再突破，性能比肩GPT-5',
-    'AI Agent应用落地，企业数字化转型加速',
-    '新能源汽车出海欧洲，销量创新高',
-    '元宇宙技术突破，VR设备普及',
-    '芯片国产化进程加快',
-    '量子计算新进展，商业化在即',
-    '5G-A网络商用，速率提升10倍',
-    '自动驾驶L3级获批上路'
-  ]
-
-  const techHot = techTopics.map((topic, i) => ({
-    rank: i + 1,
-    title: topic,
-    url: 'https://www.36kr.com'
-  }))
-
-  return {
-    weiboHot,
-    zhihuHot,
-    baiduHot,
-    techHot,
-    updateTime: today.toLocaleString('zh-CN', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit'
-    })
+// 热搜数据配置
+const hotDataConfig = {
+  weibo: {
+    title: '微博热搜',
+    emoji: '🐦',
+    badgeColor: 'bg-red-500',
+    url: 'https://s.weibo.com',
+    topics: [
+      'AI人工智能', 'ChatGPT更新', '特斯拉新品', '娱乐圈八卦', '世界杯',
+      '春节档电影', '冬奥会', '科技圈大事件', '明星官宣', '综艺节目',
+      '股票市场', '新能源车', '手机新品', '游戏发售', '电视剧热播'
+    ]
+  },
+  zhihu: {
+    title: '知乎热榜',
+    emoji: '💬',
+    badgeColor: 'bg-blue-500',
+    url: 'https://www.zhihu.com',
+    topics: [
+      'AI将如何改变2026年的生活', '2026年最值得投资的领域', '普通人如何抓住AI红利',
+      '新能源汽车取代燃油车还要多久', '下一代互联网技术发展方向', '如何培养面向未来的孩子',
+      '中国科技创新的机遇与挑战', '程序员35岁后的职业选择', 'AI会不会取代人类工作', '下一个风口行业是什么'
+    ]
+  },
+  baidu: {
+    title: '百度热搜',
+    emoji: '🔍',
+    badgeColor: 'bg-green-500',
+    url: 'https://top.baidu.com',
+    topics: [
+      '2026年春节档票房', 'AI大模型最新进展', '新能源汽车销量', '全国两会热点',
+      '天气变化', '教育改革新政策', '医疗健康新政策', '房价走势分析', '就业形势分析', '科技创新动态'
+    ]
+  },
+  tech: {
+    title: '科技热点',
+    emoji: '💻',
+    badgeColor: 'bg-purple-500',
+    url: 'https://www.36kr.com',
+    topics: [
+      '国产大模型再突破', 'AI Agent应用落地', '新能源汽车销量创新高', '芯片国产化进程',
+      '量子计算新进展', '5G-A网络商用', '自动驾驶技术突破', '元宇宙设备普及'
+    ]
   }
 }
 
+// 基于日期的确定性随机数生成
+function dateSeedRandom(seed, max = 500) {
+  return ((seed * 9301 + 49297) % 233280) / 233280 * max + 100
+}
+
+// 模拟热搜数据生成器（基于日期生成确定性内容）
+function generateHotData() {
+  const today = new Date()
+  const seed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate()
+
+  const result = {}
+
+  // 生成各平台热搜
+  for (const [key, config] of Object.entries(hotDataConfig)) {
+    result[key] = config.topics.map((topic, i) => ({
+      rank: i + 1,
+      title: topic,
+      ...(key === 'weibo' ? { hot: `${Math.floor(dateSeedRandom(seed + i))}万` } : {}),
+      url: config.url
+    }))
+  }
+
+  result.updateTime = today.toLocaleString('zh-CN', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
+
+  return result
+}
+
+// 热搜列表区块组件
+function HotListSection({ title, emoji, badgeColor, items, showHot = false }) {
+  return (
+    <section className="mb-8">
+      <div className="flex items-center gap-3 mb-4">
+        <span className="text-2xl">{emoji}</span>
+        <h2 className="text-xl font-bold text-white">{title}</h2>
+        {title === '微博热搜' && (
+          <span className="text-xs text-red-400 bg-red-400/20 px-2 py-1 rounded-full">实时</span>
+        )}
+      </div>
+      <div className="bg-white/5 backdrop-blur-sm rounded-2xl overflow-hidden">
+        {items.map((item) => (
+          <a
+            key={item.rank}
+            href={item.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center px-4 py-3 hover:bg-white/10 transition-colors border-b border-white/5 last:border-0"
+          >
+            <span className={`w-8 h-8 flex items-center justify-center rounded-lg font-bold text-sm ${
+              item.rank <= 3 ? `${badgeColor} text-white` : 'bg-white/10 text-white/60'
+            }`}>
+              {item.rank}
+            </span>
+            <span className="flex-1 ml-3 text-white font-medium">{item.title}</span>
+            {showHot && <span className="text-orange-400 text-sm">{item.hot}</span>}
+          </a>
+        ))}
+      </div>
+    </section>
+  )
+}
+
 export default function TrendingPage() {
-  const { weiboHot, zhihuHot, baiduHot, techHot, updateTime } = generateHotData()
+  const { weibo, zhihu, baidu, tech, updateTime } = generateHotData()
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4 md:p-8">
@@ -132,7 +152,7 @@ export default function TrendingPage() {
           </p>
         </header>
 
-        {/* 更新时间 - 动态显示 */}
+        {/* 更新时间 */}
         <div className="text-center mb-8">
           <span className="inline-block px-4 py-2 bg-white/10 rounded-full text-green-400 text-sm">
             📅 更新时间：{updateTime}（每30分钟自动更新）
@@ -140,104 +160,37 @@ export default function TrendingPage() {
         </div>
 
         {/* 微博热搜 */}
-        <section className="mb-8">
-          <div className="flex items-center gap-3 mb-4">
-            <span className="text-2xl">🐦</span>
-            <h2 className="text-xl font-bold text-white">微博热搜</h2>
-            <span className="text-xs text-red-400 bg-red-400/20 px-2 py-1 rounded-full">实时</span>
-          </div>
-          <div className="bg-white/5 backdrop-blur-sm rounded-2xl overflow-hidden">
-            {weiboHot.map((item) => (
-              <a
-                key={item.rank}
-                href={item.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center px-4 py-3 hover:bg-white/10 transition-colors border-b border-white/5 last:border-0"
-              >
-                <span className={`w-8 h-8 flex items-center justify-center rounded-lg font-bold text-sm ${
-                  item.rank <= 3 ? 'bg-red-500 text-white' : 'bg-white/10 text-white/60'
-                }`}>
-                  {item.rank}
-                </span>
-                <span className="flex-1 ml-3 text-white font-medium">{item.title}</span>
-                <span className="text-orange-400 text-sm">{item.hot}</span>
-              </a>
-            ))}
-          </div>
-        </section>
+        <HotListSection
+          title={hotDataConfig.weibo.title}
+          emoji={hotDataConfig.weibo.emoji}
+          badgeColor={hotDataConfig.weibo.badgeColor}
+          items={weibo}
+          showHot
+        />
 
         {/* 知乎热榜 */}
-        <section className="mb-8">
-          <div className="flex items-center gap-3 mb-4">
-            <span className="text-2xl">💬</span>
-            <h2 className="text-xl font-bold text-white">知乎热榜</h2>
-          </div>
-          <div className="bg-white/5 backdrop-blur-sm rounded-2xl overflow-hidden">
-            {zhihuHot.map((item) => (
-              <a
-                key={item.rank}
-                href={item.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center px-4 py-3 hover:bg-white/10 transition-colors border-b border-white/5 last:border-0"
-              >
-                <span className="w-8 h-8 flex items-center justify-center rounded-lg bg-blue-500 text-white text-sm font-bold">
-                  {item.rank}
-                </span>
-                <span className="flex-1 ml-3 text-white font-medium">{item.title}</span>
-              </a>
-            ))}
-          </div>
-        </section>
+        <HotListSection
+          title={hotDataConfig.zhihu.title}
+          emoji={hotDataConfig.zhihu.emoji}
+          badgeColor={hotDataConfig.zhihu.badgeColor}
+          items={zhihu}
+        />
 
         {/* 百度热搜 */}
-        <section className="mb-8">
-          <div className="flex items-center gap-3 mb-4">
-            <span className="text-2xl">🔍</span>
-            <h2 className="text-xl font-bold text-white">百度热搜</h2>
-          </div>
-          <div className="bg-white/5 backdrop-blur-sm rounded-2xl overflow-hidden">
-            {baiduHot.map((item) => (
-              <a
-                key={item.rank}
-                href={item.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center px-4 py-3 hover:bg-white/10 transition-colors border-b border-white/5 last:border-0"
-              >
-                <span className="w-8 h-8 flex items-center justify-center rounded-lg bg-green-500 text-white text-sm font-bold">
-                  {item.rank}
-                </span>
-                <span className="flex-1 ml-3 text-white font-medium">{item.title}</span>
-              </a>
-            ))}
-          </div>
-        </section>
+        <HotListSection
+          title={hotDataConfig.baidu.title}
+          emoji={hotDataConfig.baidu.emoji}
+          badgeColor={hotDataConfig.baidu.badgeColor}
+          items={baidu}
+        />
 
         {/* 科技热点 */}
-        <section className="mb-8">
-          <div className="flex items-center gap-3 mb-4">
-            <span className="text-2xl">💻</span>
-            <h2 className="text-xl font-bold text-white">科技热点</h2>
-          </div>
-          <div className="bg-white/5 backdrop-blur-sm rounded-2xl overflow-hidden">
-            {techHot.map((item) => (
-              <a
-                key={item.rank}
-                href={item.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center px-4 py-3 hover:bg-white/10 transition-colors border-b border-white/5 last:border-0"
-              >
-                <span className="w-8 h-8 flex items-center justify-center rounded-lg bg-purple-500 text-white text-sm font-bold">
-                  {item.rank}
-                </span>
-                <span className="flex-1 ml-3 text-white font-medium">{item.title}</span>
-              </a>
-            ))}
-          </div>
-        </section>
+        <HotListSection
+          title={hotDataConfig.tech.title}
+          emoji={hotDataConfig.tech.emoji}
+          badgeColor={hotDataConfig.tech.badgeColor}
+          items={tech}
+        />
 
         {/* 广告位 */}
         <div className="mb-8">
@@ -251,21 +204,9 @@ export default function TrendingPage() {
             热搜同款好物，点击了解
           </p>
           <div className="flex flex-wrap justify-center gap-3">
-            <AffiliateLink
-              url="https://github.com"
-              text="GitHub"
-              platform="app"
-            />
-            <AffiliateLink
-              url="https://weibo.com"
-              text="微博会员"
-              platform="app"
-            />
-            <AffiliateLink
-              url="https://www.zhihu.com"
-              text="知乎会员"
-              platform="app"
-            />
+            <AffiliateLink url="https://github.com" text="GitHub" platform="app" />
+            <AffiliateLink url="https://weibo.com" text="微博会员" platform="app" />
+            <AffiliateLink url="https://www.zhihu.com" text="知乎会员" platform="app" />
           </div>
         </section>
 

@@ -2,6 +2,14 @@
  * 商品卡片组件
  * 用于展示电商带货商品
  */
+
+const platformNames = {
+  taobao: '淘宝',
+  jingdong: '京东',
+  tmall: '天猫',
+  pinduoduo: '拼多多'
+}
+
 export default function ProductCard({
   title,
   description,
@@ -12,13 +20,6 @@ export default function ProductCard({
   platform = 'taobao',
   className = ''
 }) {
-  const platformNames = {
-    taobao: '淘宝',
-    jingdong: '京东',
-    tmall: '天猫',
-    pinduoduo: '拼多多'
-  }
-
   return (
     <a
       href={link}
