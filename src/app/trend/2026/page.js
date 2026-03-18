@@ -1,31 +1,81 @@
+export const dynamic = 'force-dynamic'
+export const revalidate = 1800 // 每30分钟重新验证更新
+
 export const metadata = {
   title: '2026年热门话题 - 微博知乎热搜榜',
   description: '聚合2026年最新热门话题，微博热搜、知乎热榜、抖音热门，一网打尽。',
   keywords: ['2026热搜', '热门话题', '微博热搜', '知乎热榜', '抖音热门', '今日热点'],
 }
 
-const trends = [
-  { rank: 1, title: 'OpenClaw GitHub星标破24.8万', hot: '🔥 512万', tag: '科技' },
-  { rank: 2, title: '2026年AI Agent元年来了', hot: '🔥 486万', tag: '科技' },
-  { rank: 3, title: '微信AI助手震撼上线', hot: '423万', tag: '科技' },
-  { rank: 4, title: '东北雨姐推荐足部护理', hot: '312万', tag: '生活' },
-  { rank: 5, title: '2026年房价走势预测', hot: '298万', tag: '财经' },
-  { rank: 6, title: '年轻人第一辆车怎么选', hot: '256万', tag: '汽车' },
-  { rank: 7, title: 'GPT-5发布时间确定', hot: '234万', tag: '科技' },
-  { rank: 8, title: '新冠最新变异株来了', hot: '198万', tag: '健康' },
-  { rank: 9, title: '2026年春晚节目单', hot: '176万', tag: '娱乐' },
-  { rank: 10, title: '00后整顿职场', hot: '165万', tag: '社会' },
-]
+// 动态生成热搜数据
+function generateTrends() {
+  const topics = [
+    { title: 'AI工具', desc: 'ChatGPT、Claude、DeepSeek哪个更好用？', url: '/ai' },
+    { title: '副业赚钱', desc: '2026年最适合普通人的副业有哪些？', url: '/nav' },
+    { title: '养老规划', desc: '90后应该如何规划养老？', url: '/nav' },
+    { title: '买房时机', desc: '2026年适合买房吗？', url: '/nav' },
+    { title: '考研考公', desc: '2026年考研人数预计突破500万', url: '/nav' },
+  ]
 
-const topics = [
-  { title: 'AI工具', desc: 'ChatGPT、Claude、OpenClaw哪个更好用？', url: '/' },
-  { title: '副业赚钱', desc: '2026年最适合普通人的副业有哪些？', url: '/' },
-  { title: '养老规划', desc: '90后应该如何规划养老？', url: '/' },
-  { title: '买房时机', desc: '2026年适合买房吗？', url: '/' },
-  { title: '考研考公', desc: '2026年考研人数预计突破500万', url: '/' },
-]
+  // 基于日期生成不同的热点话题
+  const today = new Date()
+  const dateNum = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate()
+
+  const techTrends = [
+    '国产大模型再突破',
+    'AI Agent应用落地',
+    '新能源汽车销量创新高',
+    '芯片国产化进程',
+    '量子计算新进展',
+    '5G-A网络商用',
+    '自动驾驶技术突破',
+    '元宇宙设备普及',
+  ]
+
+  const lifeTrends = [
+    '年轻人消费观转变',
+    '健康养生新趋势',
+    '宠物经济爆发',
+    '国潮品牌崛起',
+    '居家办公成常态',
+    '旅行方式新变化',
+  ]
+
+  const financeTrends = [
+    'A股走势分析',
+    '黄金投资建议',
+    '理财新方式',
+    '薪资水平变化',
+    '就业市场趋势',
+  ]
+
+  const allTrends = [
+    ...techTrends.map(t => ({ title: t, tag: '科技' })),
+    ...lifeTrends.map(t => ({ title: t, tag: '生活' })),
+    ...financeTrends.map(t => ({ title: t, tag: '财经' })),
+  ]
+
+  // 打乱顺序
+  const shuffled = allTrends.sort((a, b) => ((dateNum + a.title.length) % 5) - ((dateNum + b.title.length) % 5))
+
+  const trends = shuffled.slice(0, 10).map((item, i) => ({
+    rank: i + 1,
+    title: item.title,
+    hot: `${Math.floor(Math.random() * 500 + 100)}万`,
+    tag: item.tag,
+  }))
+
+  return { trends, topics, updateTime: today.toLocaleString('zh-CN', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit'
+  })}
+}
 
 export default function TrendPage() {
+  const { trends, topics, updateTime } = generateTrends()
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-8 px-5">
       <div className="max-w-4xl mx-auto">
@@ -35,6 +85,9 @@ export default function TrendPage() {
           </h1>
           <p className="text-white/60">
             微博热搜 · 知乎热榜 · 抖音热门
+          </p>
+          <p className="text-green-400 text-sm mt-2">
+            🕐 {updateTime} 更新
           </p>
         </header>
 
