@@ -5,6 +5,7 @@ import ShareButtons from '../../components/ShareButtons'
 import { AdBanner } from '../../components/Ads'
 import FAQSchema, { xingzuoFAQs } from '../../components/FAQSchema'
 import RelatedTools from '../../components/RelatedTools'
+import { FortuneTellingSchema, PageContentSummary } from '../../components/RAGTools'
 
 const zodiacSigns = [
   { name: '白羊座', dates: '3.21-4.19', symbol: '♈', element: '火', color: '#FF6B6B' },
@@ -41,6 +42,18 @@ export default function Constellation() {
 
   return (
     <>
+      {/* RAG 优化结构化数据 */}
+      <FortuneTellingSchema
+        name="星座运势查询"
+        description="查看十二星座今日运势，白羊、金牛、双子、巨蟹、狮子、处女、天秤、天蝎、射手、摩羯、水瓶、双鱼今日运势详解。免费在线星座运势查询。"
+        url="https://www.zkwatcher.top/xingzuo"
+      />
+      <PageContentSummary
+        title="星座运势查询"
+        description="查看十二星座今日运势详解，包括爱情、事业、财运分析。提供白羊座、金牛座、双子座、巨蟹座、狮子座、处女座、天秤座、天蝎座、射手座、摩羯座、水瓶座、双鱼座运势查询。"
+        category="玄学命理"
+        features={['十二星座运势', '每日更新', '爱情事业财运', '免费在线查询']}
+      />
       <FAQSchema faqs={xingzuoFAQs} />
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-8 px-5">
       <div className="max-w-xl mx-auto">

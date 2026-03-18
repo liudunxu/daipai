@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import ShareButtons from '../components/ShareButtons'
 import FAQSchema, { homePageFAQs } from '../components/FAQSchema'
+import { CollectionPageSchema, PageContentSummary } from '../components/RAGTools'
 import { popularTools } from '../lib/constants'
 
 // 标签颜色映射
@@ -62,6 +63,22 @@ export default function Home() {
 
   return (
     <>
+      {/* RAG 优化结构化数据 */}
+      <CollectionPageSchema
+        name="极客观察 - AI科技经济资讯"
+        description="混排AI、科技、经济相关资讯，36氪、虎嗅、IT之家、经济时报，一站获取最新科技动态。同时提供星座运势、八字算命、塔罗牌等玄学工具。"
+        items={popularTools.map(tool => ({
+          name: tool.name,
+          description: `${tool.name}工具`,
+          url: `https://www.zkwatcher.top${tool.href}`
+        }))}
+      />
+      <PageContentSummary
+        title="极客观察 - AI科技经济资讯"
+        description="混排AI、科技、经济相关资讯，提供星座运势、八字算命、塔罗牌、抽签等玄学工具，以及密码生成、幸运数字等生活工具。"
+        category="资讯"
+        features={['AI资讯', '科技新闻', '经济资讯', '星座运势', '八字算命', '塔罗牌', '生活工具']}
+      />
       <FAQSchema faqs={homePageFAQs} />
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
       {/* 头部 */}

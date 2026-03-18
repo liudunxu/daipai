@@ -1,9 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import React, { useState } from 'react'
 import ShareButtons from '../../components/ShareButtons'
 import { AdBanner } from '../../components/Ads'
 import RelatedTools from '../../components/RelatedTools'
+import { FortuneTellingSchema, PageContentSummary } from '../../components/RAGTools'
 
 // 塔罗牌数据
 const tarotCards = [
@@ -54,7 +55,20 @@ export default function Tarot() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-8 px-5">
+    <>
+      {/* RAG 优化结构化数据 */}
+      <FortuneTellingSchema
+        name="塔罗牌占卜"
+        description="在线塔罗牌占卜测试，抽取塔罗牌解读你的运势、爱情、事业、工作各方面运势。免费塔罗牌在线占卜。"
+        url="https://www.zkwatcher.top/tarot"
+      />
+      <PageContentSummary
+        title="塔罗牌占卜"
+        description="在线塔罗牌占卜测试，3张牌解读你的运势、爱情、事业。提供伟特塔罗牌、爱情塔罗、事业塔罗免费占卜。"
+        category="玄学命理"
+        features={['塔罗牌占卜', '3张牌解读', '爱情事业财运', '免费在线测试']}
+      />
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-8 px-5">
       <div className="max-w-xl mx-auto">
         <header className="text-center mb-8">
           <h1 className="text-3xl font-black text-white mb-2">🔮 塔罗牌测试</h1>
@@ -112,5 +126,6 @@ export default function Tarot() {
         </footer>
       </div>
     </div>
+    </>
   )
 }

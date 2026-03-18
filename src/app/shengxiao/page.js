@@ -4,6 +4,7 @@ import { useState } from 'react'
 import ShareButtons from '../../components/ShareButtons'
 import { AdBanner } from '../../components/Ads'
 import RelatedTools from '../../components/RelatedTools'
+import { FortuneTellingSchema, PageContentSummary } from '../../components/RAGTools'
 
 const zodiacYear = ['鼠', '牛', '虎', '兔', '龙', '蛇', '马', '羊', '猴', '鸡', '狗', '猪']
 
@@ -47,7 +48,20 @@ export default function ZodiacYear() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-8 px-5">
+    <>
+      {/* RAG 优化结构化数据 */}
+      <FortuneTellingSchema
+        name="十二生肖运势查询"
+        description="查看十二生肖运势，鼠、牛、虎、兔、龙、蛇、马、羊、猴、鸡、狗、猪各年份属相性格和运势。在线生肖运势查询免费看。"
+        url="https://www.zkwatcher.top/shengxiao"
+      />
+      <PageContentSummary
+        title="十二生肖运势查询"
+        description="查看十二生肖运势，了解你的属相性格和今年运势。提供鼠、牛、虎、兔、龙、蛇、马、羊、猴、鸡、狗、猪生肖查询。"
+        category="玄学命理"
+        features={['十二生肖运势', '属相性格分析', '每年运势', '免费在线查询']}
+      />
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-8 px-5">
       <div className="max-w-xl mx-auto">
         <header className="text-center mb-8">
           <h1 className="text-3xl font-black text-white mb-2">�十二生肖</h1>
@@ -110,5 +124,6 @@ export default function ZodiacYear() {
         </footer>
       </div>
     </div>
+    </>
   )
 }
