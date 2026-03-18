@@ -148,6 +148,7 @@ export default function StockPage() {
               src={result.image}
               alt={result.willRise ? '上涨' : '下跌'}
               className="w-full rounded-2xl shadow-2xl border-4 border-white/20"
+              loading="lazy"
             />
           </div>
         )}

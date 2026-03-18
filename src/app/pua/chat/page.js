@@ -430,7 +430,7 @@ export default function PuaChat() {
           <div className="mb-4 p-4 bg-black/50 rounded-2xl border border-white/10">
             {shareImage ? (
               <div className="space-y-3">
-                <img src={shareImage} alt="分享图片" className="w-full rounded-lg" />
+                <img src={shareImage} alt="分享图片" className="w-full rounded-lg" loading="lazy" />
                 <div className="flex gap-2">
                   <button
                     onClick={downloadImage}

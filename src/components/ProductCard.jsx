@@ -32,6 +32,7 @@ export default function ProductCard({
             src={image}
             alt={title}
             className="object-cover w-full h-full"
+            loading="lazy"
           />
         </div>
       )}
