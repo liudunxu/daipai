@@ -4,6 +4,13 @@ module.exports = {
   generateRobotsTxt: true,
   generateIndexSitemap: false,
   outDir: './public',
+  // 排除不需要收录的页面
+  exclude: [
+    '/api/**',
+    '/404',
+    '/500',
+    '/_next/**',
+  ],
   // 百度友好的配置
   additionalPaths: async (config) => {
     const paths = []
@@ -33,7 +40,7 @@ module.exports = {
   // 自定义 transform 函数
   transform: async (config, url) => {
     return {
-      loc: url, // 必填
+      loc: url,
       changefreq: 'weekly',
       priority: 0.7,
       lastmod: new Date().toISOString(),
