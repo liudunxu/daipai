@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import ShareButtons from '../../components/ShareButtons'
 import { AdBanner } from '../../components/Ads'
+import RelatedTools from '../../components/RelatedTools'
 
 const zodiacYear = ['鼠', '牛', '虎', '兔', '龙', '蛇', '马', '羊', '猴', '鸡', '狗', '猪']
 
@@ -100,6 +101,9 @@ export default function ZodiacYear() {
           <AdBanner className="mb-6" />
           <ShareButtons title="十二生肖运势 - 查询你的生肖今年运势" url="/shengxiao" />
         </div>
+
+        {/* 相关推荐 - SEO 内部链接 */}
+        <RelatedTools category="shengxiao" />
 
         <footer className="mt-8 text-center">
           <a href="/nav" className="text-white/40 hover:text-white/60 text-sm">← 更多工具</a>

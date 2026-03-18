@@ -4,6 +4,7 @@ import { useState } from 'react'
 import ShareButtons from '../../components/ShareButtons'
 import { AdBanner } from '../../components/Ads'
 import FAQSchema, { fortuneFAQs } from '../../components/FAQSchema'
+import RelatedTools from '../../components/RelatedTools'
 
 export default function TodayLucky() {
   const [name, setName] = useState('')
@@ -114,6 +115,9 @@ export default function TodayLucky() {
             ))}
           </div>
         </div>
+
+        {/* 相关推荐 - SEO 内部链接 */}
+        <RelatedTools category="today" />
 
         <footer className="mt-8 text-center">
           <a href="/nav" className="text-white/40 hover:text-white/60 text-sm">

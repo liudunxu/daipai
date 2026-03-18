@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import ShareButtons from '../../components/ShareButtons'
 import { AdBanner } from '../../components/Ads'
+import RelatedTools from '../../components/RelatedTools'
 
 // 塔罗牌数据
 const tarotCards = [
@@ -102,6 +103,9 @@ export default function Tarot() {
           <AdBanner className="mb-6" />
           <ShareButtons title="塔罗牌测试 - 3张牌解读你的问题" url="/tarot" />
         </div>
+
+        {/* 相关推荐 - SEO 内部链接 */}
+        <RelatedTools category="tarot" />
 
         <footer className="mt-8 text-center">
           <a href="/nav" className="text-white/40 hover:text-white/60 text-sm">← 更多工具</a>

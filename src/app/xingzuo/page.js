@@ -4,6 +4,7 @@ import { useState } from 'react'
 import ShareButtons from '../../components/ShareButtons'
 import { AdBanner } from '../../components/Ads'
 import FAQSchema, { xingzuoFAQs } from '../../components/FAQSchema'
+import RelatedTools from '../../components/RelatedTools'
 
 const zodiacSigns = [
   { name: '白羊座', dates: '3.21-4.19', symbol: '♈', element: '火', color: '#FF6B6B' },
@@ -110,6 +111,9 @@ export default function Constellation() {
             ))}
           </div>
         </div>
+
+        {/* 相关推荐 - SEO 内部链接 */}
+        <RelatedTools category="xingzuo" />
 
         <footer className="mt-8 text-center">
           <a href="/nav" className="text-white/40 hover:text-white/60 text-sm">
