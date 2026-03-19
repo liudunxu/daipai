@@ -2,13 +2,13 @@
 
 import Head from 'next/head'
 import { useState } from 'react'
-import AffiliateLink from '../../../components/AffiliateLink'
+import AffiliateLink from '../../components/AffiliateLink'
 
 const seoData = {
   title: '在线开发工具 - JSON校验/时间戳转换/Base64/MD5',
   description: '免费的在线开发工具箱，支持JSON校验格式化、时间戳转换、Base64加密解密、MD5哈希生成，无需下载安装，打开即可使用。',
   keywords: 'JSON校验,JSON格式化,时间戳转换,Base64加密,MD5哈希,在线工具,开发者工具,程序员工具',
-  url: 'https://www.zkwatcher.top/tool/dev',
+  url: 'https://www.zkwatcher.top/tool',
 }
 
 const jsonLd = {
@@ -16,7 +16,7 @@ const jsonLd = {
   '@type': 'WebApplication',
   name: '在线开发工具',
   description: '程序员必备的在线开发工具箱',
-  url: 'https://www.zkwatcher.top/tool/dev',
+  url: 'https://www.zkwatcher.top/tool',
   applicationCategory: 'DeveloperApplication',
   operatingSystem: 'Any',
   offers: {
