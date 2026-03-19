@@ -152,7 +152,7 @@ export default function MaicPage() {
                 <span className="text-green-400 font-bold">1</span>
                 <div>
                   <p className="text-white font-medium">环境要求</p>
-                  <p className="text-white/50">Node.js >= 20 · pnpm >= 10</p>
+                  <p className="text-white/50">Node.js v20+ · pnpm v10+</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
