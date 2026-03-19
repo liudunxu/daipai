@@ -89,6 +89,7 @@ const navGroups = [
     title: '🛠️ 实用工具',
     items: [
       { name: '姓名大全', url: '/names', desc: '100个常用人名' },
+      { name: '开发工具', url: '/tool/dev', desc: 'JSON/时间戳/Base64/MD5' },
       { name: '密码生成', url: '/tool/password', desc: '安全强密码生成' },
       { name: '运势测算', url: '/tool/lucky', desc: '2026年运势测算' },
       { name: '火星文', url: '/tool/huoxing', desc: '火星文转换器' },
