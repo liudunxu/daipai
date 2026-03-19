@@ -133,7 +133,11 @@ export default function DevToolsPage() {
 
   // 时间戳工具状态
   const [timestamp, setTimestamp] = useState(Math.floor(Date.now() / 1000))
-  const [customDate, setCustomDate] = useState('')
+  const [customDate, setCustomDate] = useState(() => {
+    const now = new Date()
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset())
+    return now.toISOString().slice(0, 16)
+  })
 
   // Base64工具状态
   const [base64Input, setBase64Input] = useState('')
