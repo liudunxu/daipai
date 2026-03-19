@@ -70,6 +70,7 @@ export default function NavPage() {
     { name: '🔥 2026话题', url: '/trend/2026', desc: '热门话题聚合' },
     { name: '🎤 黄仁勋GTC', url: '/nvidia', desc: 'GTC 2026演讲总结' },
     { name: '🐜 阿里架构', url: '/alibaba', desc: '阿里组织架构调整' },
+    { name: '🎓 OpenMAIC', url: '/maic', desc: '清华开源AI互动课堂' },
     { name: '📋 功能介绍', url: '/features', desc: '网站功能一览' },
     { name: '📞 联系我们', url: '/contact', desc: '联系我们' },
     { name: 'ℹ️ 关于我们', url: '/about', desc: '关于我们' },
