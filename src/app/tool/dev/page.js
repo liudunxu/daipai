@@ -188,21 +188,6 @@ export default function DevToolsPage() {
     setTimestamp(Math.floor(Date.now() / 1000))
   }
 
-  const convertTimestamp = () => {
-    const date = new Date(timestamp * 1000)
-    setCustomDate(date.toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' }))
-  }
-
-  const convertDateToTimestamp = () => {
-    if (!customDate) return
-    try {
-      const date = new Date(customDate)
-      setTimestamp(Math.floor(date.getTime() / 1000))
-    } catch {
-      setTimestamp(0)
-    }
-  }
-
   // Base64 编解码
   const handleBase64Encode = () => {
     try {
@@ -314,74 +299,92 @@ export default function DevToolsPage() {
 
         {/* 时间戳工具 */}
         {activeTab === 'timestamp' && (
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
-            <h3 className="text-white font-bold mb-4">⏰ 时间戳转换</h3>
-
-            <div className="mb-6">
-              <label className="text-white/60 block mb-2">当前时间戳（秒）</label>
-              <div className="flex gap-3">
+          <div className="space-y-6">
+            {/* 时间戳 → 日期 */}
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
+              <h3 className="text-white font-bold mb-4">⏰ 时间戳 → 日期</h3>
+              <div className="mb-4">
+                <label className="text-white/60 block mb-2">输入时间戳（秒）</label>
                 <input
                   type="number"
                   value={timestamp}
                   onChange={(e) => setTimestamp(Number(e.target.value))}
-                  className="flex-1 bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white font-mono"
+                  className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white font-mono"
                 />
-                <button onClick={getCurrentTimestamp} className="px-6 py-3 bg-blue-500 text-white font-bold rounded-xl">
+              </div>
+              <div className="bg-white/10 rounded-xl p-4">
+                <div className="text-white/60 text-sm mb-1">转换结果</div>
+                <div className="text-white font-mono text-lg">
+                  {new Date(timestamp * 1000).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' })}
+                </div>
+                <div className="text-white/50 text-sm mt-1">
+                  毫秒级: {timestamp * 1000}
+                </div>
+              </div>
+              <div className="flex gap-3 mt-4">
+                <button onClick={getCurrentTimestamp} className="px-6 py-2 bg-blue-500 text-white font-bold rounded-xl">
                   📌 此刻
                 </button>
+                <button onClick={() => copyToClipboard(String(timestamp))} className="px-6 py-2 bg-white/10 text-white/70 font-bold rounded-xl">
+                  📋 复制时间戳
+                </button>
+              </div>
+              {/* 常用时间点快捷 */}
+              <div className="mt-4">
+                <div className="text-white/60 text-sm mb-2">📌 常用时间点</div>
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    { label: '今天零点', ts: Math.floor(new Date().setHours(0, 0, 0, 0) / 1000) },
+                    { label: '昨天零点', ts: Math.floor(new Date().setHours(0, 0, 0, 0) / 1000) - 86400 },
+                    { label: '本周一', ts: Math.floor((new Date().setHours(0, 0, 0, 0) - new Date().getDay() * 86400) / 1000) },
+                    { label: '本月一号', ts: Math.floor(new Date(new Date().getFullYear(), new Date().getMonth(), 1).setHours(0, 0, 0, 0) / 1000) },
+                    { label: '2026-01-01', ts: 1735689600 },
+                    { label: '2030-01-01', ts: 1893456000 },
+                  ].map((item) => (
+                    <button
+                      key={item.label}
+                      onClick={() => setTimestamp(item.ts)}
+                      className="px-3 py-1 bg-white/10 hover:bg-white/20 rounded-lg text-white/70 text-sm transition-colors"
+                    >
+                      {item.label}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
 
-            <div className="bg-white/10 rounded-xl p-4 mb-6">
-              <div className="text-white/60 text-sm mb-1">转换结果</div>
-              <div className="text-white font-mono text-lg">{new Date(timestamp * 1000).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' })}</div>
-              <div className="text-white/50 text-sm mt-1">
-                毫秒级: {timestamp * 1000}
-              </div>
-            </div>
-
-            <div className="flex gap-3 mb-6">
-              <button onClick={convertTimestamp} className="px-6 py-2 bg-gradient-to-r from-green-500 to-emerald-500 text-white font-bold rounded-xl">
-                ⏱️ 转日期
-              </button>
-            </div>
-
-            <div className="border-t border-white/10 pt-6">
-              <label className="text-white/60 block mb-2">日期转时间戳</label>
-              <div className="flex gap-3">
+            {/* 日期 → 时间戳 */}
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
+              <h3 className="text-white font-bold mb-4">📅 日期 → 时间戳</h3>
+              <div className="mb-4">
+                <label className="text-white/60 block mb-2">选择日期时间</label>
                 <input
                   type="datetime-local"
                   value={customDate}
                   onChange={(e) => setCustomDate(e.target.value)}
-                  className="flex-1 bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white"
+                  className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white"
                 />
-                <button onClick={convertDateToTimestamp} className="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold rounded-xl">
-                  🔄 转时间戳
-                </button>
               </div>
-            </div>
-
-            {/* 常用时间点 */}
-            <div className="mt-6">
-              <div className="text-white/60 text-sm mb-3">📌 常用时间点</div>
-              <div className="flex flex-wrap gap-2">
-                {[
-                  { label: '今天零点', ts: Math.floor(new Date().setHours(0, 0, 0, 0) / 1000) },
-                  { label: '昨天零点', ts: Math.floor(new Date().setHours(0, 0, 0, 0) / 1000) - 86400 },
-                  { label: '本周一', ts: Math.floor((new Date().setHours(0, 0, 0, 0) - new Date().getDay() * 86400) / 1000) },
-                  { label: '本月一号', ts: Math.floor(new Date(new Date().getFullYear(), new Date().getMonth(), 1).setHours(0, 0, 0, 0) / 1000) },
-                  { label: '一年后', ts: Math.floor(Date.now() / 1000) + 31536000 },
-                  { label: '2026-01-01', ts: 1735689600 },
-                  { label: '2030-01-01', ts: 1893456000 },
-                ].map((item) => (
-                  <button
-                    key={item.label}
-                    onClick={() => setTimestamp(item.ts)}
-                    className="px-3 py-1 bg-white/10 hover:bg-white/20 rounded-lg text-white/70 text-sm transition-colors"
-                  >
-                    {item.label}
-                  </button>
-                ))}
+              <div className="bg-white/10 rounded-xl p-4">
+                <div className="text-white/60 text-sm mb-1">转换结果</div>
+                <div className="text-white font-mono text-lg">
+                  秒级: {customDate ? Math.floor(new Date(customDate).getTime() / 1000) : '-'}
+                </div>
+                <div className="text-white/50 text-sm mt-1">
+                  毫秒级: {customDate ? new Date(customDate).getTime() : '-'}
+                </div>
+              </div>
+              <div className="flex gap-3 mt-4">
+                <button onClick={() => {
+                  const now = new Date()
+                  now.setMinutes(now.getMinutes() - now.getTimezoneOffset())
+                  setCustomDate(now.toISOString().slice(0, 16))
+                }} className="px-6 py-2 bg-purple-500 text-white font-bold rounded-xl">
+                  📌 此刻
+                </button>
+                <button onClick={() => copyToClipboard(String(Math.floor(new Date(customDate).getTime() / 1000)))} className="px-6 py-2 bg-white/10 text-white/70 font-bold rounded-xl">
+                  📋 复制时间戳
+                </button>
               </div>
             </div>
           </div>
