@@ -1,7 +1,36 @@
 'use client'
 
+import Head from 'next/head'
 import { useState } from 'react'
 import AffiliateLink from '../../../components/AffiliateLink'
+
+const seoData = {
+  title: '在线开发工具 - JSON校验/时间戳转换/Base64/MD5',
+  description: '免费的在线开发工具箱，支持JSON校验格式化、时间戳转换、Base64加密解密、MD5哈希生成，无需下载安装，打开即可使用。',
+  keywords: 'JSON校验,JSON格式化,时间戳转换,Base64加密,MD5哈希,在线工具,开发者工具,程序员工具',
+  url: 'https://www.zkwatcher.top/tool/dev',
+}
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  name: '在线开发工具',
+  description: '程序员必备的在线开发工具箱',
+  url: 'https://www.zkwatcher.top/tool/dev',
+  applicationCategory: 'DeveloperApplication',
+  operatingSystem: 'Any',
+  offers: {
+    '@type': 'Offer',
+    price: '0',
+    priceCurrency: 'CNY',
+  },
+  tool: [
+    { '@type': 'SoftwareApplication', name: 'JSON校验', description: 'JSON格式校验与格式化' },
+    { '@type': 'SoftwareApplication', name: '时间戳转换', description: '时间戳与日期互转' },
+    { '@type': 'SoftwareApplication', name: 'Base64加密', description: 'Base64编码解码' },
+    { '@type': 'SoftwareApplication', name: 'MD5哈希', description: 'MD5哈希生成' },
+  ],
+}
 
 // 简单的MD5实现
 function md5(string) {
@@ -228,6 +257,24 @@ export default function DevToolsPage() {
   ]
 
   return (
+    <>
+      <Head>
+        <title>{seoData.title}</title>
+        <meta name="description" content={seoData.description} />
+        <meta name="keywords" content={seoData.keywords} />
+        <link rel="canonical" href={seoData.url} />
+        <meta property="og:title" content={seoData.title} />
+        <meta property="og:description" content={seoData.description} />
+        <meta property="og:url" content={seoData.url} />
+        <meta property="og:type" content="website" />
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:title" content={seoData.title} />
+        <meta name="twitter:description" content={seoData.description} />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      </Head>
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-8 px-5">
       <div className="max-w-3xl mx-auto">
         <header className="text-center mb-8">
@@ -520,5 +567,6 @@ export default function DevToolsPage() {
         </div>
       </div>
     </div>
+    </>
   )
 }
