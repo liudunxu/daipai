@@ -284,6 +284,36 @@ async function searchFreeImageFallback(keyword) {
 }
 
 /**
+ * 7. LoremPicsum (免费，无需 API Key)
+ * 基于关键词生成相关主题的随机图片
+ */
+async function searchLoremPicsum(keyword) {
+  try {
+    // LoremPicsum 使用 seed 机制，可以用关键词作为 seed 获取一致的结果
+    // https://picsum.photos/seed/{keyword}/{width}/{height}
+    const seed = encodeURIComponent(keyword.slice(0, 20)) // 限制长度
+    const baseUrl = `https://picsum.photos/seed/${seed}/800/400`
+
+    console.log(`[ImageSearch] LoremPicsum 获取图片，seed: ${keyword}`)
+
+    // 返回一张图片
+    return [{
+      url: baseUrl,
+      thumbnail: `https://picsum.photos/seed/${seed}/400/200`,
+      description: `关于 ${keyword} 的图片`,
+      credit: 'LoremPicsum',
+      creditUrl: 'https://picsum.photos',
+      photographer: 'Picsum Photos',
+      width: 800,
+      height: 400
+    }]
+  } catch (error) {
+    console.error('[ImageSearch] LoremPicsum 获取失败:', error.message)
+    return []
+  }
+}
+
+/**
  * 聚合多源图片搜索
  */
 export async function multiSourceImageSearch(keyword, options = {}) {
@@ -292,7 +322,8 @@ export async function multiSourceImageSearch(keyword, options = {}) {
     includePexels = true,
     includePixabay = true,
     includeWikipedia = true,
-    includeDuckDuckGo = false
+    includeDuckDuckGo = false,
+    includeLoremPicsum = true
   } = options
 
   console.log(`[ImageSearch] 开始多源图片搜索: ${keyword}`)
@@ -320,6 +351,10 @@ export async function multiSourceImageSearch(keyword, options = {}) {
 
   if (includeDuckDuckGo) {
     searchPromises.push(withTimeout(searchDuckDuckGoImages(keyword), 8000))
+  }
+
+  if (includeLoremPicsum) {
+    searchPromises.push(withTimeout(searchLoremPicsum(keyword), 5000))
   }
 
   // 收集所有结果
@@ -418,15 +453,33 @@ export function getRandomImage(imageSearchResult, preferredPosition = 'middle') 
     return null
   }
 
+  // 过滤掉 placeholder 占位图和纯色图
+  const realImages = images.filter(img => {
+    const url = img.url || ''
+    const credit = img.credit || ''
+    // 排除纯色占位图
+    if (url.includes('placeholder.com') || credit === 'Placeholder') {
+      return false
+    }
+    // 排除 Via.placeholder 纯色图
+    if (url.includes('via.placeholder.com')) {
+      return false
+    }
+    return true
+  })
+
+  // 如果有真实图片就用真实图片，否则用占位图
+  const validImages = realImages.length > 0 ? realImages : images
+
   // 过滤适合该位置的图片
   const ratioMap = { top: 1.5, middle: 1.0, bottom: 0.8 }
   const minRatio = ratioMap[preferredPosition] || 1.0
 
-  const suitable = images.filter(img => (img.width / img.height) >= minRatio)
+  const suitable = validImages.filter(img => (img.width / img.height) >= minRatio)
 
   if (suitable.length > 0) {
     return suitable[Math.floor(Math.random() * suitable.length)]
   }
 
-  return images[Math.floor(Math.random() * images.length)]
+  return validImages[Math.floor(Math.random() * validImages.length)]
 }
