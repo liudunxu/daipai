@@ -14,6 +14,7 @@ function proxyHttpsRequest(url, options = {}) {
 
     if (!proxyUrl) {
       // 不使用代理，直接请求
+      console.log('[Wechat Auth] 不使用代理，直接请求')
       const req = https.request(url, options, (res) => {
         let data = ''
         res.on('data', chunk => data += chunk)
@@ -26,6 +27,11 @@ function proxyHttpsRequest(url, options = {}) {
         })
       })
       req.on('error', reject)
+      req.on('timeout', () => {
+        req.destroy()
+        reject(new Error('请求超时'))
+      })
+      req.setTimeout(30000)
       if (options.body) req.write(options.body)
       req.end()
       return
@@ -39,7 +45,10 @@ function proxyHttpsRequest(url, options = {}) {
       agent
     }
 
+    console.log('[Wechat Auth] 开始请求:', url)
+
     const req = https.request(url, reqOptions, (res) => {
+      console.log('[Wechat Auth] 收到响应, status:', res.statusCode)
       let data = ''
       res.on('data', chunk => data += chunk)
       res.on('end', () => {
@@ -58,10 +67,25 @@ function proxyHttpsRequest(url, options = {}) {
         }
       })
     })
+
+    req.on('socket', (socket) => {
+      console.log('[Wechat Auth] Socket 连接建立')
+      socket.on('close', () => console.log('[Wechat Auth] Socket 关闭'))
+      socket.on('error', (err) => console.log('[Wechat Auth] Socket 错误:', err.message))
+    })
+
     req.on('error', (err) => {
       console.error('[Wechat Auth] 请求错误:', err.message)
       reject(err)
     })
+
+    req.on('timeout', () => {
+      console.error('[Wechat Auth] 请求超时')
+      req.destroy()
+      reject(new Error('请求超时'))
+    })
+
+    req.setTimeout(30000)
     if (options.body) req.write(options.body)
     req.end()
   })

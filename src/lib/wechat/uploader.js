@@ -16,6 +16,7 @@ function proxyHttpsRequest(url, options = {}) {
     const proxyUrl = process.env.WECHAT_API_PROXY
 
     if (!proxyUrl) {
+      console.log('[Wechat Uploader] 不使用代理，直接请求')
       const req = https.request(url, options, (res) => {
         let data = ''
         res.on('data', chunk => data += chunk)
@@ -28,15 +29,24 @@ function proxyHttpsRequest(url, options = {}) {
         })
       })
       req.on('error', reject)
+      req.on('timeout', () => {
+        req.destroy()
+        reject(new Error('请求超时'))
+      })
+      req.setTimeout(30000)
       if (options.body) req.write(options.body)
       req.end()
       return
     }
 
+    console.log('[Wechat Uploader] 使用代理:', proxyUrl)
     const agent = new HttpsProxyAgent(proxyUrl)
     const reqOptions = { ...options, agent }
 
+    console.log('[Wechat Uploader] 开始请求:', url)
+
     const req = https.request(url, reqOptions, (res) => {
+      console.log('[Wechat Uploader] 收到响应, status:', res.statusCode)
       let data = ''
       res.on('data', chunk => data += chunk)
       res.on('end', () => {
@@ -55,7 +65,21 @@ function proxyHttpsRequest(url, options = {}) {
         }
       })
     })
+
+    req.on('socket', (socket) => {
+      console.log('[Wechat Uploader] Socket 连接建立')
+      socket.on('close', () => console.log('[Wechat Uploader] Socket 关闭'))
+      socket.on('error', (err) => console.log('[Wechat Uploader] Socket 错误:', err.message))
+    })
+
     req.on('error', reject)
+    req.on('timeout', () => {
+      console.error('[Wechat Uploader] 请求超时')
+      req.destroy()
+      reject(new Error('请求超时'))
+    })
+
+    req.setTimeout(30000)
     if (options.body) req.write(options.body)
     req.end()
   })
