@@ -139,7 +139,9 @@ async function uploadBase64Image(base64Data, accessToken) {
  * 下载外链图片为 ArrayBuffer
  */
 async function downloadImage(url) {
-  const response = await fetch(url)
+  const agent = getProxyAgent()
+  const options = agent ? { agent } : {}
+  const response = await fetch(url, options)
   if (!response.ok) {
     throw new Error(`图片下载失败: ${response.status} ${response.statusText}`)
   }
