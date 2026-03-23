@@ -1,6 +1,6 @@
 import { getAccessToken } from './auth'
-import { ProxyAgent } from 'proxy-agent'
-import { fetch } from 'undici'
+import https from 'https'
+import { HttpsProxyAgent } from 'https-proxy-agent'
 
 const UPLOAD_URL = 'https://api.weixin.qq.com/cgi-bin/media/upload'
 
@@ -9,35 +9,73 @@ const MAX_RETRIES = 3
 const RETRY_DELAY = 1000 // ms
 
 /**
- * 获取代理 dispatcher (undici)
+ * 使用 Node.js 原生 https 通过代理发送请求
  */
-function getProxyDispatcher() {
-  const proxyUrl = process.env.WECHAT_API_PROXY
-  if (!proxyUrl) return null
-  try {
-    return new ProxyAgent(proxyUrl)
-  } catch {
-    return null
-  }
+function proxyHttpsRequest(url, options = {}) {
+  return new Promise((resolve, reject) => {
+    const proxyUrl = process.env.WECHAT_API_PROXY
+
+    if (!proxyUrl) {
+      const req = https.request(url, options, (res) => {
+        let data = ''
+        res.on('data', chunk => data += chunk)
+        res.on('end', () => {
+          resolve({
+            ok: res.statusCode >= 200 && res.statusCode < 300,
+            status: res.statusCode,
+            json: () => Promise.resolve(JSON.parse(data))
+          })
+        })
+      })
+      req.on('error', reject)
+      if (options.body) req.write(options.body)
+      req.end()
+      return
+    }
+
+    const agent = new HttpsProxyAgent(proxyUrl)
+    const reqOptions = { ...options, agent }
+
+    const req = https.request(url, reqOptions, (res) => {
+      let data = ''
+      res.on('data', chunk => data += chunk)
+      res.on('end', () => {
+        try {
+          resolve({
+            ok: res.statusCode >= 200 && res.statusCode < 300,
+            status: res.statusCode,
+            json: () => Promise.resolve(JSON.parse(data))
+          })
+        } catch (e) {
+          resolve({
+            ok: res.statusCode >= 200 && res.statusCode < 300,
+            status: res.statusCode,
+            json: () => { throw new Error('JSON parse error') }
+          })
+        }
+      })
+    })
+    req.on('error', reject)
+    if (options.body) req.write(options.body)
+    req.end()
+  })
 }
 
 /**
- * 带重试的 fetch（支持代理）
+ * 带重试的请求（支持代理）
  */
 async function fetchWithRetry(url, options, retries = MAX_RETRIES) {
-  const dispatcher = getProxyDispatcher()
-  const fetchOptions = dispatcher ? { ...options, dispatcher } : options
   let lastError
 
   for (let i = 0; i < retries; i++) {
     try {
-      const response = await fetch(url, fetchOptions)
+      const response = await proxyHttpsRequest(url, options)
       return response
     } catch (error) {
       lastError = error
       console.error(`[Wechat] 请求失败，第 ${i + 1}/${retries} 次:`, error.message)
       if (i < retries - 1) {
-        await sleep(RETRY_DELAY * (i + 1)) // 递增延迟
+        await sleep(RETRY_DELAY * (i + 1))
       }
     }
   }

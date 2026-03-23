@@ -1,39 +1,77 @@
 import { redis } from '../redis'
-import { ProxyAgent } from 'proxy-agent'
-import { fetch } from 'undici'
+import https from 'https'
+import { HttpsProxyAgent } from 'https-proxy-agent'
 
 const WECHAT_TOKEN_URL = 'https://api.weixin.qq.com/cgi-bin/token'
 const TOKEN_CACHE_KEY = 'wechat:access_token'
 
 /**
- * 带代理的 fetch（使用 undici + proxy-agent）
+ * 使用 Node.js 原生 https 通过代理发送请求
+ */
+function proxyHttpsRequest(url, options = {}) {
+  return new Promise((resolve, reject) => {
+    const proxyUrl = process.env.WECHAT_API_PROXY
+
+    if (!proxyUrl) {
+      // 不使用代理，直接请求
+      const req = https.request(url, options, (res) => {
+        let data = ''
+        res.on('data', chunk => data += chunk)
+        res.on('end', () => {
+          resolve({
+            ok: res.statusCode >= 200 && res.statusCode < 300,
+            status: res.statusCode,
+            json: () => Promise.resolve(JSON.parse(data))
+          })
+        })
+      })
+      req.on('error', reject)
+      if (options.body) req.write(options.body)
+      req.end()
+      return
+    }
+
+    console.log('[Wechat Auth] 使用代理:', proxyUrl)
+    const agent = new HttpsProxyAgent(proxyUrl)
+
+    const reqOptions = {
+      ...options,
+      agent
+    }
+
+    const req = https.request(url, reqOptions, (res) => {
+      let data = ''
+      res.on('data', chunk => data += chunk)
+      res.on('end', () => {
+        try {
+          resolve({
+            ok: res.statusCode >= 200 && res.statusCode < 300,
+            status: res.statusCode,
+            json: () => Promise.resolve(JSON.parse(data))
+          })
+        } catch (e) {
+          resolve({
+            ok: res.statusCode >= 200 && res.statusCode < 300,
+            status: res.statusCode,
+            json: () => { throw new Error('JSON parse error') }
+          })
+        }
+      })
+    })
+    req.on('error', (err) => {
+      console.error('[Wechat Auth] 请求错误:', err.message)
+      reject(err)
+    })
+    if (options.body) req.write(options.body)
+    req.end()
+  })
+}
+
+/**
+ * 带代理的 fetch
  */
 async function proxyFetch(url, options = {}) {
-  const proxyUrl = process.env.WECHAT_API_PROXY
-
-  if (!proxyUrl) {
-    console.log('[Wechat Auth] 不使用代理，直接请求')
-    return fetch(url, options)
-  }
-
-  console.log('[Wechat Auth] 使用代理:', proxyUrl)
-  try {
-    const dispatcher = new ProxyAgent(proxyUrl)
-    console.log('[Wechat Auth] ProxyAgent 创建成功')
-    console.log('[Wechat Auth] 目标 URL:', url)
-
-    const response = await fetch(url, {
-      ...options,
-      dispatcher
-    })
-    console.log('[Wechat Auth] fetch 成功, status:', response.status)
-    return response
-  } catch (error) {
-    console.error('[Wechat Auth] fetch 失败:', error.message)
-    console.error('[Wechat Auth] error name:', error.name)
-    console.error('[Wechat Auth] error cause:', error.cause)
-    throw error
-  }
+  return proxyHttpsRequest(url, options)
 }
 
 /**
