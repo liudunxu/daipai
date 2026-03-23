@@ -1,5 +1,6 @@
 import { getAccessToken } from './auth'
 import { HttpsProxyAgent } from 'https-proxy-agent'
+import { fetch } from 'undici'
 
 const UPLOAD_URL = 'https://api.weixin.qq.com/cgi-bin/media/upload'
 
@@ -8,14 +9,12 @@ const MAX_RETRIES = 3
 const RETRY_DELAY = 1000 // ms
 
 /**
- * 获取代理 agent
+ * 获取代理 dispatcher (undici)
  */
-function getProxyAgent() {
+function getProxyDispatcher() {
   const proxyUrl = process.env.WECHAT_API_PROXY
-  console.log('[Wechat Uploader] WECHAT_API_PROXY 环境变量:', proxyUrl ? '已设置' : '未设置')
   if (!proxyUrl) return null
   try {
-    console.log('[Wechat Uploader] 创建代理 Agent')
     return new HttpsProxyAgent(proxyUrl)
   } catch {
     return null
@@ -26,8 +25,8 @@ function getProxyAgent() {
  * 带重试的 fetch（支持代理）
  */
 async function fetchWithRetry(url, options, retries = MAX_RETRIES) {
-  const agent = getProxyAgent()
-  const fetchOptions = agent ? { ...options, agent } : options
+  const dispatcher = getProxyDispatcher()
+  const fetchOptions = dispatcher ? { ...options, dispatcher } : options
   let lastError
 
   for (let i = 0; i < retries; i++) {
@@ -141,8 +140,8 @@ async function uploadBase64Image(base64Data, accessToken) {
  * 下载外链图片为 ArrayBuffer
  */
 async function downloadImage(url) {
-  const agent = getProxyAgent()
-  const options = agent ? { agent } : {}
+  const dispatcher = getProxyDispatcher()
+  const options = dispatcher ? { dispatcher } : {}
   const response = await fetch(url, options)
   if (!response.ok) {
     throw new Error(`图片下载失败: ${response.status} ${response.statusText}`)
