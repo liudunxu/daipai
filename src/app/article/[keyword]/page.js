@@ -10,12 +10,15 @@ export default function ArticlePage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [regenerating, setRegenerating] = useState(false)
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
 
-  const getToken = () => {
-    return sessionStorage.getItem('seo_token') || localStorage.getItem('seo_token')
-  }
-
-  const isLoggedIn = !!getToken()
+  // 仅在客户端访问 sessionStorage/localStorage
+  useEffect(() => {
+    const token = typeof window !== 'undefined'
+      ? sessionStorage.getItem('seo_token') || localStorage.getItem('seo_token')
+      : null
+    setIsLoggedIn(!!token)
+  }, [])
 
   useEffect(() => {
     async function loadContent() {
@@ -56,7 +59,9 @@ export default function ArticlePage() {
 
     setRegenerating(true)
     try {
-      const token = getToken()
+      const token = typeof window !== 'undefined'
+        ? sessionStorage.getItem('seo_token') || localStorage.getItem('seo_token')
+        : null
       const keyword = decodeURIComponent(params?.keyword || '')
 
       const res = await fetch('/api/seo/generate', {
