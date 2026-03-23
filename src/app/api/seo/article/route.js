@@ -1,25 +1,12 @@
 import { NextResponse } from 'next/server'
 import { supabase } from '../../../../lib/supabase'
-import { verifyRequest } from '../../../../lib/seo/auth'
 import fs from 'fs/promises'
 import path from 'path'
 
 const TABLE_ARTICLES = 'seo_articles'
 
-// 验证token
-async function authCheck(request) {
-  const result = await verifyRequest(request)
-  if (!result.valid) {
-    return { error: result.error, response: NextResponse.json({ error: result.error }, { status: 401 }) }
-  }
-  return { user: result.payload }
-}
-
-// GET 获取文章内容
+// GET 获取文章内容（公开接口，不需要认证）
 export async function GET(request) {
-  const auth = await authCheck(request)
-  if (auth.error) return auth.response
-
   try {
     const { searchParams } = new URL(request.url)
     const keyword = searchParams.get('keyword')
@@ -42,7 +29,7 @@ export async function GET(request) {
       return NextResponse.json({ success: false, error: error.message }, { status: 500 })
     }
 
-    // 如果Supabase没有，尝试读取文件
+    // 如果Supabase没有，尝试读取文件（仅本地开发模式）
     if (!data) {
       const safeKeyword = encodeURIComponent(decodedKeyword)
       const pagePath = path.join(process.cwd(), 'src/app/seo', safeKeyword, 'page.js')

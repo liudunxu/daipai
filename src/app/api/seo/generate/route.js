@@ -1,10 +1,8 @@
 import { NextResponse } from 'next/server'
 import { analyzeCompetitors, buildAnalysisReport } from '../../../../lib/seo/analyzer'
-import { generateSEOArticle, extractMetadata, generatePageCode } from '../../../../lib/seo/generator'
+import { generateSEOArticle, extractMetadata } from '../../../../lib/seo/generator'
 import { supabase } from '../../../../lib/supabase'
 import { verifyRequest } from '../../../../lib/seo/auth'
-import fs from 'fs/promises'
-import path from 'path'
 
 const TABLE_KEYWORDS = 'seo_keywords'
 const TABLE_ARTICLES = 'seo_articles'
@@ -44,23 +42,11 @@ export async function POST(request) {
     // 3. 提取元数据
     const metadata = extractMetadata(content, keyword)
 
-    // 4. 生成页面代码
-    const pageCode = generatePageCode(keyword, content, metadata)
+    // 4. 生成页面代码 - 注意：Vercel是只读环境，不写入文件
+    // 页面通过 src/app/seo/[keyword]/page.js 动态路由渲染
+    // 内容从 Supabase 获取
 
-    // 5. 保存页面文件
-    const safeKeyword = encodeURIComponent(keyword)
-    const pagePath = path.join(process.cwd(), 'src/app/seo', safeKeyword, 'page.js')
-    const pageDir = path.dirname(pagePath)
-
-    try {
-      await fs.mkdir(pageDir, { recursive: true })
-      await fs.writeFile(pagePath, pageCode, 'utf-8')
-      console.log(`页面已生成: ${pagePath}`)
-    } catch (fsError) {
-      console.error('文件写入失败（可能是只读环境）:', fsError.message)
-    }
-
-    // 6. 更新关键词状态为done
+    // 5. 更新关键词状态为done
     const now = new Date().toISOString()
     const articlePath = `/seo/${safeKeyword}`
 

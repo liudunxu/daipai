@@ -173,15 +173,20 @@ export default function SEOManagePage() {
     setAnalysisResult(null)
     try {
       const res = await fetchWithToken(`/api/seo/analyze?keyword=${encodeURIComponent(keyword)}`)
+      if (res.status === 401) {
+        alert('登录已过期，请重新登录')
+        handleLogout()
+        return
+      }
       const data = await res.json()
       if (data.success) {
         setAnalysisResult(data)
       } else {
-        alert('分析失败: ' + data.error)
+        alert('分析失败: ' + (data.error || '未知错误'))
       }
     } catch (error) {
       console.error('分析失败:', error)
-      alert('分析失败')
+      alert('网络错误，请检查网络连接')
     } finally {
       setAnalyzing(false)
     }
@@ -194,16 +199,21 @@ export default function SEOManagePage() {
         method: 'POST',
         body: JSON.stringify({ keyword })
       })
+      if (res.status === 401) {
+        alert('登录已过期，请重新登录')
+        handleLogout()
+        return
+      }
       const data = await res.json()
       if (data.success) {
         alert(`文章生成成功！路径: ${data.pagePath}`)
         fetchKeywords()
       } else {
-        alert('生成失败: ' + data.error)
+        alert('生成失败: ' + (data.error || '未知错误'))
       }
     } catch (error) {
       console.error('生成失败:', error)
-      alert('生成失败')
+      alert('网络错误，请检查网络连接')
     } finally {
       setGenerating(false)
     }
@@ -414,7 +424,7 @@ export default function SEOManagePage() {
                           disabled={analyzing}
                           className="px-4 py-2 bg-blue-500/20 text-blue-400 rounded-lg hover:bg-blue-500/30 disabled:opacity-50"
                         >
-                          分析
+                          {analyzing ? '分析中...' : '分析'}
                         </button>
                         {kw.status !== 'done' && (
                           <button
@@ -422,7 +432,7 @@ export default function SEOManagePage() {
                             disabled={generating}
                             className="px-4 py-2 bg-green-500/20 text-green-400 rounded-lg hover:bg-green-500/30 disabled:opacity-50"
                           >
-                            生成
+                            {generating ? '生成中...' : '生成'}
                           </button>
                         )}
                         {kw.status === 'pending' && (
