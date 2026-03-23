@@ -1,17 +1,16 @@
-import { TavilySearchResults } from '@tavily/core'
+import { tavily } from '@tavily/core'
+import { multiSourceSearch, getSupplementaryKnowledge, buildEnhancedReport } from './multi-search'
 
 const SEARCH_RESULTS_LIMIT = 10
 
 /**
- * 使用 Tavily API 搜索竞品文章
+ * Tavily 搜索（原有渠道）
  */
-async function searchCompetitors(keyword) {
+async function searchWithTavily(keyword) {
   try {
-    const tavily = new TavilySearchResults({
-      apiKey: process.env.TAVILY_API_KEY
-    })
+    const client = tavily({ apiKey: process.env.TAVILY_API_KEY })
 
-    const response = await tavily.search(keyword, {
+    const response = await client.search(keyword, {
       maxResults: SEARCH_RESULTS_LIMIT,
       includeImages: true,
       includeImageDescriptions: true
@@ -22,13 +21,36 @@ async function searchCompetitors(keyword) {
         title: r.title,
         link: r.url,
         snippet: r.content || r.snippet || '',
-        img: r.img || null
+        img: r.img || null,
+        source: 'tavily'
       })),
       images: response.images || []
     }
   } catch (error) {
     console.error('Tavily 搜索失败:', error)
     return { results: [], images: [] }
+  }
+}
+
+/**
+ * 多源聚合搜索（主要搜索方式）
+ */
+async function searchCompetitors(keyword) {
+  // 优先使用 Tavily 获取图片
+  const tavilyData = await searchWithTavily(keyword)
+
+  // 并行执行多源搜索
+  const [multiSearchResult] = await Promise.all([
+    multiSourceSearch(keyword, {
+      tavilyResults: tavilyData.results
+    })
+  ])
+
+  // 合并结果
+  return {
+    results: multiSearchResult.results,
+    images: tavilyData.images,
+    sources: multiSearchResult.sources
   }
 }
 
@@ -71,7 +93,13 @@ function extractSummary(html) {
  * 分析竞品文章
  */
 export async function analyzeCompetitors(keyword) {
-  const { results: searchResults, images } = await searchCompetitors(keyword)
+  // 并行执行搜索和补充知识获取
+  const [searchData, supplementaryKnowledge] = await Promise.all([
+    searchCompetitors(keyword),
+    getSupplementaryKnowledge(keyword)
+  ])
+
+  const { results: searchResults, images, sources } = searchData
 
   const analysis = {
     keyword,
@@ -81,7 +109,9 @@ export async function analyzeCompetitors(keyword) {
     commonTopics: [],
     avgWordCount: 0,
     topStructures: [],
-    images: [] // Tavily 获取的相关图片
+    images: [],
+    sources: sources || [],
+    supplementaryKnowledge
   }
 
   let totalWords = 0
@@ -90,8 +120,9 @@ export async function analyzeCompetitors(keyword) {
     try {
       const competitor = {
         title: result.title || '',
-        url: result.link || '',
+        url: result.url || result.link || '',
         snippet: result.snippet || '',
+        source: result.source || 'unknown',
         structure: { h2s: [], h3s: [] },
         wordCount: 0,
         summary: ''
@@ -101,7 +132,7 @@ export async function analyzeCompetitors(keyword) {
       analysis.competitors.push(competitor)
       analysis.totalAnalyzed++
     } catch (error) {
-      console.error(`分析失败: ${result.link}`, error)
+      console.error(`分析失败: ${result.link || result.url}`, error)
     }
   }
 
@@ -138,10 +169,22 @@ export async function analyzeCompetitors(keyword) {
 
 /**
  * 构建竞品分析报告
+ * 优先使用多源增强报告，否则降级使用原有格式
  */
 export function buildAnalysisReport(analysis) {
+  // 如果有补充知识（Wikipedia 等），使用增强报告
+  if (analysis.supplementaryKnowledge) {
+    return buildEnhancedReport(
+      analysis.keyword,
+      { results: analysis.competitors, sources: analysis.sources },
+      analysis.supplementaryKnowledge
+    )
+  }
+
+  // 降级：原有报告格式
   const lines = [
     `# ${analysis.keyword} 竞品分析报告`,
+    `**数据来源**: ${analysis.sources?.join(', ') || 'Tavily'}`,
     `分析时间: ${new Date(analysis.analyzedAt).toLocaleString('zh-CN')}`,
     `分析数量: ${analysis.totalAnalyzed} 篇`,
     ``,
@@ -149,12 +192,38 @@ export function buildAnalysisReport(analysis) {
     ``,
   ]
 
-  analysis.competitors.forEach((comp, idx) => {
-    lines.push(`${idx + 1}. **${comp.title}**`)
-    lines.push(`   - URL: ${comp.url}`)
-    lines.push(`   - 简介: ${comp.snippet.slice(0, 100)}...`)
-    lines.push(``)
-  })
+  // 按来源分组显示
+  const bySource = {}
+  for (const comp of analysis.competitors) {
+    const source = comp.source || 'unknown'
+    if (!bySource[source]) bySource[source] = []
+    bySource[source].push(comp)
+  }
+
+  for (const [source, comps] of Object.entries(bySource)) {
+    const sourceName = {
+      'duckduckgo': 'DuckDuckGo',
+      'baidu': '百度',
+      'sogou': '搜狗',
+      'wikipedia': 'Wikipedia',
+      'tavily': 'Tavily',
+      'bing': 'Bing',
+      'baidu_baike': '百度百科'
+    }[source] || source
+
+    lines.push(`### ${sourceName}`)
+
+    for (const comp of comps.slice(0, 5)) {
+      if (comp.title && comp.title.length > 3) {
+        lines.push(`${comps.indexOf(comp) + 1}. **${comp.title}**`)
+        lines.push(`   - URL: ${comp.url}`)
+        if (comp.snippet) {
+          lines.push(`   - 简介: ${comp.snippet.slice(0, 100)}...`)
+        }
+        lines.push(``)
+      }
+    }
+  }
 
   lines.push(`## 二、内容统计`)
   lines.push(`- 平均字数: ${analysis.avgWordCount}`)
