@@ -7,6 +7,13 @@ export default function SEOArticlePage({ params }) {
   const [content, setContent] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [regenerating, setRegenerating] = useState(false)
+
+  const getToken = () => {
+    return sessionStorage.getItem('seo_token') || localStorage.getItem('seo_token')
+  }
+
+  const isLoggedIn = !!getToken()
 
   useEffect(() => {
     async function loadContent() {
@@ -36,6 +43,42 @@ export default function SEOArticlePage({ params }) {
       loadContent()
     }
   }, [params?.keyword])
+
+  async function handleRegenerate() {
+    if (!isLoggedIn) {
+      alert('请先在SEO管理页面登录后再试')
+      return
+    }
+
+    if (!confirm('确定要重新生成这篇文章吗？')) return
+
+    setRegenerating(true)
+    try {
+      const token = getToken()
+      const keyword = decodeURIComponent(params?.keyword || '')
+
+      const res = await fetch('/api/seo/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ keyword })
+      })
+
+      const data = await res.json()
+      if (data.success) {
+        alert('文章重新生成成功！')
+        window.location.reload()
+      } else {
+        alert('重新生成失败: ' + (data.error || '未知错误'))
+      }
+    } catch (error) {
+      alert('重新生成失败，请重试')
+    } finally {
+      setRegenerating(false)
+    }
+  }
 
   const keyword = params?.keyword || ''
   const title = `${decodeURIComponent(keyword)} - 极客观察`
@@ -94,8 +137,17 @@ export default function SEOArticlePage({ params }) {
             </div>
           </div>
 
-          <div className="mt-8 text-center">
-            <a href="/seo" className="text-blue-400 hover:underline">
+          <div className="mt-8 flex justify-center gap-4 flex-wrap">
+            {isLoggedIn && (
+              <button
+                onClick={handleRegenerate}
+                disabled={regenerating}
+                className="px-6 py-2 bg-green-500/20 text-green-400 rounded-lg hover:bg-green-500/30 disabled:opacity-50 transition-colors"
+              >
+                {regenerating ? '重新生成中...' : '重新生成'}
+              </button>
+            )}
+            <a href="/seo" className="px-6 py-2 text-blue-400 hover:underline">
               ← 返回SEO管理页面
             </a>
           </div>
