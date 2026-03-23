@@ -12,7 +12,7 @@ function getProxyConfig() {
   if (!proxyUrl) return null
 
   try {
-    return new URL(proxyUrl)
+    return proxyUrl // 返回字符串
   } catch {
     console.warn('[Wechat Auth] 代理配置格式错误，忽略')
     return null
