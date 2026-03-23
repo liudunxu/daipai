@@ -3,7 +3,6 @@ import { HttpsProxyAgent } from 'https-proxy-agent'
 import { supabase } from '../../../../lib/supabase'
 import { verifyRequest } from '../../../../lib/seo/auth'
 import { getAccessToken } from '../../../../lib/wechat/auth'
-import { processArticleImages, replaceImagesWithMediaId } from '../../../../lib/wechat/uploader'
 import { convertHtmlForWechat, extractDigest, buildDraftContent } from '../../../../lib/wechat/content'
 
 const TABLE_ARTICLES = 'seo_articles'
@@ -90,20 +89,13 @@ export async function POST(request) {
 
     console.log(`[Wechat Sync] 获取文章成功: ${article.title}`)
 
-    // 2. 处理文章中的图片（上传到微信素材库）
-    console.log('[Wechat Sync] 开始处理图片...')
-    const imageResults = await processArticleImages(article.content)
+    // 2. 转换 HTML 格式（暂不上传图片，先测试草稿创建）
+    const wechatContent = convertHtmlForWechat(article.content)
 
-    // 3. 替换内容中的图片地址
-    const convertedContent = replaceImagesWithMediaId(article.content, imageResults)
-
-    // 4. 转换 HTML 格式
-    const wechatContent = convertHtmlForWechat(convertedContent)
-
-    // 5. 提取摘要
+    // 3. 提取摘要
     const digest = extractDigest(article.description || article.content)
 
-    // 6. 构建草稿内容（不设置封面）
+    // 4. 构建草稿内容（不设置封面）
     const draftContent = buildDraftContent({
       title: article.title,
       author: '东北雨姐',
@@ -112,7 +104,7 @@ export async function POST(request) {
       showCoverPic: 0
     })
 
-    // 7. 调用微信 API 创建草稿（带重试）
+    // 5. 调用微信 API 创建草稿（带重试）
     console.log('[Wechat Sync] 创建微信草稿...')
     const accessToken = await getAccessToken()
     const draftUrl = `https://api.weixin.qq.com/cgi-bin/draft/add?access_token=${accessToken}`
@@ -141,9 +133,7 @@ export async function POST(request) {
       message: '文章已同步到微信公众号草稿箱',
       data: {
         keyword,
-        title: article.title,
-        imagesProcessed: imageResults.filter(r => r.media_id).length,
-        totalImages: imageResults.length
+        title: article.title
       }
     })
 
