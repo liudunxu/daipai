@@ -1,7 +1,40 @@
 import { redis } from '../redis'
+import { HttpsProxyAgent } from 'https-proxy-agent'
 
 const WECHAT_TOKEN_URL = 'https://api.weixin.qq.com/cgi-bin/token'
 const TOKEN_CACHE_KEY = 'wechat:access_token'
+
+/**
+ * 获取代理配置
+ */
+function getProxyConfig() {
+  const proxyUrl = process.env.WECHAT_API_PROXY
+  if (!proxyUrl) return null
+
+  try {
+    return new URL(proxyUrl)
+  } catch {
+    console.warn('[Wechat Auth] 代理配置格式错误，忽略')
+    return null
+  }
+}
+
+/**
+ * 带代理的 fetch
+ */
+function proxyFetch(url, options = {}) {
+  const proxyUrl = getProxyConfig()
+
+  if (!proxyUrl) {
+    return fetch(url, options)
+  }
+
+  const agent = new HttpsProxyAgent(proxyUrl)
+  return fetch(url, {
+    ...options,
+    agent
+  })
+}
 
 /**
  * 获取微信 access_token（优先从 Redis 缓存获取）
@@ -24,7 +57,7 @@ export async function getAccessToken() {
   // 2. 缓存不存在或即将过期，重新获取
   const { appid, secret } = getWechatConfig()
 
-  const response = await fetch(
+  const response = await proxyFetch(
     `${WECHAT_TOKEN_URL}?grant_type=client_credential&appid=${appid}&secret=${secret}`
   )
   const data = await response.json()

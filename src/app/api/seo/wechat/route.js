@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { HttpsProxyAgent } from 'https-proxy-agent'
 import { supabase } from '../../../../lib/supabase'
 import { verifyRequest } from '../../../../lib/seo/auth'
 import { getAccessToken } from '../../../../lib/wechat/auth'
@@ -14,13 +15,28 @@ const RETRY_DELAY = 1000
 // 睡眠函数
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms))
 
-// 带重试的 fetch
+/**
+ * 获取代理 agent
+ */
+function getProxyAgent() {
+  const proxyUrl = process.env.WECHAT_API_PROXY
+  if (!proxyUrl) return null
+  try {
+    return new HttpsProxyAgent(proxyUrl)
+  } catch {
+    return null
+  }
+}
+
+// 带重试的 fetch（支持代理）
 async function fetchWithRetry(url, options, retries = MAX_RETRIES) {
+  const agent = getProxyAgent()
+  const fetchOptions = agent ? { ...options, agent } : options
   let lastError
 
   for (let i = 0; i < retries; i++) {
     try {
-      const response = await fetch(url, options)
+      const response = await fetch(url, fetchOptions)
       return response
     } catch (error) {
       lastError = error
