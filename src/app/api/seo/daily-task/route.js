@@ -5,8 +5,8 @@ import { verifyRequest } from '../../../../lib/seo/auth'
 const SEO_KEYWORDS_KEY = 'seo:keywords:plan'
 
 // 验证token
-function authCheck(request) {
-  const result = verifyRequest(request)
+async function authCheck(request) {
+  const result = await verifyRequest(request)
   if (!result.valid) {
     return { error: result.error, response: NextResponse.json({ error: result.error }, { status: 401 }) }
   }
@@ -15,7 +15,7 @@ function authCheck(request) {
 
 // GET 获取今日任务
 export async function GET(request) {
-  const auth = authCheck(request)
+  const auth = await authCheck(request)
   if (auth.error) return auth.response
 
   try {
@@ -91,7 +91,7 @@ export async function GET(request) {
 
 // POST 设置今日任务
 export async function POST(request) {
-  const auth = authCheck(request)
+  const auth = await authCheck(request)
   if (auth.error) return auth.response
 
   try {

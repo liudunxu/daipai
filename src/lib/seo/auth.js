@@ -1,37 +1,51 @@
-// 简单的token验证工具
-// 注意：生产环境建议使用JWT或类似的成熟方案
+import { redis } from '../redis'
+import { randomBytes } from 'crypto'
 
-const TOKEN_EXPIRY = 24 * 60 * 60 * 1000 // 24小时
+const TOKEN_PREFIX = 'seo:token:'
+const TOKEN_EXPIRY = 24 * 60 * 60 // 24小时（秒）
 
 /**
- * 生成动态token
+ * 生成动态token并存储到Redis
  */
-export function generateToken(username) {
-  const payload = {
+export async function generateToken(username) {
+  const token = randomBytes(32).toString('hex')
+  const tokenKey = `${TOKEN_PREFIX}${token}`
+
+  await redis.set(tokenKey, JSON.stringify({
     username,
-    exp: Date.now() + TOKEN_EXPIRY
-  }
-  return Buffer.from(JSON.stringify(payload)).toString('base64')
+    createdAt: Date.now()
+  }), { EX: TOKEN_EXPIRY })
+
+  return token
 }
 
 /**
- * 验证token
+ * 验证token（从Redis查询）
  */
-export function verifyToken(token) {
+export async function verifyToken(token) {
+  if (!token) return null
+
   try {
-    if (!token) return null
+    const tokenKey = `${TOKEN_PREFIX}${token}`
+    const data = await redis.get(tokenKey)
 
-    const payload = JSON.parse(Buffer.from(token, 'base64').toString())
+    if (!data) return null
 
-    // 检查是否过期
-    if (Date.now() > payload.exp) {
-      return null
-    }
-
+    const payload = typeof data === 'string' ? JSON.parse(data) : data
     return payload
   } catch {
     return null
   }
+}
+
+/**
+ * 移除token（登出）
+ */
+export async function removeToken(token) {
+  if (!token) return false
+  const tokenKey = `${TOKEN_PREFIX}${token}`
+  await redis.del(tokenKey)
+  return true
 }
 
 /**
@@ -50,13 +64,13 @@ export function getTokenFromRequest(request) {
 /**
  * 验证请求的token
  */
-export function verifyRequest(request) {
+export async function verifyRequest(request) {
   const token = getTokenFromRequest(request)
   if (!token) {
     return { valid: false, error: '未提供token' }
   }
 
-  const payload = verifyToken(token)
+  const payload = await verifyToken(token)
   if (!payload) {
     return { valid: false, error: 'token无效或已过期' }
   }

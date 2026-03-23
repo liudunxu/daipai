@@ -10,8 +10,8 @@ const SEO_KEYWORDS_KEY = 'seo:keywords:plan'
 const SEO_ARTICLES_KEY = 'seo:articles:generated'
 
 // 验证token
-function authCheck(request) {
-  const result = verifyRequest(request)
+async function authCheck(request) {
+  const result = await verifyRequest(request)
   if (!result.valid) {
     return { error: result.error, response: NextResponse.json({ error: result.error }, { status: 401 }) }
   }
@@ -20,7 +20,7 @@ function authCheck(request) {
 
 // POST 生成文章
 export async function POST(request) {
-  const auth = authCheck(request)
+  const auth = await authCheck(request)
   if (auth.error) return auth.response
 
   try {

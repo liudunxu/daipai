@@ -7,8 +7,8 @@ import path from 'path'
 const SEO_ARTICLES_KEY = 'seo:articles:generated'
 
 // 验证token
-function authCheck(request) {
-  const result = verifyRequest(request)
+async function authCheck(request) {
+  const result = await verifyRequest(request)
   if (!result.valid) {
     return { error: result.error, response: NextResponse.json({ error: result.error }, { status: 401 }) }
   }
@@ -17,7 +17,7 @@ function authCheck(request) {
 
 // GET 获取文章内容
 export async function GET(request) {
-  const auth = authCheck(request)
+  const auth = await authCheck(request)
   if (auth.error) return auth.response
 
   try {

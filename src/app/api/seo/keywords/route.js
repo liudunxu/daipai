@@ -6,8 +6,8 @@ const SEO_KEYWORDS_KEY = 'seo:keywords:plan'
 const SEO_ARTICLES_KEY = 'seo:articles:generated'
 
 // 验证token
-function authCheck(request) {
-  const result = verifyRequest(request)
+async function authCheck(request) {
+  const result = await verifyRequest(request)
   if (!result.valid) {
     return { error: result.error, response: NextResponse.json({ error: result.error }, { status: 401 }) }
   }
@@ -16,7 +16,7 @@ function authCheck(request) {
 
 // GET 获取关键词列表
 export async function GET(request) {
-  const auth = authCheck(request)
+  const auth = await authCheck(request)
   if (auth.error) return auth.response
 
   try {
@@ -58,7 +58,7 @@ export async function GET(request) {
 
 // POST 添加关键词
 export async function POST(request) {
-  const auth = authCheck(request)
+  const auth = await authCheck(request)
   if (auth.error) return auth.response
 
   try {
@@ -107,7 +107,7 @@ export async function POST(request) {
 
 // PUT 更新关键词状态
 export async function PUT(request) {
-  const auth = authCheck(request)
+  const auth = await authCheck(request)
   if (auth.error) return auth.response
 
   try {
@@ -141,7 +141,7 @@ export async function PUT(request) {
 
 // DELETE 删除关键词
 export async function DELETE(request) {
-  const auth = authCheck(request)
+  const auth = await authCheck(request)
   if (auth.error) return auth.response
 
   try {

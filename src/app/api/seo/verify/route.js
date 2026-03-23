@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
-import { generateToken } from '../../../../lib/seo/auth'
+import { generateToken, removeToken, getTokenFromRequest } from '../../../../lib/seo/auth'
 
+// POST 登录
 export async function POST(request) {
   try {
     const { username, password } = await request.json()
@@ -15,8 +16,8 @@ export async function POST(request) {
 
     // 验证
     if (username === correctUsername && password === correctPassword) {
-      // 生成动态token
-      const token = generateToken(username)
+      // 生成token并存储到Redis
+      const token = await generateToken(username)
 
       return NextResponse.json({
         success: true,
@@ -30,5 +31,19 @@ export async function POST(request) {
   } catch (error) {
     console.error('验证失败:', error)
     return NextResponse.json({ success: false, error: '验证失败' }, { status: 500 })
+  }
+}
+
+// DELETE 登出
+export async function DELETE(request) {
+  try {
+    const token = getTokenFromRequest(request)
+    if (token) {
+      await removeToken(token)
+    }
+    return NextResponse.json({ success: true })
+  } catch (error) {
+    console.error('登出失败:', error)
+    return NextResponse.json({ success: false, error: '登出失败' }, { status: 500 })
   }
 }
