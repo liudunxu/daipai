@@ -454,11 +454,11 @@ export async function getSupplementaryKnowledge(keyword) {
  */
 export function buildEnhancedReport(keyword, multiSearchResults = {}, supplementaryKnowledge = {}, imageResults = null) {
   // 防御性检查：确保所有参数及其属性存在
-  const safeSources = (multiSearchResults?.sources || [])
-  const safeResults = (multiSearchResults?.results || [])
-  const safeWiki = (supplementaryKnowledge?.wikipedia ? [supplementaryKnowledge.wikipedia] : [])
-  const safeBaike = (supplementaryKnowledge?.baiduBaike ? [supplementaryKnowledge.baiduBaike] : [])
-  const safeImages = (imageResults?.images || [])
+  const safeSources = Array.isArray(multiSearchResults?.sources) ? multiSearchResults.sources : []
+  const safeResults = Array.isArray(multiSearchResults?.results) ? multiSearchResults.results : []
+  const safeWiki = supplementaryKnowledge?.wikipedia ? [supplementaryKnowledge.wikipedia] : []
+  const safeBaike = supplementaryKnowledge?.baiduBaike ? [supplementaryKnowledge.baiduBaike] : []
+  const safeImages = Array.isArray(imageResults?.images) ? imageResults.images : []
 
   const lines = [
     `# ${keyword} 竞品分析报告`,

@@ -190,10 +190,10 @@ export async function analyzeCompetitors(keyword) {
 export function buildAnalysisReport(analysis = {}) {
   // 防御性检查：确保 analysis 及其属性存在
   const safeKeyword = analysis.keyword || ''
-  const safeSources = (analysis.sources || [])
-  const safeCompetitors = (analysis.competitors || [])
-  const safeSupplementaryKnowledge = (analysis.supplementaryKnowledge || null)
-  const safeImageSources = (analysis.imageSources || [])
+  const safeSources = Array.isArray(analysis.sources) ? analysis.sources : []
+  const safeCompetitors = Array.isArray(analysis.competitors) ? analysis.competitors : []
+  const safeSupplementaryKnowledge = analysis.supplementaryKnowledge || null
+  const safeImageSources = Array.isArray(analysis.imageSources) ? analysis.imageSources : []
 
   // 如果有补充知识（Wikipedia 等），使用增强报告
   if (safeSupplementaryKnowledge) {
@@ -209,8 +209,8 @@ export function buildAnalysisReport(analysis = {}) {
   const lines = [
     `# ${safeKeyword} 竞品分析报告`,
     `**数据来源**: ${safeSources.join(', ') || 'Tavily'}`,
-    `分析时间**: ${new Date(analysis.analyzedAt || Date.now()).toLocaleString('zh-CN')}`,
-    `分析数量**: ${analysis.totalAnalyzed || 0} 篇`,
+    `分析时间**: ${new Date(analysis?.analyzedAt || Date.now()).toLocaleString('zh-CN')}`,
+    `分析数量**: ${analysis?.totalAnalyzed || 0} 篇`,
     ``,
     `## 一、竞品概况`,
     ``,
@@ -250,26 +250,29 @@ export function buildAnalysisReport(analysis = {}) {
   }
 
   lines.push(`## 二、内容统计`)
-  lines.push(`- 平均字数: ${analysis.avgWordCount}`)
+  lines.push(`- 平均字数: ${analysis?.avgWordCount || 0}`)
   lines.push(``)
 
-  if (analysis.commonTopics.length > 0) {
+  const safeCommonTopics = Array.isArray(analysis?.commonTopics) ? analysis.commonTopics : []
+  if (safeCommonTopics.length > 0) {
     lines.push(`## 三、常见话题`)
-    lines.push(analysis.commonTopics.map(t => `- ${t}`).join('\n'))
+    lines.push(safeCommonTopics.map(t => `- ${t}`).join('\n'))
     lines.push(``)
   }
 
-  if (analysis.topStructures.length > 0) {
+  const safeTopStructures = Array.isArray(analysis?.topStructures) ? analysis.topStructures : []
+  if (safeTopStructures.length > 0) {
     lines.push(`## 四、推荐覆盖点`)
-    lines.push(analysis.topStructures.map(t => `- ${t}`).join('\n'))
+    lines.push(safeTopStructures.map(t => `- ${t}`).join('\n'))
     lines.push(``)
   }
 
   // 添加图片信息
-  if (analysis.images && analysis.images.length > 0) {
+  const safeImages = Array.isArray(analysis?.images) ? analysis.images : []
+  if (safeImages.length > 0) {
     lines.push(`## 五、相关图片`)
-    analysis.images.forEach((img, idx) => {
-      lines.push(`![${img.description}](${img.url})`)
+    safeImages.forEach((img, idx) => {
+      lines.push(`![${img.description || ''}](${img.url || ''})`)
     })
   }
 
