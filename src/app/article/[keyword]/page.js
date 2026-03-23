@@ -23,9 +23,9 @@ export default function ArticlePage() {
   useEffect(() => {
     async function loadContent() {
       try {
-        // 尝试从API获取文章内容
-        const keyword = params?.keyword || ''
-        const res = await fetch(`/api/seo/article?keyword=${encodeURIComponent(keyword)}`)
+        // 使用 article_id 从 API 获取文章内容
+        const articleId = params?.keyword || ''
+        const res = await fetch(`/api/seo/article?id=${encodeURIComponent(articleId)}`)
 
         if (res.ok) {
           const data = await res.json()

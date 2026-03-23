@@ -3,9 +3,15 @@ import { analyzeCompetitors, buildAnalysisReport } from '../../../../lib/seo/ana
 import { generateSEOArticle, extractMetadata } from '../../../../lib/seo/generator'
 import { supabase } from '../../../../lib/supabase'
 import { verifyRequest } from '../../../../lib/seo/auth'
+import { randomUUID } from 'crypto'
 
 const TABLE_KEYWORDS = 'seo_keywords'
 const TABLE_ARTICLES = 'seo_articles'
+
+// 生成短 UUID（8位）
+function generateShortId() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 6)
+}
 
 // 验证token
 async function authCheck(request) {
@@ -65,9 +71,9 @@ export async function POST(request) {
     // 3. 提取元数据
     const metadata = extractMetadata(content, keyword)
 
-    // 4. 生成页面路径
-    const safeKeyword = encodeURIComponent(keyword)
-    const articlePath = `/article/${safeKeyword}`
+    // 4. 生成页面路径（使用 UUID 而不是 keyword）
+    const articleId = generateShortId()
+    const articlePath = `/article/${articleId}`
 
     // 5. 更新关键词状态为done
     const now = new Date().toISOString()
@@ -78,7 +84,8 @@ export async function POST(request) {
         status: 'done',
         updated_at: now,
         generated_at: now,
-        page_path: articlePath
+        page_path: articlePath,
+        article_id: articleId
       })
       .eq('keyword', keyword)
 
@@ -96,7 +103,8 @@ export async function POST(request) {
         content: content,
         page_path: articlePath,
         generated_at: now,
-        word_count: content.length
+        word_count: content.length,
+        article_id: articleId
       })
       .eq('keyword', keyword)
 
@@ -112,7 +120,8 @@ export async function POST(request) {
           content: content,
           page_path: articlePath,
           generated_at: now,
-          word_count: content.length
+          word_count: content.length,
+          article_id: articleId
         })
 
       if (insertError) {
@@ -130,6 +139,7 @@ export async function POST(request) {
     return NextResponse.json({
       success: true,
       keyword,
+      articleId,
       metadata,
       contentLength: content.length,
       pagePath: articlePath,

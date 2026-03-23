@@ -33,19 +33,36 @@ export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url)
     const keyword = searchParams.get('keyword')
+    const articleId = searchParams.get('id')
 
-    if (!keyword) {
-      return NextResponse.json({ error: '关键词不能为空' }, { status: 400 })
+    if (!keyword && !articleId) {
+      return NextResponse.json({ error: '关键词或文章ID不能都为空' }, { status: 400 })
     }
 
-    const decodedKeyword = decodeURIComponent(keyword)
+    let data, error
 
-    // 从Supabase获取文章
-    const { data, error } = await supabase
-      .from(TABLE_ARTICLES)
-      .select('*')
-      .eq('keyword', decodedKeyword)
-      .single()
+    // 优先通过 article_id 查询（新版路径）
+    if (articleId) {
+      const result = await supabase
+        .from(TABLE_ARTICLES)
+        .select('*')
+        .eq('article_id', articleId)
+        .single()
+      data = result.data
+      error = result.error
+    }
+
+    // 如果没找到，通过 keyword 查询（兼容旧版路径）
+    if (!data && keyword) {
+      const decodedKeyword = decodeURIComponent(keyword)
+      const result = await supabase
+        .from(TABLE_ARTICLES)
+        .select('*')
+        .eq('keyword', decodedKeyword)
+        .single()
+      data = result.data
+      error = result.error
+    }
 
     if (error && error.code !== 'PGRST116') {
       console.error('获取文章失败:', error)
