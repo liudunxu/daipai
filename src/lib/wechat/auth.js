@@ -34,10 +34,13 @@ function proxyFetch(url, options = {}) {
 
   console.log('[Wechat Auth] 使用代理:', proxyUrl)
   const agent = new HttpsProxyAgent(proxyUrl)
-  return fetch(url, {
+  console.log('[Wechat Auth] agent 对象:', typeof agent, agent.constructor.name)
+  const finalOptions = {
     ...options,
     agent
-  })
+  }
+  console.log('[Wechat Auth] fetch options:', Object.keys(finalOptions))
+  return fetch(url, finalOptions)
 }
 
 /**
