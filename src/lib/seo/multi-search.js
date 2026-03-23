@@ -452,9 +452,13 @@ export async function getSupplementaryKnowledge(keyword) {
  * 构建增强的分析报告
  * 包含多源数据，更有利于文章生成
  */
-export function buildEnhancedReport(keyword, multiSearchResults, supplementaryKnowledge, imageResults = null) {
-  // 防御性检查：确保 multiSearchResults 及其属性存在
+export function buildEnhancedReport(keyword, multiSearchResults = {}, supplementaryKnowledge = {}, imageResults = null) {
+  // 防御性检查：确保所有参数及其属性存在
   const safeSources = (multiSearchResults?.sources || [])
+  const safeResults = (multiSearchResults?.results || [])
+  const safeWiki = (supplementaryKnowledge?.wikipedia ? [supplementaryKnowledge.wikipedia] : [])
+  const safeBaike = (supplementaryKnowledge?.baiduBaike ? [supplementaryKnowledge.baiduBaike] : [])
+  const safeImages = (imageResults?.images || [])
 
   const lines = [
     `# ${keyword} 竞品分析报告`,
@@ -483,13 +487,13 @@ export function buildEnhancedReport(keyword, multiSearchResults, supplementaryKn
   }
 
   // 竞品内容
-  if (multiSearchResults.results.length > 0) {
+  if (safeResults.length > 0) {
     lines.push(`## 🔍 全网竞品分析`)
     lines.push(``)
 
     // 按来源分组显示
     const bySource = {}
-    for (const result of multiSearchResults.results) {
+    for (const result of safeResults) {
       if (!bySource[result.source]) {
         bySource[result.source] = []
       }

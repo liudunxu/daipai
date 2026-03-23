@@ -187,23 +187,30 @@ export async function analyzeCompetitors(keyword) {
  * 构建竞品分析报告
  * 优先使用多源增强报告，否则降级使用原有格式
  */
-export function buildAnalysisReport(analysis) {
+export function buildAnalysisReport(analysis = {}) {
+  // 防御性检查：确保 analysis 及其属性存在
+  const safeKeyword = analysis.keyword || ''
+  const safeSources = (analysis.sources || [])
+  const safeCompetitors = (analysis.competitors || [])
+  const safeSupplementaryKnowledge = (analysis.supplementaryKnowledge || null)
+  const safeImageSources = (analysis.imageSources || [])
+
   // 如果有补充知识（Wikipedia 等），使用增强报告
-  if (analysis.supplementaryKnowledge) {
+  if (safeSupplementaryKnowledge) {
     return buildEnhancedReport(
-      analysis.keyword,
-      { results: analysis.competitors, sources: analysis.sources },
-      analysis.supplementaryKnowledge,
-      { images: analysis.imageSources || [] }  // 传入多源图片
+      safeKeyword,
+      { results: safeCompetitors, sources: safeSources },
+      safeSupplementaryKnowledge,
+      { images: safeImageSources }
     )
   }
 
   // 降级：原有报告格式
   const lines = [
-    `# ${analysis.keyword} 竞品分析报告`,
-    `**数据来源**: ${(analysis.sources || []).join(', ') || 'Tavily'}`,
-    `分析时间: ${new Date(analysis.analyzedAt).toLocaleString('zh-CN')}`,
-    `分析数量: ${analysis.totalAnalyzed} 篇`,
+    `# ${safeKeyword} 竞品分析报告`,
+    `**数据来源**: ${safeSources.join(', ') || 'Tavily'}`,
+    `分析时间**: ${new Date(analysis.analyzedAt || Date.now()).toLocaleString('zh-CN')}`,
+    `分析数量**: ${analysis.totalAnalyzed || 0} 篇`,
     ``,
     `## 一、竞品概况`,
     ``,
@@ -211,7 +218,7 @@ export function buildAnalysisReport(analysis) {
 
   // 按来源分组显示
   const bySource = {}
-  for (const comp of analysis.competitors) {
+  for (const comp of safeCompetitors) {
     const source = comp.source || 'unknown'
     if (!bySource[source]) bySource[source] = []
     bySource[source].push(comp)
