@@ -63,10 +63,10 @@ export async function POST(request) {
       console.error('更新关键词状态失败:', kwError)
     }
 
-    // 6. 记录已生成文章
+    // 6. 记录已生成文章（必须成功，否则文章无法访问）
     const { data: articleData, error: articleError } = await supabase
       .from(TABLE_ARTICLES)
-      .insert({
+      .upsert({
         keyword,
         title: metadata.title,
         description: metadata.description,
@@ -74,14 +74,20 @@ export async function POST(request) {
         page_path: articlePath,
         generated_at: now,
         word_count: content.length
+      }, {
+        onConflict: 'keyword'
       })
 
     if (articleError) {
       console.error('插入文章记录失败:', articleError)
-      // 不阻止成功返回，因为文章内容已经生成
-    } else {
-      console.log('文章记录插入成功:', articleData)
+      return NextResponse.json({
+        success: false,
+        error: `文章保存失败: ${articleError.message}`,
+        pagePath: articlePath
+      }, { status: 500 })
     }
+
+    console.log('文章记录插入成功:', articleData)
 
     return NextResponse.json({
       success: true,
