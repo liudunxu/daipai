@@ -94,6 +94,10 @@ export async function POST(request) {
     }
 
     // 6. 记录已生成文章（必须成功，否则文章无法访问）
+    console.log('[Generate] 开始保存文章记录')
+    console.log('[Generate] content 长度:', content.length)
+    console.log('[Generate] articleId:', articleId)
+
     // 先尝试更新，如果没找到记录则插入
     const { error: updateError } = await supabase
       .from(TABLE_ARTICLES)
@@ -110,7 +114,15 @@ export async function POST(request) {
 
     if (updateError) {
       // 更新失败（可能记录不存在），尝试插入
-      console.log('更新失败，尝试插入新记录:', updateError.message)
+      console.log('[Generate] 更新失败，尝试插入新记录:', updateError.message)
+      console.log('[Generate] 插入数据:', {
+        keyword,
+        title: metadata.title,
+        contentLength: content.length,
+        page_path: articlePath,
+        article_id: articleId
+      })
+
       const { error: insertError } = await supabase
         .from(TABLE_ARTICLES)
         .insert({
@@ -125,13 +137,17 @@ export async function POST(request) {
         })
 
       if (insertError) {
-        console.error('插入文章记录失败:', insertError)
+        console.error('[Generate] 插入文章记录失败:', JSON.stringify(insertError))
         return NextResponse.json({
           success: false,
           error: `文章保存失败: ${insertError.message}`,
           pagePath: articlePath
         }, { status: 500 })
       }
+
+      console.log('[Generate] 插入成功')
+    } else {
+      console.log('[Generate] 更新成功')
     }
 
     console.log('文章记录保存成功')
