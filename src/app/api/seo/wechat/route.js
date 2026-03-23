@@ -93,17 +93,39 @@ export async function POST(request) {
     // 2. 提取摘要
     const digest = extractDigest(article.description || article.content)
 
-    // 4. 上传一张默认封面图（获取 thumb_media_id）
-    console.log('[Wechat Sync] 上传封面图片...')
+    // 4. 上传封面图到永久素材（thumb_media_id 必须是永久素材）
+    console.log('[Wechat Sync] 上传封面图片到永久素材...')
     let thumbMediaId = ''
     try {
-      // 使用可靠的图片 URL
       const coverUrl = 'https://file.cdn.minimax.io/public/5371344a-1a43-470d-b5ac-e4c81b2a0ea2.png'
-      console.log('[Wechat Sync] 开始上传封面 from:', coverUrl)
-      const coverResult = await uploadImage(coverUrl)
-      console.log('[Wechat Sync] 封面上传结果:', JSON.stringify(coverResult))
-      thumbMediaId = coverResult.media_id
-      console.log('[Wechat Sync] 封面上传成功, media_id:', thumbMediaId)
+      console.log('[Wechat Sync] 开始下载封面 from:', coverUrl)
+
+      // 先下载图片
+      const agent = getProxyAgent()
+      const options = agent ? { agent } : {}
+      const imgResponse = await fetch(coverUrl, options)
+      const imgBuffer = await imgResponse.arrayBuffer()
+      const imgBlob = new Blob([imgBuffer])
+
+      // 上传到永久素材（type=image 作为 thumb）
+      const accessToken = await getAccessToken()
+      const uploadUrl = `https://api.weixin.qq.com/cgi-bin/material/add_material?access_token=${accessToken}&type=image`
+
+      const formData = new FormData()
+      formData.append('media', imgBlob, 'cover.png')
+
+      const uploadResponse = await fetch(uploadUrl, {
+        method: 'POST',
+        body: formData
+      })
+      const uploadResult = await uploadResponse.json()
+
+      if (uploadResult.errcode) {
+        console.error('[Wechat Sync] 永久素材上传失败:', uploadResult)
+      } else {
+        thumbMediaId = uploadResult.media_id
+        console.log('[Wechat Sync] 永久素材上传成功, media_id:', thumbMediaId)
+      }
     } catch (err) {
       console.error('[Wechat Sync] 封面上传失败:', err.message)
     }
