@@ -5,6 +5,22 @@ import path from 'path'
 
 const TABLE_ARTICLES = 'seo_articles'
 
+// Markdown 转 HTML
+function markdownToHtml(md) {
+  if (!md) return ''
+  return md
+    .replace(/^### (.+)$/gm, '<h3 class="text-xl font-bold text-white mt-8 mb-4">$1</h3>')
+    .replace(/^## (.+)$/gm, '<h2 class="text-2xl font-bold text-white mt-10 mb-6 border-b border-white/10 pb-2">$1</h2>')
+    .replace(/^# (.+)$/gm, '<h1 class="text-3xl font-bold text-white mb-8">$1</h1>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong class="text-yellow-400 font-bold">$1</strong>')
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    .replace(/\n\n/g, '</p><p class="text-white/80 mb-4 leading-relaxed">')
+    .replace(/^(.+)$/gm, (match) => {
+      if (match.startsWith('<')) return match
+      return '<p class="text-white/80 mb-4 leading-relaxed">' + match + '</p>'
+    })
+}
+
 // GET 获取文章内容（公开接口，不需要认证）
 export async function GET(request) {
   try {
@@ -35,13 +51,13 @@ export async function GET(request) {
       const pagePath = path.join(process.cwd(), 'src/app/seo', safeKeyword, 'page.js')
 
       try {
-        const content = await fs.readFile(pagePath, 'utf-8')
-        const contentMatch = content.match(/const content = `([\s\S]*?)`;/)
+        const fileContent = await fs.readFile(pagePath, 'utf-8')
+        const contentMatch = fileContent.match(/const content = `([\s\S]*?)`;/)
         if (contentMatch) {
           return NextResponse.json({
             success: true,
             keyword: decodedKeyword,
-            content: contentMatch[1],
+            content: markdownToHtml(contentMatch[1]),
             pagePath: `/seo/${safeKeyword}`
           })
         }
@@ -52,7 +68,7 @@ export async function GET(request) {
       return NextResponse.json({
         success: true,
         keyword: data.keyword,
-        content: data.content,
+        content: markdownToHtml(data.content),
         title: data.title,
         pagePath: data.page_path
       })
