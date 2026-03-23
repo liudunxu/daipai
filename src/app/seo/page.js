@@ -11,6 +11,9 @@ const seoData = {
 }
 
 export default function SEOManagePage() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [password, setPassword] = useState('')
+  const [authError, setAuthError] = useState(false)
   const [keywords, setKeywords] = useState([])
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('list')
@@ -22,9 +25,44 @@ export default function SEOManagePage() {
   const [dailyTasks, setDailyTasks] = useState([])
 
   useEffect(() => {
-    fetchKeywords()
-    fetchDailyTasks()
+    // 检查是否已验证
+    const savedAuth = sessionStorage.getItem('seo_auth')
+    if (savedAuth === 'true') {
+      setIsAuthenticated(true)
+    }
   }, [])
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchKeywords()
+      fetchDailyTasks()
+    }
+  }, [isAuthenticated])
+
+  async function handleLogin() {
+    try {
+      const res = await fetch('/api/seo/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password })
+      })
+      const data = await res.json()
+      if (data.success) {
+        setIsAuthenticated(true)
+        setAuthError(false)
+        sessionStorage.setItem('seo_auth', 'true')
+      } else {
+        setAuthError(true)
+      }
+    } catch {
+      setAuthError(true)
+    }
+  }
+
+  function handleLogout() {
+    setIsAuthenticated(false)
+    sessionStorage.removeItem('seo_auth')
+  }
 
   async function fetchKeywords() {
     try {
@@ -169,11 +207,51 @@ export default function SEOManagePage() {
 
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-8 px-4">
         <div className="max-w-6xl mx-auto">
-          {/* 标题 */}
-          <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold text-white mb-2">SEO文章自动创作系统</h1>
-            <p className="text-white/60">老铁们，这是雨姐整的贼啦牛X的SEO自动整活系统！</p>
-          </div>
+          {/* 未登录 - 显示登录表单 */}
+          {!isAuthenticated ? (
+            <div className="max-w-md mx-auto mt-20">
+              <div className="bg-white/5 border border-white/10 rounded-2xl p-8">
+                <h1 className="text-2xl font-bold text-white mb-6 text-center">SEO管理后台</h1>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-white/60 mb-2">访问密码</label>
+                    <input
+                      type="password"
+                      value={password}
+                      onChange={e => setPassword(e.target.value)}
+                      onKeyDown={e => e.key === 'Enter' && handleLogin()}
+                      placeholder="请输入访问密码"
+                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-white/30"
+                    />
+                  </div>
+                  {authError && (
+                    <p className="text-red-400 text-sm">密码错误，请重试</p>
+                  )}
+                  <button
+                    onClick={handleLogin}
+                    className="w-full py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white font-bold rounded-xl hover:opacity-90 transition-opacity"
+                  >
+                    进入后台
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : (
+          /* 已登录 - 显示管理界面 */
+          <>
+            {/* 顶部导航 */}
+            <div className="flex justify-between items-center mb-8">
+              <div className="text-center flex-1">
+                <h1 className="text-4xl font-bold text-white mb-2">SEO文章自动创作系统</h1>
+                <p className="text-white/60">老铁们，这是雨姐整的贼啦牛X的SEO自动整活系统！</p>
+              </div>
+              <button
+                onClick={handleLogout}
+                className="px-4 py-2 bg-white/5 text-white/60 hover:bg-white/10 rounded-lg text-sm"
+              >
+                退出登录
+              </button>
+            </div>
 
           {/* 今日任务 */}
           {dailyTasks.length > 0 && (
@@ -399,6 +477,8 @@ export default function SEOManagePage() {
               </div>
             </div>
           </div>
+          </>
+          )}
         </div>
       </div>
     </>
