@@ -3,7 +3,7 @@ import { HttpsProxyAgent } from 'https-proxy-agent'
 import { supabase } from '../../../../lib/supabase'
 import { verifyRequest } from '../../../../lib/seo/auth'
 import { getAccessToken } from '../../../../lib/wechat/auth'
-import { uploadImage } from '../../../../lib/wechat/uploader'
+import { uploadImage, processArticleImages, replaceImagesWithMediaId } from '../../../../lib/wechat/uploader'
 import { convertHtmlForWechat, extractDigest, buildDraftContent } from '../../../../lib/wechat/content'
 
 const TABLE_ARTICLES = 'seo_articles'
@@ -90,10 +90,7 @@ export async function POST(request) {
 
     console.log(`[Wechat Sync] 获取文章成功: ${article.title}`)
 
-    // 2. 转换 HTML 格式（暂不上传图片，先测试草稿创建）
-    const wechatContent = convertHtmlForWechat(article.content)
-
-    // 3. 提取摘要
+    // 2. 提取摘要
     const digest = extractDigest(article.description || article.content)
 
     // 4. 上传一张默认封面图（获取 thumb_media_id）
@@ -113,7 +110,18 @@ export async function POST(request) {
 
     console.log('[Wechat Sync] 构建草稿，thumbMediaId:', thumbMediaId)
 
-    // 5. 构建草稿内容
+    // 6. 处理内容中的图片
+    console.log('[Wechat Sync] 开始处理内容中的图片...')
+    const imageResults = await processArticleImages(article.content)
+    console.log(`[Wechat Sync] 图片处理完成，成功 ${imageResults.filter(r => r.media_id).length}/${imageResults.length} 张`)
+
+    // 7. 替换内容中的图片为微信 CDN 地址
+    const convertedContent = replaceImagesWithMediaId(article.content, imageResults)
+
+    // 8. 转换 HTML 格式
+    const wechatContent = convertHtmlForWechat(convertedContent)
+
+    // 9. 构建草稿内容
     const draftContent = buildDraftContent({
       title: article.title,
       author: '东北雨姐',
@@ -123,7 +131,7 @@ export async function POST(request) {
       showCoverPic: thumbMediaId ? 1 : 0
     })
 
-    // 5. 调用微信 API 创建草稿（带重试）
+    // 10. 调用微信 API 创建草稿（带重试）
     console.log('[Wechat Sync] 创建微信草稿...')
     const accessToken = await getAccessToken()
     const draftUrl = `https://api.weixin.qq.com/cgi-bin/draft/add?access_token=${accessToken}`
@@ -152,7 +160,9 @@ export async function POST(request) {
       message: '文章已同步到微信公众号草稿箱',
       data: {
         keyword,
-        title: article.title
+        title: article.title,
+        imagesProcessed: imageResults.filter(r => r.media_id).length,
+        totalImages: imageResults.length
       }
     })
 
