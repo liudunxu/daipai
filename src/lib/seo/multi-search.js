@@ -3,33 +3,11 @@
  * 整合多个免费搜索/数据源，为SEO文章生成提供更丰富的内容素材
  */
 
-import { HttpsProxyAgent } from 'https-proxy-agent'
+import { proxyFetch, withTimeout } from './proxy'
 import { multiSourceImageSearch, buildImageReport } from './image-search'
 
 // 搜索结果限制
 const RESULTS_LIMIT = 8
-
-/**
- * 获取代理配置
- */
-function getProxyAgent() {
-  const proxyUrl = process.env.WECHAT_API_PROXY || process.env.HTTP_PROXY
-  if (!proxyUrl) return null
-  try {
-    return new HttpsProxyAgent(proxyUrl)
-  } catch {
-    return null
-  }
-}
-
-/**
- * 带代理的 fetch
- */
-async function proxyFetch(url, options = {}) {
-  const agent = getProxyAgent()
-  const fetchOptions = agent ? { ...options, agent } : options
-  return fetch(url, fetchOptions)
-}
 
 /**
  * 1. DuckDuckGo 搜索 (免费，无需 API Key)
@@ -383,28 +361,22 @@ export async function multiSourceSearch(keyword, options = {}) {
   const allResults = []
   const seenUrls = new Set()
 
-  // 并行执行所有搜索（带超时控制）
-  const timeout = (promise, ms) => Promise.race([
-    promise,
-    new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), ms))
-  ]).catch(() => [])
-
   const searchPromises = []
 
   if (includeBaidu) {
-    searchPromises.push(timeout(searchBaidu(keyword), 8000))
+    searchPromises.push(withTimeout(searchBaidu(keyword), 8000))
   }
 
   if (includeSogou) {
-    searchPromises.push(timeout(searchSogou(keyword), 8000))
+    searchPromises.push(withTimeout(searchSogou(keyword), 8000))
   }
 
   if (includeWikipedia) {
-    searchPromises.push(timeout(searchWikipedia(keyword), 5000))
+    searchPromises.push(withTimeout(searchWikipedia(keyword), 5000))
   }
 
   if (includeBaiduBaike) {
-    searchPromises.push(timeout(searchBaiduBaike(keyword), 5000))
+    searchPromises.push(withTimeout(searchBaiduBaike(keyword), 5000))
   }
 
   // 收集所有结果

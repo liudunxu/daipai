@@ -36,19 +36,20 @@ async function searchWithTavily(keyword) {
  * 多源聚合搜索（主要搜索方式）
  */
 async function searchCompetitors(keyword) {
-  // 优先使用 Tavily 获取图片
-  const tavilyData = await searchWithTavily(keyword)
-
-  // 并行执行多源搜索
-  const [multiSearchResult] = await Promise.all([
-    multiSourceSearch(keyword, {
-      tavilyResults: tavilyData.results
-    })
+  // 并行执行 Tavily 和多源搜索
+  const [tavilyData, multiSearchResult] = await Promise.all([
+    searchWithTavily(keyword),
+    multiSourceSearch(keyword)
   ])
 
-  // 合并结果
+  // 合并结果（将 tavily 结果追加到多源搜索结果）
+  const allResults = [
+    ...multiSearchResult.results,
+    ...tavilyData.results.map(r => ({ ...r, source: 'tavily' }))
+  ]
+
   return {
-    results: multiSearchResult.results,
+    results: allResults,
     images: tavilyData.images,
     sources: multiSearchResult.sources
   }

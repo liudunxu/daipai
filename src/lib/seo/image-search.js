@@ -3,31 +3,9 @@
  * 整合多个免费图片源，为SEO文章提供配图
  */
 
-import { HttpsProxyAgent } from 'https-proxy-agent'
+import { proxyFetch, withTimeout } from './proxy'
 
 const IMAGE_RESULTS_LIMIT = 10
-
-/**
- * 获取代理配置
- */
-function getProxyAgent() {
-  const proxyUrl = process.env.WECHAT_API_PROXY || process.env.HTTP_PROXY
-  if (!proxyUrl) return null
-  try {
-    return new HttpsProxyAgent(proxyUrl)
-  } catch {
-    return null
-  }
-}
-
-/**
- * 带代理的 fetch
- */
-async function proxyFetch(url, options = {}) {
-  const agent = getProxyAgent()
-  const fetchOptions = agent ? { ...options, agent } : options
-  return fetch(url, fetchOptions)
-}
 
 /**
  * 1. Pexels API (免费，无需付费)
@@ -322,32 +300,26 @@ export async function multiSourceImageSearch(keyword, options = {}) {
   const allImages = []
   const seenUrls = new Set()
 
-  // 并行执行所有图片搜索（带超时控制）
-  const timeout = (promise, ms) => Promise.race([
-    promise,
-    new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), ms))
-  ]).catch(() => [])
-
   const searchPromises = []
 
   if (includeUnsplash) {
-    searchPromises.push(timeout(searchUnsplash(keyword), 8000))
+    searchPromises.push(withTimeout(searchUnsplash(keyword), 8000))
   }
 
   if (includePexels) {
-    searchPromises.push(timeout(searchPexels(keyword), 8000))
+    searchPromises.push(withTimeout(searchPexels(keyword), 8000))
   }
 
   if (includePixabay) {
-    searchPromises.push(timeout(searchPixabay(keyword), 8000))
+    searchPromises.push(withTimeout(searchPixabay(keyword), 8000))
   }
 
   if (includeWikipedia) {
-    searchPromises.push(timeout(searchWikipediaImages(keyword), 5000))
+    searchPromises.push(withTimeout(searchWikipediaImages(keyword), 5000))
   }
 
   if (includeDuckDuckGo) {
-    searchPromises.push(timeout(searchDuckDuckGoImages(keyword), 8000))
+    searchPromises.push(withTimeout(searchDuckDuckGoImages(keyword), 8000))
   }
 
   // 收集所有结果
