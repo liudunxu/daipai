@@ -42,13 +42,11 @@ export async function POST(request) {
     // 3. 提取元数据
     const metadata = extractMetadata(content, keyword)
 
-    // 4. 生成页面代码 - 注意：Vercel是只读环境，不写入文件
-    // 页面通过 src/app/seo/[keyword]/page.js 动态路由渲染
-    // 内容从 Supabase 获取
+    // 4. 生成页面路径
+    const safeKeyword = encodeURIComponent(keyword)
+    const articlePath = `/seo/${safeKeyword}`
 
     // 5. 更新关键词状态为done
-    const now = new Date().toISOString()
-    const articlePath = `/seo/${safeKeyword}`
 
     await supabase
       .from(TABLE_KEYWORDS)
