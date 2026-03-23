@@ -8,17 +8,24 @@ const TABLE_ARTICLES = 'seo_articles'
 // Markdown 转 HTML
 function markdownToHtml(md) {
   if (!md) return ''
+
+  // 先处理图片，转换为响应式样式
+  md = md.replace(
+    /!\[([^\]]*)\]\(([^)]+)\)/g,
+    '<img src="$2" alt="$1" class="rounded-xl w-full max-w-2xl mx-auto my-8 shadow-lg" loading="lazy" />'
+  )
+
   return md
-    .replace(/^### (.+)$/gm, '<h3 class="text-xl font-bold text-white mt-8 mb-4">$1</h3>')
-    .replace(/^## (.+)$/gm, '<h2 class="text-2xl font-bold text-white mt-10 mb-6 border-b border-white/10 pb-2">$1</h2>')
+    .replace(/^### (.+)$/gm, '<h3 class="text-xl font-bold text-white mt-10 mb-4">$1</h3>')
+    .replace(/^## (.+)$/gm, '<h2 class="text-2xl font-bold text-white mt-12 mb-6 border-b border-white/10 pb-2">$1</h2>')
     .replace(/^# (.+)$/gm, '<h1 class="text-3xl font-bold text-white mb-8">$1</h1>')
     .replace(/\*\*(.+?)\*\*/g, '<strong class="text-yellow-400 font-bold">$1</strong>')
     .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    .replace(/^- (.+)$/gm, '<li class="text-white/80 mb-2 ml-4">$1</li>')
+    .replace(/(<li.*<\/li>)/s, '<ul class="list-disc list-inside my-4">$1</ul>')
     .replace(/\n\n/g, '</p><p class="text-white/80 mb-4 leading-relaxed">')
-    .replace(/^(.+)$/gm, (match) => {
-      if (match.startsWith('<')) return match
-      return '<p class="text-white/80 mb-4 leading-relaxed">' + match + '</p>'
-    })
+    .replace(/^(?!<[puhl])/gm, '<p class="text-white/80 mb-4 leading-relaxed">')
+    .replace(/<p class="text-white\/80 mb-4 leading-relaxed"><\/p>/g, '')
 }
 
 // GET 获取文章内容（公开接口，不需要认证）

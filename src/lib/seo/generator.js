@@ -49,6 +49,10 @@ ${competitorAnalysis}
    - 中间干货（知识点必须有）
    - 结尾总结+FAQ
 4. **SEO**: 关键词"${keyword}"必须自然出现10次以上
+5. **图片**: 在适当位置插入2-3张相关图片，使用Unsplash的免费图片URL，格式：![图片描述](https://images.unsplash.com/photo-图片ID?w=800&h=400&fit=crop)
+   - 图片描述要中文
+   - 每篇文章至少插入2张图片
+   - 图片要与内容相关
 
 ### 格式要求
 - 使用Markdown格式
@@ -56,6 +60,7 @@ ${competitorAnalysis}
 - H3标题用 "### "
 - 重点词语用 **加粗**
 - FAQ用列表格式
+- 图片用标准Markdown图片语法
 
 ### 内容结构建议
 1. 开场整活（东北人唠嗑风格引入话题）
