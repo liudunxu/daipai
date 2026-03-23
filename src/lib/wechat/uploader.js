@@ -2,6 +2,39 @@ import { getAccessToken } from './auth'
 
 const UPLOAD_URL = 'https://api.weixin.qq.com/cgi-bin/media/upload'
 
+// 重试配置
+const MAX_RETRIES = 3
+const RETRY_DELAY = 1000 // ms
+
+/**
+ * 带重试的 fetch
+ */
+async function fetchWithRetry(url, options, retries = MAX_RETRIES) {
+  let lastError
+
+  for (let i = 0; i < retries; i++) {
+    try {
+      const response = await fetch(url, options)
+      return response
+    } catch (error) {
+      lastError = error
+      console.error(`[Wechat] 请求失败，第 ${i + 1}/${retries} 次:`, error.message)
+      if (i < retries - 1) {
+        await sleep(RETRY_DELAY * (i + 1)) // 递增延迟
+      }
+    }
+  }
+
+  throw lastError
+}
+
+/**
+ * 睡眠函数
+ */
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms))
+}
+
 /**
  * 上传单张图片到微信素材库
  * @param {string} imageUrl - 图片 URL 或 data:image base64
@@ -22,7 +55,7 @@ export async function uploadImage(imageUrl) {
   const formData = new FormData()
   formData.append('media', blob, 'image.jpg')
 
-  const response = await fetch(
+  const response = await fetchWithRetry(
     `${UPLOAD_URL}?access_token=${accessToken}&type=image`,
     {
       method: 'POST',
@@ -66,7 +99,7 @@ async function uploadBase64Image(base64Data, accessToken) {
   const formData = new FormData()
   formData.append('media', blob, 'image.jpg')
 
-  const response = await fetch(
+  const response = await fetchWithRetry(
     `${UPLOAD_URL}?access_token=${accessToken}&type=image`,
     {
       method: 'POST',

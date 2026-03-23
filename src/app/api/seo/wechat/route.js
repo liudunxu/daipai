@@ -7,6 +7,33 @@ import { convertHtmlForWechat, extractDigest, buildDraftContent } from '../../..
 
 const TABLE_ARTICLES = 'seo_articles'
 
+// 重试配置
+const MAX_RETRIES = 3
+const RETRY_DELAY = 1000
+
+// 睡眠函数
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms))
+
+// 带重试的 fetch
+async function fetchWithRetry(url, options, retries = MAX_RETRIES) {
+  let lastError
+
+  for (let i = 0; i < retries; i++) {
+    try {
+      const response = await fetch(url, options)
+      return response
+    } catch (error) {
+      lastError = error
+      console.error(`[Wechat Sync] 请求失败，第 ${i + 1}/${retries} 次:`, error.message)
+      if (i < retries - 1) {
+        await sleep(RETRY_DELAY * (i + 1))
+      }
+    }
+  }
+
+  throw lastError
+}
+
 // 认证检查
 async function authCheck(request) {
   const result = await verifyRequest(request)
@@ -69,12 +96,12 @@ export async function POST(request) {
       thumbMediaId: null // 如需封面，先上传再传入
     })
 
-    // 7. 调用微信 API 创建草稿
+    // 7. 调用微信 API 创建草稿（带重试）
     console.log('[Wechat Sync] 创建微信草稿...')
     const accessToken = await getAccessToken()
     const draftUrl = `https://api.weixin.qq.com/cgi-bin/draft/add?access_token=${accessToken}`
 
-    const draftResponse = await fetch(draftUrl, {
+    const draftResponse = await fetchWithRetry(draftUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(draftContent)
