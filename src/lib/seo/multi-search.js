@@ -453,10 +453,13 @@ export async function getSupplementaryKnowledge(keyword) {
  * 包含多源数据，更有利于文章生成
  */
 export function buildEnhancedReport(keyword, multiSearchResults, supplementaryKnowledge, imageResults = null) {
+  // 防御性检查：确保 multiSearchResults 及其属性存在
+  const safeSources = (multiSearchResults?.sources || [])
+
   const lines = [
     `# ${keyword} 竞品分析报告`,
     ``,
-    `**数据来源**: ${(multiSearchResults.sources || []).join(', ') || '多源聚合'}`,
+    `**数据来源**: ${safeSources.join(', ') || '多源聚合'}`,
     `**搜索时间**: ${new Date().toLocaleString('zh-CN')}`,
     ``,
   ]
