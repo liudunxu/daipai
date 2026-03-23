@@ -49,7 +49,7 @@ export async function POST(request) {
     // 5. 更新关键词状态为done
     const now = new Date().toISOString()
 
-    await supabase
+    const { error: kwError } = await supabase
       .from(TABLE_KEYWORDS)
       .update({
         status: 'done',
@@ -59,8 +59,12 @@ export async function POST(request) {
       })
       .eq('keyword', keyword)
 
-    // 7. 记录已生成文章
-    await supabase
+    if (kwError) {
+      console.error('更新关键词状态失败:', kwError)
+    }
+
+    // 6. 记录已生成文章
+    const { data: articleData, error: articleError } = await supabase
       .from(TABLE_ARTICLES)
       .insert({
         keyword,
@@ -71,6 +75,13 @@ export async function POST(request) {
         generated_at: now,
         word_count: content.length
       })
+
+    if (articleError) {
+      console.error('插入文章记录失败:', articleError)
+      // 不阻止成功返回，因为文章内容已经生成
+    } else {
+      console.log('文章记录插入成功:', articleData)
+    }
 
     return NextResponse.json({
       success: true,
