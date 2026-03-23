@@ -3,6 +3,7 @@ import { HttpsProxyAgent } from 'https-proxy-agent'
 import { supabase } from '../../../../lib/supabase'
 import { verifyRequest } from '../../../../lib/seo/auth'
 import { getAccessToken } from '../../../../lib/wechat/auth'
+import { uploadImage } from '../../../../lib/wechat/uploader'
 import { convertHtmlForWechat, extractDigest, buildDraftContent } from '../../../../lib/wechat/content'
 
 const TABLE_ARTICLES = 'seo_articles'
@@ -95,13 +96,27 @@ export async function POST(request) {
     // 3. 提取摘要
     const digest = extractDigest(article.description || article.content)
 
-    // 4. 构建草稿内容（不设置封面）
+    // 4. 上传一张默认封面图（获取 thumb_media_id）
+    console.log('[Wechat Sync] 上传封面图片...')
+    let thumbMediaId = ''
+    try {
+      // 使用一张 1x1 透明 GIF 的 base64 作为默认封面
+      const defaultCover = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=='
+      const coverResult = await uploadImage(defaultCover)
+      thumbMediaId = coverResult.media_id
+      console.log('[Wechat Sync] 封面上传成功:', thumbMediaId)
+    } catch (err) {
+      console.error('[Wechat Sync] 封面上传失败:', err.message)
+    }
+
+    // 5. 构建草稿内容
     const draftContent = buildDraftContent({
       title: article.title,
       author: '东北雨姐',
       digest,
       content: wechatContent,
-      showCoverPic: 0
+      thumbMediaId,
+      showCoverPic: thumbMediaId ? 1 : 0
     })
 
     // 5. 调用微信 API 创建草稿（带重试）
