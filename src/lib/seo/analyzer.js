@@ -1,21 +1,34 @@
+import { TavilySearchResults } from '@tavily/core'
+
 const SEARCH_RESULTS_LIMIT = 10
 
 /**
- * 搜索关键词获取竞品文章
+ * 使用 Tavily API 搜索竞品文章
  */
 async function searchCompetitors(keyword) {
   try {
-    // 使用简单搜索API（可以替换为实际可用的搜索服务）
-    // 这里使用Bing搜索API格式作为示例
-    const response = await fetch(`/api/seo/search?keyword=${encodeURIComponent(keyword)}`)
-    if (response.ok) {
-      const data = await response.json()
-      return (data.results || []).slice(0, SEARCH_RESULTS_LIMIT)
+    const tavily = new TavilySearchResults({
+      apiKey: process.env.TAVILY_API_KEY
+    })
+
+    const response = await tavily.search(keyword, {
+      maxResults: SEARCH_RESULTS_LIMIT,
+      includeImages: true,
+      includeImageDescriptions: true
+    })
+
+    return {
+      results: (response.results || []).map(r => ({
+        title: r.title,
+        link: r.url,
+        snippet: r.content || r.snippet || '',
+        img: r.img || null
+      })),
+      images: response.images || []
     }
-    return []
   } catch (error) {
-    console.error('搜索失败:', error)
-    return []
+    console.error('Tavily 搜索失败:', error)
+    return { results: [], images: [] }
   }
 }
 
@@ -58,7 +71,7 @@ function extractSummary(html) {
  * 分析竞品文章
  */
 export async function analyzeCompetitors(keyword) {
-  const searchResults = await searchCompetitors(keyword)
+  const { results: searchResults, images } = await searchCompetitors(keyword)
 
   const analysis = {
     keyword,
@@ -67,7 +80,8 @@ export async function analyzeCompetitors(keyword) {
     totalAnalyzed: 0,
     commonTopics: [],
     avgWordCount: 0,
-    topStructures: []
+    topStructures: [],
+    images: [] // Tavily 获取的相关图片
   }
 
   let totalWords = 0
@@ -89,6 +103,14 @@ export async function analyzeCompetitors(keyword) {
     } catch (error) {
       console.error(`分析失败: ${result.link}`, error)
     }
+  }
+
+  // 添加 Tavily 图片
+  if (images && images.length > 0) {
+    analysis.images = images.slice(0, 5).map(img => ({
+      url: img.url,
+      description: img.description || img.alt || ''
+    }))
   }
 
   analysis.avgWordCount = analysis.totalAnalyzed > 0
@@ -137,11 +159,26 @@ export function buildAnalysisReport(analysis) {
   lines.push(`## 二、内容统计`)
   lines.push(`- 平均字数: ${analysis.avgWordCount}`)
   lines.push(``)
-  lines.push(`## 三、常见话题`)
-  lines.push(analysis.commonTopics.map(t => `- ${t}`).join('\n'))
-  lines.push(``)
-  lines.push(`## 四、推荐覆盖点`)
-  lines.push(analysis.topStructures.map(t => `- ${t}`).join('\n'))
+
+  if (analysis.commonTopics.length > 0) {
+    lines.push(`## 三、常见话题`)
+    lines.push(analysis.commonTopics.map(t => `- ${t}`).join('\n'))
+    lines.push(``)
+  }
+
+  if (analysis.topStructures.length > 0) {
+    lines.push(`## 四、推荐覆盖点`)
+    lines.push(analysis.topStructures.map(t => `- ${t}`).join('\n'))
+    lines.push(``)
+  }
+
+  // 添加图片信息
+  if (analysis.images && analysis.images.length > 0) {
+    lines.push(`## 五、相关图片`)
+    analysis.images.forEach((img, idx) => {
+      lines.push(`![${img.description}](${img.url})`)
+    })
+  }
 
   return lines.join('\n')
 }

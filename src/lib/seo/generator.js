@@ -49,10 +49,11 @@ ${competitorAnalysis}
    - 中间干货（知识点必须有）
    - 结尾总结+FAQ
 4. **SEO**: 关键词"${keyword}"必须自然出现10次以上
-5. **图片**: 在适当位置插入2-3张相关图片，使用Unsplash的免费图片URL，格式：![图片描述](https://images.unsplash.com/photo-图片ID?w=800&h=400&fit=crop)
-   - 图片描述要中文
-   - 每篇文章至少插入2张图片
-   - 图片要与内容相关
+5. **图片**: 在适当位置插入3-5张相关图片
+   - 优先使用上面搜索结果中提供的图片URL
+   - 如果搜索结果没有合适图片，使用Unsplash图片，格式：![图片描述](https://images.unsplash.com/photo-图片ID?w=800&h=400&fit=crop)
+   - 图片描述要中文且有意义
+   - 每篇文章至少插入3张图片
 
 ### 格式要求
 - 使用Markdown格式
