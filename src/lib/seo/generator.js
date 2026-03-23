@@ -13,7 +13,7 @@ export async function generateSEOArticle(keyword, competitorAnalysis) {
 
   try {
     const completion = await minimax.chat.completions.create({
-      model: 'MiniMax-2.7',
+      model: 'LongCat-Flash-Chat',
       messages: [
         {
           role: 'user',
