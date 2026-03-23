@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server'
-import { redis } from '../../../../lib/redis'
+import { supabase } from '../../../../lib/supabase'
 import { verifyRequest } from '../../../../lib/seo/auth'
 import fs from 'fs/promises'
 import path from 'path'
 
-const SEO_ARTICLES_KEY = 'seo:articles:generated'
+const TABLE_ARTICLES = 'seo_articles'
 
 // 验证token
 async function authCheck(request) {
@@ -30,50 +30,50 @@ export async function GET(request) {
 
     const decodedKeyword = decodeURIComponent(keyword)
 
-    // 1. 先从Redis获取文章记录
-    const articles = await redis.lrange(SEO_ARTICLES_KEY, 0, -1)
-    let articleRecord = null
+    // 从Supabase获取文章
+    const { data, error } = await supabase
+      .from(TABLE_ARTICLES)
+      .select('*')
+      .eq('keyword', decodedKeyword)
+      .single()
 
-    for (const a of articles) {
+    if (error && error.code !== 'PGRST116') {
+      console.error('获取文章失败:', error)
+      return NextResponse.json({ success: false, error: error.message }, { status: 500 })
+    }
+
+    // 如果Supabase没有，尝试读取文件
+    if (!data) {
+      const safeKeyword = encodeURIComponent(decodedKeyword)
+      const pagePath = path.join(process.cwd(), 'src/app/seo', safeKeyword, 'page.js')
+
       try {
-        const parsed = JSON.parse(a)
-        if (parsed.keyword === decodedKeyword) {
-          articleRecord = parsed
-          break
+        const content = await fs.readFile(pagePath, 'utf-8')
+        const contentMatch = content.match(/const content = `([\s\S]*?)`;/)
+        if (contentMatch) {
+          return NextResponse.json({
+            success: true,
+            keyword: decodedKeyword,
+            content: contentMatch[1],
+            pagePath: `/seo/${safeKeyword}`
+          })
         }
       } catch {}
     }
 
-    // 2. 尝试读取文件
-    const pagePath = path.join(process.cwd(), 'src/app/seo', keyword, 'page.js')
-
-    try {
-      const content = await fs.readFile(pagePath, 'utf-8')
-
-      // 提取content变量中的文章内容
-      const contentMatch = content.match(/const content = `([\s\S]*?)`;/)
-      if (contentMatch) {
-        return NextResponse.json({
-          success: true,
-          keyword: decodedKeyword,
-          content: contentMatch[1],
-          pagePath: articleRecord?.pagePath
-        })
-      }
-    } catch {}
-
-    if (articleRecord) {
+    if (data) {
       return NextResponse.json({
         success: true,
-        keyword: decodedKeyword,
-        content: articleRecord.content || '文章内容加载中...',
-        pagePath: articleRecord.pagePath
+        keyword: data.keyword,
+        content: data.content,
+        title: data.title,
+        pagePath: data.page_path
       })
     }
 
     return NextResponse.json({ error: '文章不存在' }, { status: 404 })
   } catch (error) {
     console.error('获取文章失败:', error)
-    return NextResponse.json({ error: '获取失败' }, { status: 500 })
+    return NextResponse.json({ success: false, error: '获取失败' }, { status: 500 })
   }
 }

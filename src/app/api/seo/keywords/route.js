@@ -1,9 +1,8 @@
 import { NextResponse } from 'next/server'
-import { redis } from '../../../../lib/redis'
+import { supabase } from '../../../../lib/supabase'
 import { verifyRequest } from '../../../../lib/seo/auth'
 
-const SEO_KEYWORDS_KEY = 'seo:keywords:plan'
-const SEO_ARTICLES_KEY = 'seo:articles:generated'
+const TABLE_KEYWORDS = 'seo_keywords'
 
 // 验证token
 async function authCheck(request) {
@@ -23,19 +22,34 @@ export async function GET(request) {
     const { searchParams } = new URL(request.url)
     const status = searchParams.get('status')
 
-    let keywords = await redis.lrange(SEO_KEYWORDS_KEY, 0, -1)
-    let list = keywords.map(k => {
-      try {
-        return JSON.parse(k)
-      } catch {
-        return null
-      }
-    }).filter(Boolean)
+    let query = supabase
+      .from(TABLE_KEYWORDS)
+      .select('*')
+      .order('created_at', { ascending: false })
 
-    // 按状态筛选
     if (status) {
-      list = list.filter(k => k.status === status)
+      query = query.eq('status', status)
     }
+
+    const { data, error } = await query
+
+    if (error) {
+      console.error('获取关键词失败:', error)
+      return NextResponse.json({ success: false, error: error.message }, { status: 500 })
+    }
+
+    // 转换为旧格式
+    const list = (data || []).map(item => ({
+      id: item.id,
+      keyword: item.keyword,
+      category: item.category,
+      status: item.status,
+      scheduledDate: item.scheduled_date,
+      createdAt: item.created_at,
+      updatedAt: item.updated_at,
+      generatedAt: item.generated_at,
+      pagePath: item.page_path
+    }))
 
     // 按日期排序（今天的优先）
     const today = new Date().toISOString().split('T')[0]
@@ -70,35 +84,45 @@ export async function POST(request) {
 
     const today = new Date().toISOString().split('T')[0]
 
+    // 如果设置为today，先把其他的today改为done
+    if (status === 'today') {
+      await supabase
+        .from(TABLE_KEYWORDS)
+        .update({ status: 'done', updated_at: new Date().toISOString() })
+        .eq('status', 'today')
+    }
+
     const newKeyword = {
-      id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       keyword,
       category: category || '未分类',
       status: status || 'pending',
-      scheduledDate: scheduledDate || today,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
+      scheduled_date: scheduledDate || today,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
     }
 
-    // 如果设置为today，检查是否已有其他today的关键词
-    if (status === 'today') {
-      const allKeywords = await redis.lrange(SEO_KEYWORDS_KEY, 0, -1)
-      for (const k of allKeywords) {
-        try {
-          const parsed = JSON.parse(k)
-          if (parsed.status === 'today') {
-            parsed.status = 'done'
-            parsed.updatedAt = new Date().toISOString()
-            await redis.lrem(SEO_KEYWORDS_KEY, 0, k)
-            await redis.lpush(SEO_KEYWORDS_KEY, JSON.stringify(parsed))
-          }
-        } catch {}
-      }
+    const { data, error } = await supabase
+      .from(TABLE_KEYWORDS)
+      .insert(newKeyword)
+      .select()
+      .single()
+
+    if (error) {
+      console.error('添加关键词失败:', error)
+      return NextResponse.json({ success: false, error: error.message }, { status: 500 })
     }
 
-    await redis.lpush(SEO_KEYWORDS_KEY, JSON.stringify(newKeyword))
+    const result = {
+      id: data.id,
+      keyword: data.keyword,
+      category: data.category,
+      status: data.status,
+      scheduledDate: data.scheduled_date,
+      createdAt: data.created_at,
+      updatedAt: data.updated_at
+    }
 
-    return NextResponse.json({ success: true, data: newKeyword })
+    return NextResponse.json({ success: true, data: result })
   } catch (error) {
     console.error('添加关键词失败:', error)
     return NextResponse.json({ success: false, error: '添加失败' }, { status: 500 })
@@ -111,28 +135,44 @@ export async function PUT(request) {
   if (auth.error) return auth.response
 
   try {
-    const { id, status } = await request.json()
+    const { id, ...updates } = await request.json()
 
     if (!id) {
       return NextResponse.json({ error: 'ID不能为空' }, { status: 400 })
     }
 
-    const keywords = await redis.lrange(SEO_KEYWORDS_KEY, 0, -1)
+    const updateData = {
+      updated_at: new Date().toISOString()
+    }
+    if (updates.status) updateData.status = updates.status
+    if (updates.scheduledDate) updateData.scheduled_date = updates.scheduledDate
+    if (updates.generatedAt) updateData.generated_at = updates.generatedAt
+    if (updates.pagePath) updateData.page_path = updates.pagePath
 
-    for (let i = 0; i < keywords.length; i++) {
-      try {
-        const parsed = JSON.parse(keywords[i])
-        if (parsed.id === id) {
-          parsed.status = status || parsed.status
-          parsed.updatedAt = new Date().toISOString()
-          await redis.lrem(SEO_KEYWORDS_KEY, i, keywords[i])
-          await redis.lpush(SEO_KEYWORDS_KEY, JSON.stringify(parsed))
-          return NextResponse.json({ success: true, data: parsed })
-        }
-      } catch {}
+    const { data, error } = await supabase
+      .from(TABLE_KEYWORDS)
+      .update(updateData)
+      .eq('id', id)
+      .select()
+      .single()
+
+    if (error) {
+      console.error('更新关键词失败:', error)
+      return NextResponse.json({ success: false, error: error.message }, { status: 500 })
     }
 
-    return NextResponse.json({ error: '关键词不存在' }, { status: 404 })
+    return NextResponse.json({
+      success: true,
+      data: {
+        id: data.id,
+        keyword: data.keyword,
+        category: data.category,
+        status: data.status,
+        scheduledDate: data.scheduled_date,
+        createdAt: data.created_at,
+        updatedAt: data.updated_at
+      }
+    })
   } catch (error) {
     console.error('更新关键词失败:', error)
     return NextResponse.json({ success: false, error: '更新失败' }, { status: 500 })
@@ -152,19 +192,17 @@ export async function DELETE(request) {
       return NextResponse.json({ error: 'ID不能为空' }, { status: 400 })
     }
 
-    const keywords = await redis.lrange(SEO_KEYWORDS_KEY, 0, -1)
+    const { error } = await supabase
+      .from(TABLE_KEYWORDS)
+      .delete()
+      .eq('id', id)
 
-    for (let i = 0; i < keywords.length; i++) {
-      try {
-        const parsed = JSON.parse(keywords[i])
-        if (parsed.id === id) {
-          await redis.lrem(SEO_KEYWORDS_KEY, i, keywords[i])
-          return NextResponse.json({ success: true })
-        }
-      } catch {}
+    if (error) {
+      console.error('删除关键词失败:', error)
+      return NextResponse.json({ success: false, error: error.message }, { status: 500 })
     }
 
-    return NextResponse.json({ error: '关键词不存在' }, { status: 404 })
+    return NextResponse.json({ success: true })
   } catch (error) {
     console.error('删除关键词失败:', error)
     return NextResponse.json({ success: false, error: '删除失败' }, { status: 500 })

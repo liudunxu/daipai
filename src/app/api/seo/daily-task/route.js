@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server'
-import { redis } from '../../../../lib/redis'
+import { supabase } from '../../../../lib/supabase'
 import { verifyRequest } from '../../../../lib/seo/auth'
 
-const SEO_KEYWORDS_KEY = 'seo:keywords:plan'
+const TABLE_KEYWORDS = 'seo_keywords'
 
 // 验证token
 async function authCheck(request) {
@@ -21,67 +21,68 @@ export async function GET(request) {
   try {
     const today = new Date().toISOString().split('T')[0]
 
-    let keywords = await redis.lrange(SEO_KEYWORDS_KEY, 0, -1)
-    let list = keywords.map(k => {
-      try {
-        return JSON.parse(k)
-      } catch {
-        return null
-      }
-    }).filter(Boolean)
+    // 先把scheduledDate为今天且status为pending的设为today
+    await supabase
+      .from(TABLE_KEYWORDS)
+      .update({ status: 'today', updated_at: new Date().toISOString() })
+      .eq('scheduled_date', today)
+      .eq('status', 'pending')
 
-    // 找出今日任务（status为today或scheduledDate为今天且status为pending）
-    let todayTasks = list.filter(k =>
-      k.status === 'today' ||
-      (k.scheduledDate === today && k.status === 'pending')
-    )
+    // 获取今日任务
+    const { data, error } = await supabase
+      .from(TABLE_KEYWORDS)
+      .select('*')
+      .in('status', ['today', 'pending'])
+      .order('status', { ascending: false })
 
-    // 如果没有今日任务，自动设置一个pending的关键词为today
+    if (error) {
+      console.error('获取每日任务失败:', error)
+      return NextResponse.json({ success: false, error: error.message }, { status: 500 })
+    }
+
+    // 如果没有今日任务，取一个pending的设为today
+    let todayTasks = (data || []).filter(k => k.status === 'today')
+
     if (todayTasks.length === 0) {
-      const pendingTasks = list.filter(k => k.status === 'pending')
+      const pendingTasks = (data || []).filter(k => k.status === 'pending')
       if (pendingTasks.length > 0) {
-        const nextTask = pendingTasks[0]
-        const todayStr = new Date().toISOString().split('T')[0]
+        await supabase
+          .from(TABLE_KEYWORDS)
+          .update({ status: 'today', updated_at: new Date().toISOString() })
+          .eq('id', pendingTasks[0].id)
 
-        // 更新状态为today
-        for (let i = 0; i < keywords.length; i++) {
-          try {
-            const parsed = JSON.parse(keywords[i])
-            if (parsed.id === nextTask.id) {
-              parsed.status = 'today'
-              parsed.scheduledDate = todayStr
-              parsed.updatedAt = new Date().toISOString()
-              await redis.lrem(SEO_KEYWORDS_KEY, i, keywords[i])
-              await redis.lpush(SEO_KEYWORDS_KEY, JSON.stringify(parsed))
+        // 重新获取
+        const { data: newData } = await supabase
+          .from(TABLE_KEYWORDS)
+          .select('*')
+          .in('status', ['today', 'pending'])
 
-              // 重新获取列表
-              keywords = await redis.lrange(SEO_KEYWORDS_KEY, 0, -1)
-              list = keywords.map(k => {
-                try {
-                  return JSON.parse(k)
-                } catch {
-                  return null
-                }
-              }).filter(Boolean)
-              break
-            }
-          } catch {}
-        }
+        todayTasks = (newData || []).filter(k => k.status === 'today')
       }
     }
 
-    // 再次获取今日任务
-    todayTasks = list.filter(k =>
-      k.status === 'today' ||
-      (k.scheduledDate === today && k.status === 'pending')
-    )
+    // 转换为旧格式
+    const tasks = todayTasks.map(item => ({
+      id: item.id,
+      keyword: item.keyword,
+      category: item.category,
+      status: item.status,
+      scheduledDate: item.scheduled_date,
+      createdAt: item.created_at,
+      updatedAt: item.updated_at
+    }))
+
+    // 获取总数
+    const { count } = await supabase
+      .from(TABLE_KEYWORDS)
+      .select('*', { count: 'exact', head: true })
 
     return NextResponse.json({
       success: true,
       date: today,
-      tasks: todayTasks,
-      total: todayTasks.length,
-      allKeywords: list.length
+      tasks,
+      total: tasks.length,
+      allKeywords: count || 0
     })
   } catch (error) {
     console.error('获取每日任务失败:', error)
@@ -102,37 +103,42 @@ export async function POST(request) {
     }
 
     const today = new Date().toISOString().split('T')[0]
-    const keywords = await redis.lrange(SEO_KEYWORDS_KEY, 0, -1)
 
     // 先把所有today状态改为done
-    for (let i = 0; i < keywords.length; i++) {
-      try {
-        const parsed = JSON.parse(keywords[i])
-        if (parsed.status === 'today') {
-          parsed.status = 'done'
-          parsed.updatedAt = new Date().toISOString()
-          await redis.lrem(SEO_KEYWORDS_KEY, i, keywords[i])
-          await redis.lpush(SEO_KEYWORDS_KEY, JSON.stringify(parsed))
-        }
-      } catch {}
-    }
+    await supabase
+      .from(TABLE_KEYWORDS)
+      .update({ status: 'done', updated_at: new Date().toISOString() })
+      .eq('status', 'today')
 
     // 设置指定关键词为today
-    for (let i = 0; i < keywords.length; i++) {
-      try {
-        const parsed = JSON.parse(keywords[i])
-        if (parsed.id === keywordId) {
-          parsed.status = 'today'
-          parsed.scheduledDate = today
-          parsed.updatedAt = new Date().toISOString()
-          await redis.lrem(SEO_KEYWORDS_KEY, i, keywords[i])
-          await redis.lpush(SEO_KEYWORDS_KEY, JSON.stringify(parsed))
-          return NextResponse.json({ success: true, data: parsed })
-        }
-      } catch {}
+    const { data, error } = await supabase
+      .from(TABLE_KEYWORDS)
+      .update({
+        status: 'today',
+        scheduled_date: today,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', keywordId)
+      .select()
+      .single()
+
+    if (error) {
+      console.error('设置今日任务失败:', error)
+      return NextResponse.json({ success: false, error: error.message }, { status: 500 })
     }
 
-    return NextResponse.json({ error: '关键词不存在' }, { status: 404 })
+    return NextResponse.json({
+      success: true,
+      data: {
+        id: data.id,
+        keyword: data.keyword,
+        category: data.category,
+        status: data.status,
+        scheduledDate: data.scheduled_date,
+        createdAt: data.created_at,
+        updatedAt: data.updated_at
+      }
+    })
   } catch (error) {
     console.error('设置今日任务失败:', error)
     return NextResponse.json({ success: false, error: '设置失败' }, { status: 500 })

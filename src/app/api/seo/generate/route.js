@@ -1,13 +1,13 @@
 import { NextResponse } from 'next/server'
 import { analyzeCompetitors, buildAnalysisReport } from '../../../../lib/seo/analyzer'
 import { generateSEOArticle, extractMetadata, generatePageCode } from '../../../../lib/seo/generator'
-import { redis } from '../../../../lib/redis'
+import { supabase } from '../../../../lib/supabase'
 import { verifyRequest } from '../../../../lib/seo/auth'
 import fs from 'fs/promises'
 import path from 'path'
 
-const SEO_KEYWORDS_KEY = 'seo:keywords:plan'
-const SEO_ARTICLES_KEY = 'seo:articles:generated'
+const TABLE_KEYWORDS = 'seo_keywords'
+const TABLE_ARTICLES = 'seo_articles'
 
 // 验证token
 async function authCheck(request) {
@@ -48,7 +48,8 @@ export async function POST(request) {
     const pageCode = generatePageCode(keyword, content, metadata)
 
     // 5. 保存页面文件
-    const pagePath = path.join(process.cwd(), 'src/app/seo', keyword, 'page.js')
+    const safeKeyword = encodeURIComponent(keyword)
+    const pagePath = path.join(process.cwd(), 'src/app/seo', safeKeyword, 'page.js')
     const pageDir = path.dirname(pagePath)
 
     try {
@@ -60,40 +61,38 @@ export async function POST(request) {
     }
 
     // 6. 更新关键词状态为done
-    const keywords = await redis.lrange(SEO_KEYWORDS_KEY, 0, -1)
-    for (let i = 0; i < keywords.length; i++) {
-      try {
-        const parsed = JSON.parse(keywords[i])
-        if (parsed.keyword === keyword && parsed.status !== 'done') {
-          parsed.status = 'done'
-          parsed.updatedAt = new Date().toISOString()
-          parsed.generatedAt = new Date().toISOString()
-          parsed.pagePath = `/seo/${encodeURIComponent(keyword)}`
-          await redis.lrem(SEO_KEYWORDS_KEY, i, keywords[i])
-          await redis.lpush(SEO_KEYWORDS_KEY, JSON.stringify(parsed))
-          break
-        }
-      } catch {}
-    }
+    const now = new Date().toISOString()
+    const articlePath = `/seo/${safeKeyword}`
+
+    await supabase
+      .from(TABLE_KEYWORDS)
+      .update({
+        status: 'done',
+        updated_at: now,
+        generated_at: now,
+        page_path: articlePath
+      })
+      .eq('keyword', keyword)
 
     // 7. 记录已生成文章
-    const articleRecord = {
-      id: Date.now().toString(),
-      keyword,
-      title: metadata.title,
-      description: metadata.description,
-      pagePath: `/seo/${encodeURIComponent(keyword)}`,
-      generatedAt: metadata.generatedAt,
-      wordCount: content.length
-    }
-    await redis.lpush(SEO_ARTICLES_KEY, JSON.stringify(articleRecord))
+    await supabase
+      .from(TABLE_ARTICLES)
+      .insert({
+        keyword,
+        title: metadata.title,
+        description: metadata.description,
+        content: content,
+        page_path: articlePath,
+        generated_at: now,
+        word_count: content.length
+      })
 
     return NextResponse.json({
       success: true,
       keyword,
       metadata,
       contentLength: content.length,
-      pagePath: articleRecord.pagePath,
+      pagePath: articlePath,
       message: '文章生成成功'
     })
   } catch (error) {
