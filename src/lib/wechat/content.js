@@ -2,41 +2,34 @@
  * 微信公众号富文本内容转换工具
  */
 
+import { marked } from 'marked'
+
 /**
- * 将 HTML 内容转换为微信公众号支持的格式
- * @param {string} htmlContent - 原始 HTML
+ * 将 Markdown 或 HTML 内容转换为微信公众号支持的格式
+ * @param {string} content - 原始内容 (Markdown 或 HTML)
  * @returns {string} - 转换后的 HTML
  */
-export function convertHtmlForWechat(htmlContent) {
-  let content = htmlContent
+export function convertHtmlForWechat(content) {
+  // 如果内容是 Markdown，先转换为 HTML
+  if (content.includes('##') || content.includes('**') || content.includes('```')) {
+    content = marked.parse(content)
+  }
 
-  // 移除 class 属性
-  content = content.replace(/\s*class="[^"]*"/gi, '')
-  content = content.replace(/\s*className="[^"]*"/gi, '')
-
-  // 移除 data-* 属性（除了 data-media_id）
-  content = content.replace(/\s*data-[\w-]+=["'][^"']*["']/gi, (match) => {
-    if (match.includes('data-media_id')) return match
-    return ''
-  })
-
-  // 标题处理
-  content = content.replace(/<h1[^>]*>(.*?)<\/h1>/gi, '<h1>$1</h1>')
-  content = content.replace(/<h2[^>]*>(.*?)<\/h2>/gi, '<h2>$1</h2>')
-  content = content.replace(/<h3[^>]*>(.*?)<\/h3>/gi, '<h3>$1</h3>')
-  content = content.replace(/<h4[^>]*>(.*?)<\/h4>/gi, '<h4>$1</h4>')
-
-  // 段落处理
-  content = content.replace(/<p[^>]*>/gi, '<p>')
-
-  // 换行处理
-  content = content.replace(/<br\s*\/?>/gi, '<br/>')
-
-  // 移除多余的空段落
-  content = content.replace(/<p>\s*<\/p>/gi, '')
-
-  // 移除 style 属性
-  content = content.replace(/\s*style="[^"]*"/gi, '')
+  // 清理 HTML
+  content = content
+    // 移除 class 属性
+    .replace(/\s*class="[^"]*"/gi, '')
+    .replace(/\s*className="[^"]*"/gi, '')
+    // 移除 style 属性
+    .replace(/\s*style="[^"]*"/gi, '')
+    // 移除 data-* 属性
+    .replace(/\s*data-[\w-]+=["'][^"']*["']/gi, '')
+    // 段落处理
+    .replace(/<p[^>]*>/gi, '<p>')
+    // 换行处理
+    .replace(/<br\s*\/?>/gi, '<br/>')
+    // 移除多余的空段落
+    .replace(/<p>\s*<\/p>/gi, '')
 
   return content
 }
