@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server'
 import { analyzeCompetitors, buildAnalysisReport } from '../../../../lib/seo/analyzer'
 import { verifyRequest } from '../../../../lib/seo/auth'
+import { supabase } from '../../../../lib/supabase'
+
+const TABLE_KEYWORDS = 'seo_keywords'
 
 // 验证token
 async function authCheck(request) {
@@ -28,6 +31,19 @@ export async function GET(request) {
 
     // 调用分析函数
     const analysis = await analyzeCompetitors(keyword)
+
+    // 保存分析结果到数据库
+    try {
+      await supabase
+        .from(TABLE_KEYWORDS)
+        .update({
+          analysis_result: analysis,
+          analyzed_at: new Date().toISOString()
+        })
+        .eq('keyword', keyword)
+    } catch (err) {
+      console.error('保存分析结果失败:', err)
+    }
 
     // 构建报告
     const report = buildAnalysisReport(analysis)

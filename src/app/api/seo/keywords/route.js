@@ -48,7 +48,9 @@ export async function GET(request) {
       createdAt: item.created_at,
       updatedAt: item.updated_at,
       generatedAt: item.generated_at,
-      pagePath: item.page_path
+      pagePath: item.page_path,
+      analysisResult: item.analysis_result || null,
+      analyzedAt: item.analyzed_at || null
     }))
 
     // 按日期排序（今天的优先）
@@ -148,6 +150,8 @@ export async function PUT(request) {
     if (updates.scheduledDate) updateData.scheduled_date = updates.scheduledDate
     if (updates.generatedAt) updateData.generated_at = updates.generatedAt
     if (updates.pagePath) updateData.page_path = updates.pagePath
+    if (updates.analysisResult) updateData.analysis_result = updates.analysisResult
+    if (updates.analyzedAt) updateData.analyzed_at = updates.analyzedAt
 
     const { data, error } = await supabase
       .from(TABLE_KEYWORDS)

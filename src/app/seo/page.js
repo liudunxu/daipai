@@ -23,6 +23,7 @@ export default function SEOManagePage() {
   const [newCategory, setNewCategory] = useState('')
   const [analyzing, setAnalyzing] = useState(false)
   const [generating, setGenerating] = useState(false)
+  const [syncingWechat, setSyncingWechat] = useState(false)
   const [analysisResult, setAnalysisResult] = useState(null)
   const [dailyTasks, setDailyTasks] = useState([])
 
@@ -114,6 +115,16 @@ export default function SEOManagePage() {
       const data = await res.json()
       if (data.success) {
         setKeywords(data.data)
+
+        // 刷新后恢复分析结果
+        const keywordWithAnalysis = data.data.find(kw => kw.analysisResult && kw.analyzedAt)
+        if (keywordWithAnalysis) {
+          setAnalysisResult({
+            ...keywordWithAnalysis.analysisResult,
+            totalCompetitors: keywordWithAnalysis.analysisResult.totalAnalyzed || 0
+          })
+          setActiveTab('analyze')
+        }
       }
     } catch (error) {
       console.error('获取关键词失败:', error)
@@ -216,6 +227,33 @@ export default function SEOManagePage() {
       alert('网络错误，请检查网络连接')
     } finally {
       setGenerating(false)
+    }
+  }
+
+  async function syncToWechat(keyword) {
+    if (!confirm(`确定同步「${keyword}」到微信公众号草稿箱？`)) return
+    setSyncingWechat(true)
+    try {
+      const res = await fetchWithToken('/api/seo/wechat', {
+        method: 'POST',
+        body: JSON.stringify({ keyword })
+      })
+      if (res.status === 401) {
+        alert('登录已过期，请重新登录')
+        handleLogout()
+        return
+      }
+      const data = await res.json()
+      if (data.success) {
+        alert(`老铁，文章「${keyword}」整到微信草稿箱了！`)
+      } else {
+        alert(`同步失败: ${data.error}`)
+      }
+    } catch (error) {
+      console.error('同步失败:', error)
+      alert('网络错误，同步失败')
+    } finally {
+      setSyncingWechat(false)
     }
   }
 
@@ -433,6 +471,15 @@ export default function SEOManagePage() {
                             className="px-4 py-2 bg-green-500/20 text-green-400 rounded-lg hover:bg-green-500/30 disabled:opacity-50"
                           >
                             {generating ? '生成中...' : '生成'}
+                          </button>
+                        )}
+                        {kw.status === 'done' && (
+                          <button
+                            onClick={() => syncToWechat(kw.keyword)}
+                            disabled={syncingWechat}
+                            className="px-4 py-2 bg-green-500/20 text-green-400 rounded-lg hover:bg-green-500/30 disabled:opacity-50"
+                          >
+                            {syncingWechat ? '同步中...' : '同步微信'}
                           </button>
                         )}
                         {kw.status === 'pending' && (
