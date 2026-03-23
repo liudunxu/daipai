@@ -97,9 +97,10 @@ export async function POST(request) {
     console.log('[Generate] 开始保存文章记录')
     console.log('[Generate] content 长度:', content.length)
     console.log('[Generate] articleId:', articleId)
+    console.log('[Generate] metadata:', JSON.stringify(metadata))
 
     // 先尝试更新，如果没找到记录则插入
-    const { error: updateError } = await supabase
+    const updateResult = await supabase
       .from(TABLE_ARTICLES)
       .update({
         title: metadata.title,
@@ -112,18 +113,15 @@ export async function POST(request) {
       })
       .eq('keyword', keyword)
 
-    if (updateError) {
-      // 更新失败（可能记录不存在），尝试插入
-      console.log('[Generate] 更新失败，尝试插入新记录:', updateError.message)
-      console.log('[Generate] 插入数据:', {
-        keyword,
-        title: metadata.title,
-        contentLength: content.length,
-        page_path: articlePath,
-        article_id: articleId
-      })
+    console.log('[Generate] updateResult:', JSON.stringify(updateResult))
+    console.log('[Generate] updateResult.count:', updateResult.count)
+    console.log('[Generate] updateResult.error:', updateResult.error)
 
-      const { error: insertError } = await supabase
+    if (updateResult.error) {
+      // 更新失败，尝试插入
+      console.log('[Generate] 更新出错，尝试插入新记录:', updateResult.error.message)
+
+      const insertResult = await supabase
         .from(TABLE_ARTICLES)
         .insert({
           keyword,
@@ -136,18 +134,49 @@ export async function POST(request) {
           article_id: articleId
         })
 
-      if (insertError) {
-        console.error('[Generate] 插入文章记录失败:', JSON.stringify(insertError))
+      console.log('[Generate] insertResult:', JSON.stringify(insertResult))
+
+      if (insertResult.error) {
+        console.error('[Generate] 插入文章记录失败:', JSON.stringify(insertResult.error))
         return NextResponse.json({
           success: false,
-          error: `文章保存失败: ${insertError.message}`,
+          error: `文章保存失败: ${insertResult.error.message}`,
           pagePath: articlePath
         }, { status: 500 })
       }
 
-      console.log('[Generate] 插入成功')
+      console.log('[Generate] 插入成功, inserted id:', insertResult.data?.[0]?.id)
+    } else if (updateResult.count === 0) {
+      // 更新没匹配到任何记录，尝试插入
+      console.log('[Generate] 更新未匹配到记录，尝试插入新记录')
+
+      const insertResult = await supabase
+        .from(TABLE_ARTICLES)
+        .insert({
+          keyword,
+          title: metadata.title,
+          description: metadata.description,
+          content: content,
+          page_path: articlePath,
+          generated_at: now,
+          word_count: content.length,
+          article_id: articleId
+        })
+
+      console.log('[Generate] insertResult:', JSON.stringify(insertResult))
+
+      if (insertResult.error) {
+        console.error('[Generate] 插入文章记录失败:', JSON.stringify(insertResult.error))
+        return NextResponse.json({
+          success: false,
+          error: `文章保存失败: ${insertResult.error.message}`,
+          pagePath: articlePath
+        }, { status: 500 })
+      }
+
+      console.log('[Generate] 插入成功, inserted id:', insertResult.data?.[0]?.id)
     } else {
-      console.log('[Generate] 更新成功')
+      console.log('[Generate] 更新成功, updated count:', updateResult.count)
     }
 
     console.log('文章记录保存成功')
