@@ -96,11 +96,11 @@ export default function SEOManagePage() {
   }
 
   // 带token的fetch封装
-  async function fetchWithToken(url, options = {}) {
+  function fetchWithToken(url, options = {}) {
     const token = getToken()
     const headers = {
-      ...options.headers,
       'Content-Type': 'application/json',
+      ...options.headers,
     }
     if (token) {
       headers['Authorization'] = `Bearer ${token}`
@@ -135,7 +135,15 @@ export default function SEOManagePage() {
   }
 
   async function addKeyword() {
-    if (!newKeyword.trim()) return
+    if (!newKeyword.trim()) {
+      alert('请输入关键词')
+      return
+    }
+    const token = getToken()
+    if (!token) {
+      alert('请先登录')
+      return
+    }
     try {
       const res = await fetchWithToken('/api/seo/keywords', {
         method: 'POST',
@@ -148,10 +156,15 @@ export default function SEOManagePage() {
       if (data.success) {
         setNewKeyword('')
         setNewCategory('')
+        setActiveTab('list')
         fetchKeywords()
+        alert('添加成功！')
+      } else {
+        alert('添加失败: ' + (data.error || '未知错误'))
       }
     } catch (error) {
       console.error('添加关键词失败:', error)
+      alert('添加失败，请检查网络')
     }
   }
 
