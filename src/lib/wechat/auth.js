@@ -17,12 +17,21 @@ async function proxyFetch(url, options = {}) {
   }
 
   console.log('[Wechat Auth] 使用代理:', proxyUrl)
-  const agent = new HttpsProxyAgent(proxyUrl)
+  try {
+    const agent = new HttpsProxyAgent(proxyUrl)
+    console.log('[Wechat Auth] HttpsProxyAgent 创建成功')
 
-  return fetch(url, {
-    ...options,
-    dispatcher: agent
-  })
+    const response = await fetch(url, {
+      ...options,
+      dispatcher: agent
+    })
+    console.log('[Wechat Auth] fetch 成功, status:', response.status)
+    return response
+  } catch (error) {
+    console.error('[Wechat Auth] fetch 失败:', error.message)
+    console.error('[Wechat Auth] error stack:', error.stack)
+    throw error
+  }
 }
 
 /**
