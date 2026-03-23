@@ -132,16 +132,16 @@ export async function POST(request) {
 
     console.log('[Wechat Sync] 构建草稿，thumbMediaId:', thumbMediaId)
 
-    // 6. 处理内容中的图片
+    // 6. 先将 Markdown 转换为 HTML
+    const htmlContent = convertHtmlForWechat(article.content)
+
+    // 7. 处理内容中的图片（此时已是 HTML，可以提取 <img> 标签）
     console.log('[Wechat Sync] 开始处理内容中的图片...')
-    const imageResults = await processArticleImages(article.content)
+    const imageResults = await processArticleImages(htmlContent)
     console.log(`[Wechat Sync] 图片处理完成，成功 ${imageResults.filter(r => r.media_id).length}/${imageResults.length} 张`)
 
-    // 7. 替换内容中的图片为微信 CDN 地址
-    const convertedContent = replaceImagesWithMediaId(article.content, imageResults)
-
-    // 8. 转换 HTML 格式
-    const wechatContent = convertHtmlForWechat(convertedContent)
+    // 8. 替换内容中的图片为微信 CDN 地址
+    const wechatContent = replaceImagesWithMediaId(htmlContent, imageResults)
 
     // 9. 构建草稿内容
     const draftContent = buildDraftContent({
