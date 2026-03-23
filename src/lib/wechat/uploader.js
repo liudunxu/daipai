@@ -87,13 +87,38 @@ function proxyHttpsRequest(url, options = {}) {
 
 /**
  * 带重试的请求（支持代理）
+ * FormData 类型使用原生 fetch，其他类型使用原生 https.request
  */
 async function fetchWithRetry(url, options, retries = MAX_RETRIES) {
   let lastError
+  const isFormData = options.body instanceof FormData
 
   for (let i = 0; i < retries; i++) {
     try {
-      const response = await proxyHttpsRequest(url, options)
+      let response
+
+      if (isFormData) {
+        // FormData 类型用原生 fetch（可正确处理 FormData + 代理）
+        const proxyUrl = process.env.WECHAT_API_PROXY
+        if (proxyUrl) {
+          const { HttpsProxyAgent } = await import('https-proxy-agent')
+          options.agent = new HttpsProxyAgent(proxyUrl)
+        }
+        const res = await fetch(url, options)
+        const text = await res.text()
+        response = {
+          ok: res.ok,
+          status: res.status,
+          json: () => {
+            try { return Promise.resolve(JSON.parse(text)) }
+            catch { return Promise.reject(new Error('JSON parse error')) }
+          }
+        }
+      } else {
+        // 非 FormData 用原生 https.request
+        response = await proxyHttpsRequest(url, options)
+      }
+
       return response
     } catch (error) {
       lastError = error
