@@ -1,19 +1,59 @@
 import OpenAI from 'openai'
 
+// OpenRouter 配置（优先使用）
+const openrouterClient = process.env.OPENROUTER_API_KEY ? new OpenAI({
+  apiKey: process.env.OPENROUTER_API_KEY,
+  baseURL: 'https://openrouter.ai/api/v1',
+}) : null
+
+const OPENROUTER_MODEL = process.env.OPENROUTER_MODEL || 'anthropic/claude-3.5-sonnet'
+
+// MiniMax 配置（备用）
 const minimax = new OpenAI({
   apiKey: process.env.MINIMAX_API_KEY,
   baseURL: 'https://api.longcat.chat/openai/v1',
 })
 
+const MINIMAX_MODEL = 'LongCat-Flash-Chat'
+
 /**
- * 使用东北雨姐风格生成SEO文章
+ * 使用 OpenRouter 或 MiniMax 生成 SEO 文章
+ * 优先级：OpenRouter > MiniMax
  */
 export async function generateSEOArticle(keyword, competitorAnalysis) {
   const prompt = buildGeneratePrompt(keyword, competitorAnalysis)
 
+  // 优先使用 OpenRouter
+  if (openrouterClient) {
+    try {
+      console.log('[Generator] 尝试使用 OpenRouter:', OPENROUTER_MODEL)
+      const completion = await openrouterClient.chat.completions.create({
+        model: OPENROUTER_MODEL,
+        messages: [
+          {
+            role: 'user',
+            content: prompt
+          }
+        ],
+        max_tokens: 8192,
+        extra_headers: {
+          'HTTP-Referer': 'https://www.zkwatcher.top',
+          'X-Title': '极客观察 SEO 文章生成'
+        }
+      })
+
+      console.log('[Generator] OpenRouter 调用成功')
+      return completion.choices[0].message.content
+    } catch (error) {
+      console.error('[Generator] OpenRouter 调用失败:', error.message)
+      console.log('[Generator] 回退到 MiniMax...')
+    }
+  }
+
+  // 备用：使用 MiniMax
   try {
     const completion = await minimax.chat.completions.create({
-      model: 'LongCat-Flash-Chat',
+      model: MINIMAX_MODEL,
       messages: [
         {
           role: 'user',
