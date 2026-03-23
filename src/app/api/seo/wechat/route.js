@@ -131,10 +131,14 @@ export async function POST(request) {
       showCoverPic: thumbMediaId ? 1 : 0
     })
 
+    console.log('[Wechat Sync] 草稿内容 preview:', JSON.stringify(draftContent).slice(0, 500))
+
     // 10. 调用微信 API 创建草稿（带重试）
     console.log('[Wechat Sync] 创建微信草稿...')
     const accessToken = await getAccessToken()
     const draftUrl = `https://api.weixin.qq.com/cgi-bin/draft/add?access_token=${accessToken}`
+
+    console.log('[Wechat Sync] 发送的 body:', JSON.stringify(draftContent).slice(0, 800))
 
     const draftResponse = await fetchWithRetry(draftUrl, {
       method: 'POST',
