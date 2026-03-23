@@ -9,6 +9,8 @@ const TOKEN_CACHE_KEY = 'wechat:access_token'
  */
 function getProxyConfig() {
   const proxyUrl = process.env.WECHAT_API_PROXY
+  console.log('[Wechat Auth] WECHAT_API_PROXY 环境变量:', proxyUrl ? '已设置' : '未设置')
+  console.log('[Wechat Auth] WECHAT_API_PROXY 值:', proxyUrl)
   if (!proxyUrl) return null
 
   try {
@@ -26,9 +28,11 @@ function proxyFetch(url, options = {}) {
   const proxyUrl = getProxyConfig()
 
   if (!proxyUrl) {
+    console.log('[Wechat Auth] 不使用代理，直接请求')
     return fetch(url, options)
   }
 
+  console.log('[Wechat Auth] 使用代理:', proxyUrl)
   const agent = new HttpsProxyAgent(proxyUrl)
   return fetch(url, {
     ...options,

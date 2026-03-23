@@ -12,8 +12,10 @@ const RETRY_DELAY = 1000 // ms
  */
 function getProxyAgent() {
   const proxyUrl = process.env.WECHAT_API_PROXY
+  console.log('[Wechat Uploader] WECHAT_API_PROXY 环境变量:', proxyUrl ? '已设置' : '未设置')
   if (!proxyUrl) return null
   try {
+    console.log('[Wechat Uploader] 创建代理 Agent')
     return new HttpsProxyAgent(proxyUrl)
   } catch {
     return null
