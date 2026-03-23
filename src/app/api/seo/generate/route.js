@@ -64,30 +64,45 @@ export async function POST(request) {
     }
 
     // 6. 记录已生成文章（必须成功，否则文章无法访问）
-    const { data: articleData, error: articleError } = await supabase
+    // 先尝试更新，如果没找到记录则插入
+    const { error: updateError } = await supabase
       .from(TABLE_ARTICLES)
-      .upsert({
-        keyword,
+      .update({
         title: metadata.title,
         description: metadata.description,
         content: content,
         page_path: articlePath,
         generated_at: now,
         word_count: content.length
-      }, {
-        onConflict: 'keyword'
       })
+      .eq('keyword', keyword)
 
-    if (articleError) {
-      console.error('插入文章记录失败:', articleError)
-      return NextResponse.json({
-        success: false,
-        error: `文章保存失败: ${articleError.message}`,
-        pagePath: articlePath
-      }, { status: 500 })
+    if (updateError) {
+      // 更新失败（可能记录不存在），尝试插入
+      console.log('更新失败，尝试插入新记录:', updateError.message)
+      const { error: insertError } = await supabase
+        .from(TABLE_ARTICLES)
+        .insert({
+          keyword,
+          title: metadata.title,
+          description: metadata.description,
+          content: content,
+          page_path: articlePath,
+          generated_at: now,
+          word_count: content.length
+        })
+
+      if (insertError) {
+        console.error('插入文章记录失败:', insertError)
+        return NextResponse.json({
+          success: false,
+          error: `文章保存失败: ${insertError.message}`,
+          pagePath: articlePath
+        }, { status: 500 })
+      }
     }
 
-    console.log('文章记录插入成功:', articleData)
+    console.log('文章记录保存成功')
 
     return NextResponse.json({
       success: true,
