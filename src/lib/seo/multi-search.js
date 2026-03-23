@@ -453,12 +453,21 @@ export async function getSupplementaryKnowledge(keyword) {
  * 包含多源数据，更有利于文章生成
  */
 export function buildEnhancedReport(keyword, multiSearchResults = {}, supplementaryKnowledge = {}, imageResults = null) {
+  // 详细日志定位问题
+  console.log('[buildEnhancedReport] 开始构建增强报告')
+  console.log('[buildEnhancedReport] keyword:', keyword)
+  console.log('[buildEnhancedReport] multiSearchResults:', JSON.stringify(multiSearchResults)?.slice(0, 200))
+  console.log('[buildEnhancedReport] supplementaryKnowledge:', JSON.stringify(supplementaryKnowledge)?.slice(0, 200))
+  console.log('[buildEnhancedReport] imageResults:', JSON.stringify(imageResults)?.slice(0, 200))
+
   // 防御性检查：确保所有参数及其属性存在
   const safeSources = Array.isArray(multiSearchResults?.sources) ? multiSearchResults.sources : []
   const safeResults = Array.isArray(multiSearchResults?.results) ? multiSearchResults.results : []
   const safeWiki = supplementaryKnowledge?.wikipedia ? [supplementaryKnowledge.wikipedia] : []
   const safeBaike = supplementaryKnowledge?.baiduBaike ? [supplementaryKnowledge.baiduBaike] : []
   const safeImages = Array.isArray(imageResults?.images) ? imageResults.images : []
+
+  console.log('[buildEnhancedReport] safeSources:', safeSources, 'safeResults length:', safeResults.length)
 
   const lines = [
     `# ${keyword} 竞品分析报告`,

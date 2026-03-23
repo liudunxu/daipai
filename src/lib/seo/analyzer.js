@@ -102,6 +102,9 @@ export async function analyzeCompetitors(keyword) {
     multiSourceImageSearch(keyword)
   ])
 
+  console.log('[analyzeCompetitors] searchData:', JSON.stringify(searchData)?.slice(0, 300))
+  console.log('[analyzeCompetitors] searchData.sources:', searchData?.sources)
+
   const { results: searchResults, images: tavilyImages, sources } = searchData
 
   const analysis = {
@@ -188,6 +191,13 @@ export async function analyzeCompetitors(keyword) {
  * 优先使用多源增强报告，否则降级使用原有格式
  */
 export function buildAnalysisReport(analysis = {}) {
+  // 详细日志定位问题
+  console.log('[buildAnalysisReport] 开始构建报告')
+  console.log('[buildAnalysisReport] analysis.keyword:', analysis?.keyword)
+  console.log('[buildAnalysisReport] analysis.sources:', analysis?.sources)
+  console.log('[buildAnalysisReport] analysis.competitors:', analysis?.competitors?.length)
+  console.log('[buildAnalysisReport] analysis.supplementaryKnowledge:', !!analysis?.supplementaryKnowledge)
+
   // 防御性检查：确保 analysis 及其属性存在
   const safeKeyword = analysis.keyword || ''
   const safeSources = Array.isArray(analysis.sources) ? analysis.sources : []
@@ -195,8 +205,11 @@ export function buildAnalysisReport(analysis = {}) {
   const safeSupplementaryKnowledge = analysis.supplementaryKnowledge || null
   const safeImageSources = Array.isArray(analysis.imageSources) ? analysis.imageSources : []
 
+  console.log('[buildAnalysisReport] safeSources:', safeSources, 'safeCompetitors length:', safeCompetitors.length)
+
   // 如果有补充知识（Wikipedia 等），使用增强报告
   if (safeSupplementaryKnowledge) {
+    console.log('[buildAnalysisReport] 调用 buildEnhancedReport')
     return buildEnhancedReport(
       safeKeyword,
       { results: safeCompetitors, sources: safeSources },

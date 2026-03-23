@@ -365,10 +365,13 @@ export function buildImageReport(imageSearchResult) {
     return ''
   }
 
+  // 防御性检查：确保 sources 是数组
+  const safeSources = Array.isArray(sources) ? sources : []
+
   const lines = [
     `## 📷 推荐配图（共 ${images.length} 张）`,
     ``,
-    `图片来源: ${sources.join(', ')}`,
+    `图片来源: ${safeSources.join(', ')}`,
     ``
   ]
 
