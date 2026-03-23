@@ -7,6 +7,7 @@ import { uploadImage, processArticleImages, replaceImagesWithMediaId } from '../
 import { convertHtmlForWechat, extractDigest, buildDraftContent } from '../../../../lib/wechat/content'
 
 const TABLE_ARTICLES = 'seo_articles'
+const TABLE_KEYWORDS = 'seo_keywords'
 
 // 重试配置
 const MAX_RETRIES = 3
