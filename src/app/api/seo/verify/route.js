@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server'
+import { generateToken } from '../../../../lib/seo/auth'
 
 export async function POST(request) {
   try {
-    const { username, password, remember } = await request.json()
+    const { username, password } = await request.json()
 
     if (!username || !password) {
       return NextResponse.json({ success: false, error: '用户名和密码不能为空' }, { status: 400 })
@@ -14,15 +15,14 @@ export async function POST(request) {
 
     // 验证
     if (username === correctUsername && password === correctPassword) {
-      // 如果选择记住登录，生成一个token
-      const loginToken = remember
-        ? Buffer.from(`${username}:${Date.now()}`).toString('base64')
-        : null
+      // 生成动态token
+      const token = generateToken(username)
 
       return NextResponse.json({
         success: true,
-        token: loginToken,
-        username: username
+        token,
+        username,
+        expiresIn: 24 * 60 * 60 // 24小时
       })
     }
 

@@ -1,8 +1,21 @@
 import { NextResponse } from 'next/server'
 import { analyzeCompetitors, buildAnalysisReport } from '../../../../lib/seo/analyzer'
+import { verifyRequest } from '../../../../lib/seo/auth'
+
+// 验证token
+function authCheck(request) {
+  const result = verifyRequest(request)
+  if (!result.valid) {
+    return { error: result.error, response: NextResponse.json({ error: result.error }, { status: 401 }) }
+  }
+  return { user: result.payload }
+}
 
 // GET 分析关键词竞品
 export async function GET(request) {
+  const auth = authCheck(request)
+  if (auth.error) return auth.response
+
   try {
     const { searchParams } = new URL(request.url)
     const keyword = searchParams.get('keyword')

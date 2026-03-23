@@ -1,10 +1,23 @@
 import { NextResponse } from 'next/server'
 import { redis } from '../../../../lib/redis'
+import { verifyRequest } from '../../../../lib/seo/auth'
 
 const SEO_KEYWORDS_KEY = 'seo:keywords:plan'
 
+// 验证token
+function authCheck(request) {
+  const result = verifyRequest(request)
+  if (!result.valid) {
+    return { error: result.error, response: NextResponse.json({ error: result.error }, { status: 401 }) }
+  }
+  return { user: result.payload }
+}
+
 // GET 获取今日任务
-export async function GET() {
+export async function GET(request) {
+  const auth = authCheck(request)
+  if (auth.error) return auth.response
+
   try {
     const today = new Date().toISOString().split('T')[0]
 
@@ -78,6 +91,9 @@ export async function GET() {
 
 // POST 设置今日任务
 export async function POST(request) {
+  const auth = authCheck(request)
+  if (auth.error) return auth.response
+
   try {
     const { keywordId } = await request.json()
 

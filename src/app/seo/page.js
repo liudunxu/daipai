@@ -26,13 +26,18 @@ export default function SEOManagePage() {
   const [analysisResult, setAnalysisResult] = useState(null)
   const [dailyTasks, setDailyTasks] = useState([])
 
+  // 获取存储的token
+  const getToken = () => {
+    return sessionStorage.getItem('seo_token') || localStorage.getItem('seo_token')
+  }
+
   useEffect(() => {
     // 检查是否已验证 (sessionStorage 或 localStorage)
     const sessionAuth = sessionStorage.getItem('seo_auth')
     const localAuth = localStorage.getItem('seo_auth')
     const savedAuth = sessionAuth || localAuth
 
-    if (savedAuth === 'true') {
+    if (savedAuth === 'true' && getToken()) {
       setIsAuthenticated(true)
     }
   }, [])
@@ -60,13 +65,17 @@ export default function SEOManagePage() {
       if (data.success) {
         setIsAuthenticated(true)
         setAuthError(false)
-        // 根据是否记住选择存储位置
+        // 存储token和验证状态
         if (remember) {
+          localStorage.setItem('seo_token', data.token)
           localStorage.setItem('seo_auth', 'true')
           localStorage.setItem('seo_username', username)
+          sessionStorage.removeItem('seo_token')
           sessionStorage.removeItem('seo_auth')
         } else {
+          sessionStorage.setItem('seo_token', data.token)
           sessionStorage.setItem('seo_auth', 'true')
+          localStorage.removeItem('seo_token')
           localStorage.removeItem('seo_auth')
           localStorage.removeItem('seo_username')
         }
@@ -81,11 +90,27 @@ export default function SEOManagePage() {
   function handleLogout() {
     setIsAuthenticated(false)
     sessionStorage.removeItem('seo_auth')
+    sessionStorage.removeItem('seo_token')
+    localStorage.removeItem('seo_auth')
+    localStorage.removeItem('seo_token')
+  }
+
+  // 带token的fetch封装
+  async function fetchWithToken(url, options = {}) {
+    const token = getToken()
+    const headers = {
+      ...options.headers,
+      'Content-Type': 'application/json',
+    }
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`
+    }
+    return fetch(url, { ...options, headers })
   }
 
   async function fetchKeywords() {
     try {
-      const res = await fetch('/api/seo/keywords')
+      const res = await fetchWithToken('/api/seo/keywords')
       const data = await res.json()
       if (data.success) {
         setKeywords(data.data)
@@ -99,7 +124,7 @@ export default function SEOManagePage() {
 
   async function fetchDailyTasks() {
     try {
-      const res = await fetch('/api/seo/daily-task')
+      const res = await fetchWithToken('/api/seo/daily-task')
       const data = await res.json()
       if (data.success) {
         setDailyTasks(data.tasks)
@@ -112,9 +137,8 @@ export default function SEOManagePage() {
   async function addKeyword() {
     if (!newKeyword.trim()) return
     try {
-      const res = await fetch('/api/seo/keywords', {
+      const res = await fetchWithToken('/api/seo/keywords', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           keyword: newKeyword,
           category: newCategory || '未分类'
@@ -135,7 +159,7 @@ export default function SEOManagePage() {
     setAnalyzing(true)
     setAnalysisResult(null)
     try {
-      const res = await fetch(`/api/seo/analyze?keyword=${encodeURIComponent(keyword)}`)
+      const res = await fetchWithToken(`/api/seo/analyze?keyword=${encodeURIComponent(keyword)}`)
       const data = await res.json()
       if (data.success) {
         setAnalysisResult(data)
@@ -153,9 +177,8 @@ export default function SEOManagePage() {
   async function generateArticle(keyword) {
     setGenerating(true)
     try {
-      const res = await fetch('/api/seo/generate', {
+      const res = await fetchWithToken('/api/seo/generate', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ keyword })
       })
       const data = await res.json()
@@ -175,9 +198,8 @@ export default function SEOManagePage() {
 
   async function setTodayTask(keywordId) {
     try {
-      const res = await fetch('/api/seo/daily-task', {
+      const res = await fetchWithToken('/api/seo/daily-task', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ keywordId })
       })
       const data = await res.json()
@@ -193,7 +215,7 @@ export default function SEOManagePage() {
   async function deleteKeyword(id) {
     if (!confirm('确定删除？')) return
     try {
-      const res = await fetch(`/api/seo/keywords?id=${id}`, { method: 'DELETE' })
+      const res = await fetchWithToken(`/api/seo/keywords?id=${id}`, { method: 'DELETE' })
       const data = await res.json()
       if (data.success) {
         fetchKeywords()

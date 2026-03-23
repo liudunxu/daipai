@@ -1,11 +1,24 @@
 import { NextResponse } from 'next/server'
 import { redis } from '../../../../lib/redis'
+import { verifyRequest } from '../../../../lib/seo/auth'
 
 const SEO_KEYWORDS_KEY = 'seo:keywords:plan'
 const SEO_ARTICLES_KEY = 'seo:articles:generated'
 
+// 验证token
+function authCheck(request) {
+  const result = verifyRequest(request)
+  if (!result.valid) {
+    return { error: result.error, response: NextResponse.json({ error: result.error }, { status: 401 }) }
+  }
+  return { user: result.payload }
+}
+
 // GET 获取关键词列表
 export async function GET(request) {
+  const auth = authCheck(request)
+  if (auth.error) return auth.response
+
   try {
     const { searchParams } = new URL(request.url)
     const status = searchParams.get('status')
@@ -43,8 +56,11 @@ export async function GET(request) {
   }
 }
 
-// POST 添加/更新关键词
+// POST 添加关键词
 export async function POST(request) {
+  const auth = authCheck(request)
+  if (auth.error) return auth.response
+
   try {
     const { keyword, category, scheduledDate, status } = await request.json()
 
@@ -58,7 +74,7 @@ export async function POST(request) {
       id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       keyword,
       category: category || '未分类',
-      status: status || 'pending', // pending | today | done
+      status: status || 'pending',
       scheduledDate: scheduledDate || today,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
@@ -91,6 +107,9 @@ export async function POST(request) {
 
 // PUT 更新关键词状态
 export async function PUT(request) {
+  const auth = authCheck(request)
+  if (auth.error) return auth.response
+
   try {
     const { id, status } = await request.json()
 
@@ -122,6 +141,9 @@ export async function PUT(request) {
 
 // DELETE 删除关键词
 export async function DELETE(request) {
+  const auth = authCheck(request)
+  if (auth.error) return auth.response
+
   try {
     const { searchParams } = new URL(request.url)
     const id = searchParams.get('id')

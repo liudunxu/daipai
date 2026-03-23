@@ -1,12 +1,25 @@
 import { NextResponse } from 'next/server'
 import { redis } from '../../../../lib/redis'
+import { verifyRequest } from '../../../../lib/seo/auth'
 import fs from 'fs/promises'
 import path from 'path'
 
 const SEO_ARTICLES_KEY = 'seo:articles:generated'
 
+// 验证token
+function authCheck(request) {
+  const result = verifyRequest(request)
+  if (!result.valid) {
+    return { error: result.error, response: NextResponse.json({ error: result.error }, { status: 401 }) }
+  }
+  return { user: result.payload }
+}
+
 // GET 获取文章内容
 export async function GET(request) {
+  const auth = authCheck(request)
+  if (auth.error) return auth.response
+
   try {
     const { searchParams } = new URL(request.url)
     const keyword = searchParams.get('keyword')

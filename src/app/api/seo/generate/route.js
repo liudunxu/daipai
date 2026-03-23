@@ -1,16 +1,28 @@
 import { NextResponse } from 'next/server'
 import { analyzeCompetitors, buildAnalysisReport } from '../../../../lib/seo/analyzer'
 import { generateSEOArticle, extractMetadata, generatePageCode } from '../../../../lib/seo/generator'
-import { generateDefaultSEOData, generateDefaultJsonLd } from '../../../../lib/seo/templates'
 import { redis } from '../../../../lib/redis'
+import { verifyRequest } from '../../../../lib/seo/auth'
 import fs from 'fs/promises'
 import path from 'path'
 
 const SEO_KEYWORDS_KEY = 'seo:keywords:plan'
 const SEO_ARTICLES_KEY = 'seo:articles:generated'
 
+// 验证token
+function authCheck(request) {
+  const result = verifyRequest(request)
+  if (!result.valid) {
+    return { error: result.error, response: NextResponse.json({ error: result.error }, { status: 401 }) }
+  }
+  return { user: result.payload }
+}
+
 // POST 生成文章
 export async function POST(request) {
+  const auth = authCheck(request)
+  if (auth.error) return auth.response
+
   try {
     const { keyword } = await request.json()
 
