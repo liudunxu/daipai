@@ -65,7 +65,7 @@ export async function GET(request) {
             success: true,
             keyword: decodedKeyword,
             content: markdownToHtml(contentMatch[1]),
-            pagePath: `/seo/${safeKeyword}`
+            pagePath: `/article/${safeKeyword}`
           })
         }
       } catch {}

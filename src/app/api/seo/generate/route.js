@@ -44,7 +44,7 @@ export async function POST(request) {
 
     // 4. 生成页面路径
     const safeKeyword = encodeURIComponent(keyword)
-    const articlePath = `/seo/${safeKeyword}`
+    const articlePath = `/article/${safeKeyword}`
 
     // 5. 更新关键词状态为done
     const now = new Date().toISOString()

@@ -127,7 +127,7 @@ const seoData = {
   title: '${metadata.title.replace(/'/g, "\\'")}',
   description: '${metadata.description.replace(/'/g, "\\'")}',
   keywords: '${keyword.replace(/'/g, "\\'")}',
-  url: 'https://www.zkwatcher.top/seo/${encodedKeyword}',
+  url: 'https://www.zkwatcher.top/article/${encodedKeyword}',
 }
 
 const jsonLd = {
