@@ -100,14 +100,18 @@ export async function POST(request) {
     console.log('[Wechat Sync] 上传封面图片...')
     let thumbMediaId = ''
     try {
-      // 使用一张 1x1 透明 GIF 的 base64 作为默认封面
-      const defaultCover = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=='
-      const coverResult = await uploadImage(defaultCover)
+      // 使用一张 placeholder 图片
+      const coverUrl = 'https://via.placeholder.com/200x200.png/ff0000/ffffff?text=Cover'
+      console.log('[Wechat Sync] 开始上传封面 from:', coverUrl)
+      const coverResult = await uploadImage(coverUrl)
+      console.log('[Wechat Sync] 封面上传结果:', JSON.stringify(coverResult))
       thumbMediaId = coverResult.media_id
-      console.log('[Wechat Sync] 封面上传成功:', thumbMediaId)
+      console.log('[Wechat Sync] 封面上传成功, media_id:', thumbMediaId)
     } catch (err) {
       console.error('[Wechat Sync] 封面上传失败:', err.message)
     }
+
+    console.log('[Wechat Sync] 构建草稿，thumbMediaId:', thumbMediaId)
 
     // 5. 构建草稿内容
     const draftContent = buildDraftContent({
