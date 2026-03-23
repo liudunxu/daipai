@@ -1,7 +1,8 @@
-import { Anthropic } from '@anthropic-ai/sdk'
+import OpenAI from 'openai'
 
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
+const minimax = new OpenAI({
+  apiKey: process.env.MINIMAX_API_KEY,
+  baseURL: 'https://api.longcat.chat/openai/v1',
 })
 
 /**
@@ -11,20 +12,20 @@ export async function generateSEOArticle(keyword, competitorAnalysis) {
   const prompt = buildGeneratePrompt(keyword, competitorAnalysis)
 
   try {
-    const message = await anthropic.messages.create({
-      model: 'claude-opus-4-6',
-      max_tokens: 8192,
+    const completion = await minimax.chat.completions.create({
+      model: 'MiniMax-2.7',
       messages: [
         {
           role: 'user',
           content: prompt
         }
-      ]
+      ],
+      max_tokens: 8192,
     })
 
-    return message.content[0].text
+    return completion.choices[0].message.content
   } catch (error) {
-    console.error('Claude API 调用失败:', error)
+    console.error('MiniMax API 调用失败:', error)
     throw new Error(`文章生成失败: ${error.message}`)
   }
 }
