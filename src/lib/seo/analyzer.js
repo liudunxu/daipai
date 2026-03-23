@@ -201,7 +201,7 @@ export function buildAnalysisReport(analysis) {
   // 降级：原有报告格式
   const lines = [
     `# ${analysis.keyword} 竞品分析报告`,
-    `**数据来源**: ${analysis.sources?.join(', ') || 'Tavily'}`,
+    `**数据来源**: ${(analysis.sources || []).join(', ') || 'Tavily'}`,
     `分析时间: ${new Date(analysis.analyzedAt).toLocaleString('zh-CN')}`,
     `分析数量: ${analysis.totalAnalyzed} 篇`,
     ``,

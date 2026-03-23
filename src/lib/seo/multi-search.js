@@ -456,7 +456,7 @@ export function buildEnhancedReport(keyword, multiSearchResults, supplementaryKn
   const lines = [
     `# ${keyword} 竞品分析报告`,
     ``,
-    `**数据来源**: ${multiSearchResults.sources.join(', ') || '多源聚合'}`,
+    `**数据来源**: ${(multiSearchResults.sources || []).join(', ') || '多源聚合'}`,
     `**搜索时间**: ${new Date().toLocaleString('zh-CN')}`,
     ``,
   ]
