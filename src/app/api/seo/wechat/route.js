@@ -100,8 +100,8 @@ export async function POST(request) {
     console.log('[Wechat Sync] 上传封面图片...')
     let thumbMediaId = ''
     try {
-      // 使用一张 placeholder 图片
-      const coverUrl = 'https://via.placeholder.com/200x200.png/ff0000/ffffff?text=Cover'
+      // 使用一个可靠的图片 URL（淘宝图片）
+      const coverUrl = 'https://img.alicdn.com/bao/uploaded/TB1Z7nvVXXXXXbCXVXXSutbFXXX.jpg'
       console.log('[Wechat Sync] 开始上传封面 from:', coverUrl)
       const coverResult = await uploadImage(coverUrl)
       console.log('[Wechat Sync] 封面上传结果:', JSON.stringify(coverResult))
