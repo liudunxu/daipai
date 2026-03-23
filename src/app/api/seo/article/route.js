@@ -39,6 +39,8 @@ export async function GET(request) {
       return NextResponse.json({ error: '关键词或文章ID不能都为空' }, { status: 400 })
     }
 
+    // 在外部定义 decodedKeyword，确保在所有路径上可用
+    const decodedKeyword = keyword ? decodeURIComponent(keyword) : null
     let data, error
 
     // 优先通过 article_id 查询（新版路径）
@@ -54,7 +56,6 @@ export async function GET(request) {
 
     // 如果没找到，通过 keyword 查询（兼容旧版路径）
     if (!data && keyword) {
-      const decodedKeyword = decodeURIComponent(keyword)
       const result = await supabase
         .from(TABLE_ARTICLES)
         .select('*')
@@ -70,7 +71,7 @@ export async function GET(request) {
     }
 
     // 如果Supabase没有，尝试读取文件（仅本地开发模式）
-    if (!data) {
+    if (!data && decodedKeyword) {
       const safeKeyword = encodeURIComponent(decodedKeyword)
       const pagePath = path.join(process.cwd(), 'src/app/seo', safeKeyword, 'page.js')
 
