@@ -32,8 +32,31 @@ export async function POST(request) {
 
     // 1. 分析竞品
     console.log(`分析竞品中: ${keyword}`)
-    const analysis = await analyzeCompetitors(keyword)
-    const report = buildAnalysisReport(analysis)
+    let analysis
+    try {
+      analysis = await analyzeCompetitors(keyword)
+      console.log('[Route] analyzeCompetitors 完成, analysis 结构:', {
+        hasKeyword: !!analysis?.keyword,
+        hasSources: !!analysis?.sources,
+        hasCompetitors: !!analysis?.competitors,
+        hasSupplementaryKnowledge: !!analysis?.supplementaryKnowledge,
+        sourcesType: typeof analysis?.sources,
+        sourcesIsArray: Array.isArray(analysis?.sources)
+      })
+    } catch (analyzeErr) {
+      console.error('[Route] analyzeCompetitors 错误:', analyzeErr)
+      throw analyzeErr
+    }
+
+    let report
+    try {
+      report = buildAnalysisReport(analysis)
+      console.log('[Route] buildAnalysisReport 完成, report 长度:', report?.length)
+    } catch (reportErr) {
+      console.error('[Route] buildAnalysisReport 错误:', reportErr)
+      console.error('[Route] analysis 对象:', JSON.stringify(analysis)?.slice(0, 500))
+      throw reportErr
+    }
 
     // 2. 生成文章
     console.log(`生成文章中: ${keyword}`)
