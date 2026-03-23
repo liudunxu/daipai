@@ -137,12 +137,11 @@ async function uploadBase64Image(base64Data, accessToken) {
 }
 
 /**
- * 下载外链图片为 ArrayBuffer
+ * 下载外链图片为 ArrayBuffer（不走代理）
  */
 async function downloadImage(url) {
-  const dispatcher = getProxyDispatcher()
-  const options = dispatcher ? { dispatcher } : {}
-  const response = await fetch(url, options)
+  // 下载图片不需要代理，直接使用原生 fetch
+  const response = await fetch(url)
   if (!response.ok) {
     throw new Error(`图片下载失败: ${response.status} ${response.statusText}`)
   }
