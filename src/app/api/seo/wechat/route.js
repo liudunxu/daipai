@@ -114,7 +114,7 @@ export async function POST(request) {
       const formData = new FormData()
       formData.append('media', imgBlob, 'cover.png')
 
-      const uploadResponse = await fetch(uploadUrl, {
+      const uploadResponse = await fetchWithRetry(uploadUrl, {
         method: 'POST',
         body: formData
       })
