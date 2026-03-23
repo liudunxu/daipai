@@ -1,5 +1,6 @@
 import { tavily } from '@tavily/core'
-import { multiSourceSearch, getSupplementaryKnowledge, buildEnhancedReport, comprehensiveSearch } from './multi-search'
+import { multiSourceSearch, getSupplementaryKnowledge, buildEnhancedReport } from './multi-search'
+import { multiSourceImageSearch } from './image-search'
 
 const SEARCH_RESULTS_LIMIT = 10
 
