@@ -47,6 +47,7 @@ export async function POST(request) {
     const articlePath = `/seo/${safeKeyword}`
 
     // 5. 更新关键词状态为done
+    const now = new Date().toISOString()
 
     await supabase
       .from(TABLE_KEYWORDS)
