@@ -1,5 +1,5 @@
 import { tavily } from '@tavily/core'
-import { multiSourceSearch, getSupplementaryKnowledge, buildEnhancedReport } from './multi-search'
+import { multiSourceSearch, getSupplementaryKnowledge, buildEnhancedReport, comprehensiveSearch } from './multi-search'
 
 const SEARCH_RESULTS_LIMIT = 10
 
@@ -93,13 +93,14 @@ function extractSummary(html) {
  * 分析竞品文章
  */
 export async function analyzeCompetitors(keyword) {
-  // 并行执行搜索和补充知识获取
-  const [searchData, supplementaryKnowledge] = await Promise.all([
+  // 并行执行搜索、补充知识获取和图片搜索
+  const [searchData, supplementaryKnowledge, imageData] = await Promise.all([
     searchCompetitors(keyword),
-    getSupplementaryKnowledge(keyword)
+    getSupplementaryKnowledge(keyword),
+    multiSourceImageSearch(keyword)
   ])
 
-  const { results: searchResults, images, sources } = searchData
+  const { results: searchResults, images: tavilyImages, sources } = searchData
 
   const analysis = {
     keyword,
@@ -109,7 +110,8 @@ export async function analyzeCompetitors(keyword) {
     commonTopics: [],
     avgWordCount: 0,
     topStructures: [],
-    images: [],
+    images: [],           // Tavily 图片（原有）
+    imageSources: [],     // 多源图片（Pexels/Pixabay 等）
     sources: sources || [],
     supplementaryKnowledge
   }
@@ -136,11 +138,23 @@ export async function analyzeCompetitors(keyword) {
     }
   }
 
-  // 添加 Tavily 图片
-  if (images && images.length > 0) {
-    analysis.images = images.slice(0, 5).map(img => ({
+  // 添加 Tavily 图片（原有）
+  if (tavilyImages && tavilyImages.length > 0) {
+    analysis.images = tavilyImages.slice(0, 5).map(img => ({
       url: img.url,
       description: img.description || img.alt || ''
+    }))
+  }
+
+  // 添加多源免费图片（Pexels/Pixabay/Unsplash 等）
+  if (imageData && imageData.images && imageData.images.length > 0) {
+    analysis.imageSources = imageData.images.slice(0, 6).map(img => ({
+      url: img.url,
+      thumbnail: img.thumbnail,
+      description: img.description,
+      credit: img.credit,
+      creditUrl: img.creditUrl,
+      photographer: img.photographer
     }))
   }
 
@@ -177,7 +191,8 @@ export function buildAnalysisReport(analysis) {
     return buildEnhancedReport(
       analysis.keyword,
       { results: analysis.competitors, sources: analysis.sources },
-      analysis.supplementaryKnowledge
+      analysis.supplementaryKnowledge,
+      { images: analysis.imageSources || [] }  // 传入多源图片
     )
   }
 

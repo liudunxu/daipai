@@ -103,8 +103,10 @@ ${competitorAnalysis}
 1. **字数**: 2000-2500字
 2. **关键词密度**: "${keyword}"自然出现8-10次
 3. **准确性**: 基础定义必须与参考的Wikipedia/百度百科一致
-4. **图片**: 3-5张（优先使用竞品分析中提供的图片URL）
-   - 格式：![图片描述](https://images.unsplash.com/photo-图片ID?w=800&h=400&fit=crop)
+4. **图片**: 3-5张
+   - **优先使用竞品分析中提供的图片URL**（来自 Pexels/Pixabay/Unsplash/Wikipedia）
+   - 格式：![图片描述](图片URL)
+   - 必须包含图片来源和摄影师信息（格式：![描述](URL "图片来源: xxx | 摄影师: xxx")）
 
 ## 格式
 

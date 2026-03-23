@@ -4,6 +4,7 @@
  */
 
 import { HttpsProxyAgent } from 'https-proxy-agent'
+import { multiSourceImageSearch, buildImageReport } from './image-search'
 
 // 搜索结果限制
 const RESULTS_LIMIT = 8
@@ -479,7 +480,7 @@ export async function getSupplementaryKnowledge(keyword) {
  * 构建增强的分析报告
  * 包含多源数据，更有利于文章生成
  */
-export function buildEnhancedReport(keyword, multiSearchResults, supplementaryKnowledge) {
+export function buildEnhancedReport(keyword, multiSearchResults, supplementaryKnowledge, imageResults = null) {
   const lines = [
     `# ${keyword} 竞品分析报告`,
     ``,
@@ -546,6 +547,11 @@ export function buildEnhancedReport(keyword, multiSearchResults, supplementaryKn
     }
   }
 
+  // 添加图片推荐
+  if (imageResults && imageResults.images && imageResults.images.length > 0) {
+    lines.push(buildImageReport(imageResults))
+  }
+
   // 推荐内容角度（费曼学习法建议）
   lines.push(`## 💡 推荐内容角度（费曼学习法）`)
   lines.push(`- **先给结论**: 用一句话概括 ${keyword} 是什么`)
@@ -555,4 +561,25 @@ export function buildEnhancedReport(keyword, multiSearchResults, supplementaryKn
   lines.push(``)
 
   return lines.join('\n')
+}
+
+/**
+ * 综合搜索：文本 + 图片
+ */
+export async function comprehensiveSearch(keyword, options = {}) {
+  // 并行执行文本搜索和图片搜索
+  const [searchResult, imageResult] = await Promise.all([
+    multiSourceSearch(keyword, options),
+    multiSourceImageSearch(keyword, {
+      includeUnsplash: true,
+      includePexels: true,
+      includePixabay: true,
+      includeWikipedia: true
+    })
+  ])
+
+  return {
+    text: searchResult,
+    images: imageResult
+  }
 }
