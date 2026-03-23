@@ -1,5 +1,5 @@
 import { getAccessToken } from './auth'
-import { HttpsProxyAgent } from 'https-proxy-agent'
+import { ProxyAgent } from 'proxy-agent'
 import { fetch } from 'undici'
 
 const UPLOAD_URL = 'https://api.weixin.qq.com/cgi-bin/media/upload'
@@ -15,7 +15,7 @@ function getProxyDispatcher() {
   const proxyUrl = process.env.WECHAT_API_PROXY
   if (!proxyUrl) return null
   try {
-    return new HttpsProxyAgent(proxyUrl)
+    return new ProxyAgent(proxyUrl)
   } catch {
     return null
   }

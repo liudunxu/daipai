@@ -1,12 +1,12 @@
 import { redis } from '../redis'
-import { HttpsProxyAgent } from 'https-proxy-agent'
+import { ProxyAgent } from 'proxy-agent'
 import { fetch } from 'undici'
 
 const WECHAT_TOKEN_URL = 'https://api.weixin.qq.com/cgi-bin/token'
 const TOKEN_CACHE_KEY = 'wechat:access_token'
 
 /**
- * 带代理的 fetch（使用 undici）
+ * 带代理的 fetch（使用 undici + proxy-agent）
  */
 async function proxyFetch(url, options = {}) {
   const proxyUrl = process.env.WECHAT_API_PROXY
@@ -18,15 +18,13 @@ async function proxyFetch(url, options = {}) {
 
   console.log('[Wechat Auth] 使用代理:', proxyUrl)
   try {
-    const agent = new HttpsProxyAgent(proxyUrl)
-    console.log('[Wechat Auth] HttpsProxyAgent 创建成功')
-
-    // 测试代理连接
+    const dispatcher = new ProxyAgent(proxyUrl)
+    console.log('[Wechat Auth] ProxyAgent 创建成功')
     console.log('[Wechat Auth] 目标 URL:', url)
 
     const response = await fetch(url, {
       ...options,
-      dispatcher: agent
+      dispatcher
     })
     console.log('[Wechat Auth] fetch 成功, status:', response.status)
     return response
@@ -34,7 +32,6 @@ async function proxyFetch(url, options = {}) {
     console.error('[Wechat Auth] fetch 失败:', error.message)
     console.error('[Wechat Auth] error name:', error.name)
     console.error('[Wechat Auth] error cause:', error.cause)
-    console.error('[Wechat Auth] error stack:', error.stack)
     throw error
   }
 }
