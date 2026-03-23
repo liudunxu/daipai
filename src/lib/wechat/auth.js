@@ -21,6 +21,9 @@ async function proxyFetch(url, options = {}) {
     const agent = new HttpsProxyAgent(proxyUrl)
     console.log('[Wechat Auth] HttpsProxyAgent 创建成功')
 
+    // 测试代理连接
+    console.log('[Wechat Auth] 目标 URL:', url)
+
     const response = await fetch(url, {
       ...options,
       dispatcher: agent
@@ -29,6 +32,8 @@ async function proxyFetch(url, options = {}) {
     return response
   } catch (error) {
     console.error('[Wechat Auth] fetch 失败:', error.message)
+    console.error('[Wechat Auth] error name:', error.name)
+    console.error('[Wechat Auth] error cause:', error.cause)
     console.error('[Wechat Auth] error stack:', error.stack)
     throw error
   }
