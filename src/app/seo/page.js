@@ -476,10 +476,14 @@ export default function SEOManagePage() {
                         {kw.status === 'done' && (
                           <button
                             onClick={() => syncToWechat(kw.keyword)}
-                            disabled={syncingWechat}
-                            className="px-4 py-2 bg-green-500/20 text-green-400 rounded-lg hover:bg-green-500/30 disabled:opacity-50"
+                            disabled={syncingWechat || kw.wechatSynced}
+                            className={`px-4 py-2 rounded-lg disabled:opacity-50 ${
+                              kw.wechatSynced
+                                ? 'bg-gray-500/20 text-gray-400 cursor-default'
+                                : 'bg-green-500/20 text-green-400 hover:bg-green-500/30'
+                            }`}
                           >
-                            {syncingWechat ? '同步中...' : '同步微信'}
+                            {kw.wechatSynced ? '已同步' : (syncingWechat ? '同步中...' : '同步微信')}
                           </button>
                         )}
                         {kw.status === 'pending' && (

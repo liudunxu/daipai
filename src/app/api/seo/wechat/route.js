@@ -181,6 +181,20 @@ export async function POST(request) {
 
     console.log('[Wechat Sync] 同步成功!')
 
+    // 11. 更新关键词的微信同步状态
+    try {
+      await supabase
+        .from(TABLE_KEYWORDS)
+        .update({
+          wechat_synced: true,
+          wechat_synced_at: new Date().toISOString()
+        })
+        .eq('keyword', keyword)
+      console.log('[Wechat Sync] 同步状态已更新')
+    } catch (err) {
+      console.error('[Wechat Sync] 更新同步状态失败:', err)
+    }
+
     return NextResponse.json({
       success: true,
       message: '文章已同步到微信公众号草稿箱',

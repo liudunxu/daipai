@@ -50,7 +50,9 @@ export async function GET(request) {
       generatedAt: item.generated_at,
       pagePath: item.page_path,
       analysisResult: item.analysis_result || null,
-      analyzedAt: item.analyzed_at || null
+      analyzedAt: item.analyzed_at || null,
+      wechatSynced: item.wechat_synced || false,
+      wechatSyncedAt: item.wechat_synced_at || null
     }))
 
     // 按日期排序（今天的优先）
