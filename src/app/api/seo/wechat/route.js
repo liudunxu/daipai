@@ -103,13 +103,13 @@ export async function POST(request) {
     // 5. 提取摘要
     const digest = extractDigest(article.description || article.content)
 
-    // 6. 构建草稿内容
+    // 6. 构建草稿内容（不设置封面）
     const draftContent = buildDraftContent({
       title: article.title,
       author: '东北雨姐',
       digest,
       content: wechatContent,
-      thumbMediaId: null // 如需封面，先上传再传入
+      showCoverPic: 0
     })
 
     // 7. 调用微信 API 创建草稿（带重试）

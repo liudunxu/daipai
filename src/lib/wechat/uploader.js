@@ -193,19 +193,20 @@ export async function processArticleImages(htmlContent) {
 
 /**
  * 替换 HTML 中的图片为微信兼容格式
+ * 对于草稿，直接使用原始 URL，不依赖 media_id
  * @param {string} htmlContent - 原始 HTML
  * @param {Array} imageResults - processArticleImages 返回的结果
- * @returns {string} - 替换后的 HTML
+ * @returns {string} - 替换后的 HTML（图片使用微信 CDN 地址）
  */
 export function replaceImagesWithMediaId(htmlContent, imageResults) {
   let content = htmlContent
 
   for (const result of imageResults) {
-    if (result.media_id) {
-      // 替换 src，添加 data-media_id 属性
+    if (result.media_id && result.url) {
+      // 替换 src 为微信 CDN 地址（result.url 是微信返回的图片 URL）
       content = content.replace(
         new RegExp(`src=["']${escapeRegex(result.originalUrl)}["']`, 'gi'),
-        `src="${result.url}" data-media_id="${result.media_id}"`
+        `src="${result.url}"`
       )
     }
   }

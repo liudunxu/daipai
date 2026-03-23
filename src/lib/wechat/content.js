@@ -66,8 +66,8 @@ export function buildDraftContent({
   author = '东北雨姐',
   digest,
   content,
-  thumbMediaId = null,
-  showCoverPic = 1
+  thumbMediaId = '',
+  showCoverPic = 0
 }) {
   return {
     articles: [
@@ -77,7 +77,7 @@ export function buildDraftContent({
         digest: digest || '',
         content,
         content_source_url: '',
-        thumb_media_id: thumbMediaId || '',
+        thumb_media_id: thumbMediaId,
         need_open_comment: 1,
         only_fans_can_comment: 0,
         show_cover_pic: showCoverPic
