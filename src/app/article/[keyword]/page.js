@@ -2,8 +2,10 @@
 
 import Head from 'next/head'
 import { useEffect, useState } from 'react'
+import { useParams } from 'next/navigation'
 
-export default function ArticlePage({ params }) {
+export default function ArticlePage() {
+  const params = useParams()
   const [content, setContent] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
