@@ -93,6 +93,7 @@ const navGroups = [
       { name: '密码生成', url: '/tool/password', desc: '安全强密码生成' },
       { name: '运势测算', url: '/tool/lucky', desc: '2026年运势测算' },
       { name: '火星文', url: '/tool/huoxing', desc: '火星文转换器' },
+      { name: 'SEO文章', url: '/seo', desc: 'SEO文章自动生成' },
     ],
   },
   {
