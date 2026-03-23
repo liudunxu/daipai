@@ -12,7 +12,9 @@ const seoData = {
 
 export default function SEOManagePage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
+  const [remember, setRemember] = useState(false)
   const [authError, setAuthError] = useState(false)
   const [keywords, setKeywords] = useState([])
   const [loading, setLoading] = useState(true)
@@ -25,8 +27,11 @@ export default function SEOManagePage() {
   const [dailyTasks, setDailyTasks] = useState([])
 
   useEffect(() => {
-    // 检查是否已验证
-    const savedAuth = sessionStorage.getItem('seo_auth')
+    // 检查是否已验证 (sessionStorage 或 localStorage)
+    const sessionAuth = sessionStorage.getItem('seo_auth')
+    const localAuth = localStorage.getItem('seo_auth')
+    const savedAuth = sessionAuth || localAuth
+
     if (savedAuth === 'true') {
       setIsAuthenticated(true)
     }
@@ -40,17 +45,31 @@ export default function SEOManagePage() {
   }, [isAuthenticated])
 
   async function handleLogin() {
+    if (!username.trim() || !password.trim()) {
+      setAuthError(true)
+      return
+    }
+
     try {
       const res = await fetch('/api/seo/verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password })
+        body: JSON.stringify({ username, password, remember })
       })
       const data = await res.json()
       if (data.success) {
         setIsAuthenticated(true)
         setAuthError(false)
-        sessionStorage.setItem('seo_auth', 'true')
+        // 根据是否记住选择存储位置
+        if (remember) {
+          localStorage.setItem('seo_auth', 'true')
+          localStorage.setItem('seo_username', username)
+          sessionStorage.removeItem('seo_auth')
+        } else {
+          sessionStorage.setItem('seo_auth', 'true')
+          localStorage.removeItem('seo_auth')
+          localStorage.removeItem('seo_username')
+        }
       } else {
         setAuthError(true)
       }
@@ -214,18 +233,38 @@ export default function SEOManagePage() {
                 <h1 className="text-2xl font-bold text-white mb-6 text-center">SEO管理后台</h1>
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-white/60 mb-2">访问密码</label>
+                    <label className="block text-white/60 mb-2">用户名</label>
+                    <input
+                      type="text"
+                      value={username}
+                      onChange={e => setUsername(e.target.value)}
+                      placeholder="请输入用户名"
+                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-white/30"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-white/60 mb-2">密码</label>
                     <input
                       type="password"
                       value={password}
                       onChange={e => setPassword(e.target.value)}
                       onKeyDown={e => e.key === 'Enter' && handleLogin()}
-                      placeholder="请输入访问密码"
+                      placeholder="请输入密码"
                       className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-white/30"
                     />
                   </div>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="remember"
+                      checked={remember}
+                      onChange={e => setRemember(e.target.checked)}
+                      className="w-4 h-4 rounded border-white/20 bg-white/5 text-blue-500 focus:ring-blue-500"
+                    />
+                    <label htmlFor="remember" className="text-white/60 text-sm">记住登录状态</label>
+                  </div>
                   {authError && (
-                    <p className="text-red-400 text-sm">密码错误，请重试</p>
+                    <p className="text-red-400 text-sm">用户名或密码错误，请重试</p>
                   )}
                   <button
                     onClick={handleLogin}
