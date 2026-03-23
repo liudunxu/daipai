@@ -3,7 +3,7 @@
  * 整合多个免费图片源，为SEO文章提供配图
  */
 
-import { proxyFetch, withTimeout } from './proxy'
+import { proxyFetch, wikipediaFetch, withTimeout } from './proxy'
 
 const IMAGE_RESULTS_LIMIT = 10
 
@@ -117,10 +117,10 @@ async function searchPixabay(keyword) {
  */
 async function searchWikipediaImages(keyword) {
   try {
-    // 先搜索相关页面
+    // 先搜索相关页面（Wikipedia 不需要代理）
     const searchUrl = `https://zh.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(keyword)}&format=json`
 
-    const searchResponse = await proxyFetch(searchUrl)
+    const searchResponse = await wikipediaFetch(searchUrl)
     const searchData = await searchResponse.json()
     const pageIds = searchData.query?.search?.slice(0, 5).map(p => p.pageid) || []
 
@@ -129,7 +129,7 @@ async function searchWikipediaImages(keyword) {
     // 获取页面图片
     const imagesUrl = `https://zh.wikipedia.org/w/api.php?action=query&pageids=${pageIds.join('|')}&prop=pageimages&pithumbsize=800&format=json`
 
-    const imagesResponse = await proxyFetch(imagesUrl)
+    const imagesResponse = await wikipediaFetch(imagesUrl)
     const imagesData = await imagesResponse.json()
     const results = []
 

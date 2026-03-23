@@ -28,6 +28,18 @@ export async function proxyFetch(url, options = {}) {
 }
 
 /**
+ * Wikipedia 专用 fetch（不使用代理，需要 User-Agent）
+ * 遵循 Wikipedia API User-Agent 策略
+ */
+export async function wikipediaFetch(url) {
+  return fetch(url, {
+    headers: {
+      'User-Agent': 'SeoArticleBot/1.0 (https://www.zkwatcher.top; mailto:contact@zkwatcher.top)'
+    }
+  })
+}
+
+/**
  * 带超时的 Promise race
  */
 export function withTimeout(promise, ms) {

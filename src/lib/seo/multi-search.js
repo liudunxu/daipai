@@ -3,7 +3,7 @@
  * 整合多个免费搜索/数据源，为SEO文章生成提供更丰富的内容素材
  */
 
-import { proxyFetch, withTimeout } from './proxy'
+import { proxyFetch, wikipediaFetch, withTimeout } from './proxy'
 import { multiSourceImageSearch, buildImageReport } from './image-search'
 
 // 搜索结果限制
@@ -67,10 +67,10 @@ async function searchDuckDuckGo(keyword) {
  */
 async function searchWikipedia(keyword) {
   try {
-    // 先搜索词条
+    // 先搜索词条（Wikipedia 不需要代理）
     const searchUrl = `https://zh.wikipedia.org/w/api.php?action=opensearch&search=${encodeURIComponent(keyword)}&limit=${RESULTS_LIMIT}&format=json`
 
-    const response = await proxyFetch(searchUrl)
+    const response = await wikipediaFetch(searchUrl)
     const data = await response.json()
 
     const results = []
@@ -277,7 +277,7 @@ async function getWikipediaContent(keyword) {
   try {
     const url = `https://zh.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(keyword)}&prop=extracts&exintro=1&explaintext=1&format=json`
 
-    const response = await proxyFetch(url)
+    const response = await wikipediaFetch(url)
     const data = await response.json()
 
     const pages = data.query?.pages || {}
