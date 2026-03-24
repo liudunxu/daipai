@@ -11,22 +11,47 @@ import { marked } from 'marked'
  * @returns {string} - 转换后的 HTML
  */
 export function convertHtmlForWechat(content) {
-  // 如果内容是 Markdown，先转换为 HTML
-  if (content.includes('##') || content.includes('**') || content.includes('```')) {
-    content = marked.parse(content)
-  }
+  if (!content) return ''
 
-  // 将 Tailwind 类转换为内联样式，保留所见即所得
+  // 1. 先把 markdown 图片提取出来，避免 marked 解析时出问题
+  const imageMap = new Map()
+  let imageCounter = 0
+  content = content.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (match, alt, url) => {
+    const placeholder = `__IMG_PLACEHOLDER_${imageCounter}__`
+    imageMap.set(placeholder, { alt, url })
+    imageCounter++
+    return placeholder
+  })
+
+  // 2. 用 marked 解析剩余的 markdown
+  content = marked.parse(content)
+
+  // 3. 把图片占位符替换成真正的 img 标签
+  imageMap.forEach((img, placeholder) => {
+    const imgHtml = `<img src="${img.url}" alt="${img.alt}" style="width:100%;max-width:100%;border-radius:8px;display:block;margin:16px auto;" />`
+    content = content.replace(placeholder, imgHtml)
+  })
+
+  // 4. 保留文章中已有的 img 标签（来自生成时直接嵌入的 HTML）
+  // 确保所有 img 标签有合适的样式
+  content = content.replace(/<img([^>]*)>/gi, (match, attrs) => {
+    if (attrs.includes('style=')) return match
+    const hasSrc = attrs.match(/src="([^"]*)"/)
+    return `<img${attrs} style="width:100%;max-width:100%;border-radius:8px;display:block;margin:16px auto;" />`
+  })
+
+  // 5. 将 Tailwind 类转换为内联样式，保留所见即所得
   content = convertTailwindToInlineStyle(content)
 
-  // 清理 HTML（只移除危险的属性，保留有用的样式）
+  // 6. 清理 HTML（只移除危险的属性）
   content = content
-    // 移除 data-* 属性（可能包含敏感信息）
+    // 移除 data-* 属性
     .replace(/\s*data-[\w-]+=["'][^"']*["']/gi, '')
     // 移除 id 属性
     .replace(/\s*id="[^"]*"/gi, '')
-    // 段落处理 - 保留段落标签
-    .replace(/<p[^>]*>/gi, '<p>')
+    // 移除空的 class 属性
+    .replace(/\s*class="[^"]*"/gi, '')
+    .replace(/\s*className="[^"]*"/gi, '')
     // 换行处理
     .replace(/<br\s*\/?>/gi, '<br/>')
     // 移除多余的空段落
@@ -36,6 +61,17 @@ export function convertHtmlForWechat(content) {
     .trim()
 
   return content
+}
+
+/**
+ * 从文章内容中提取第一张图片 URL
+ * @param {string} content - Markdown 内容
+ * @returns {string|null} - 第一张图片 URL 或 null
+ */
+export function extractFirstImage(content) {
+  if (!content) return null
+  const match = content.match(/!\[([^\]]*)\]\(([^)]+)\)/)
+  return match ? match[2] : null
 }
 
 /**
