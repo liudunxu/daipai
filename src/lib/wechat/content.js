@@ -20,6 +20,8 @@ export function convertHtmlForWechat(content) {
   content = content.replace(/(?<!\*)\*([^*\n]+)\*(?!\*)/g, '<em>$1</em>')
   // 处理删除线 ~~text~~ -> <s>text</s>
   content = content.replace(/~~(.+?)~~/g, '<s>$1</s>')
+  // 处理分隔线 --- -> <hr/> (marked对---有时解析不稳定)
+  content = content.replace(/^---$/gm, '<hr/>')
 
   // 1. 先把 markdown 图片提取出来，避免 marked 解析时出问题
   // 注意：占位符使用 <<>> 格式，避免被 marked 当作 markdown 语法处理
