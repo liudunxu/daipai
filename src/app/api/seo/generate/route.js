@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { generateSEOArticle, extractMetadata } from '../../../../lib/seo/generator'
 import { supabase } from '../../../../lib/supabase'
 import { verifyRequest } from '../../../../lib/seo/auth'
+import { proxyFetch } from '../../../../lib/seo/proxy'
 
 const TABLE_KEYWORDS = 'seo_keywords'
 const TABLE_ARTICLES = 'seo_articles'
@@ -13,6 +14,7 @@ function generateShortId() {
 
 /**
  * 检查图片URL是否可访问
+ * 先尝试直接访问，失败后尝试代理
  */
 async function checkImageAccessible(url) {
   try {
@@ -20,7 +22,18 @@ async function checkImageAccessible(url) {
       method: 'HEAD',
       signal: AbortSignal.timeout(5000)
     })
-    return response.ok
+    if (response.ok) return true
+  } catch {
+    // 直接访问失败，尝试代理
+  }
+
+  // 尝试代理访问
+  try {
+    const proxyResponse = await proxyFetch(url, {
+      method: 'HEAD',
+      signal: AbortSignal.timeout(8000)
+    })
+    return proxyResponse.ok
   } catch {
     return false
   }
