@@ -300,7 +300,8 @@ export function extractDigest(htmlContent, maxLength = 120) {
     .replace(/\s+/g, ' ')
     .trim()
 
-  return text.length > maxLength ? text.slice(0, maxLength) + '...' : text
+  // 微信摘要限制约120字符，带...会超限，直接截断
+  return text.length > maxLength ? text.slice(0, maxLength) : text
 }
 
 /**

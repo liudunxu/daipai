@@ -202,8 +202,9 @@ export async function POST(request) {
 
     console.log(`[Wechat Sync] 获取文章成功: ${article.title}`)
 
-    // 2. 提取摘要
-    const digest = extractDigest(article.description || article.content)
+    // 2. 提取摘要（微信摘要限制54个汉字≈120字符）
+    const rawDigest = article.description || article.content
+    const digest = extractDigest(rawDigest, 117)
 
     // 4. 上传封面图到永久素材（thumb_media_id 必须是永久素材）
     console.log('[Wechat Sync] 上传封面图片到永久素材...')
