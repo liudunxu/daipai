@@ -252,19 +252,24 @@ async function downloadImage(url) {
  * @returns {Promise<{originalUrl: string, media_id: string, url: string}[]>}
  */
 export async function processArticleImages(htmlContent) {
-  // 提取所有图片 URL
-  const imageUrlRegex = /<img[^>]+src=["']([^"']+)["']/gi
+  // 提取所有图片 URL（增强：支持 src="" src='' src=value 等各种格式）
+  const imageUrlRegex = /<img[^>]*\ssrc=["']([^"']*)["'][^>]*>/gi
   const imageUrls = []
   let match
 
   while ((match = imageUrlRegex.exec(htmlContent)) !== null) {
-    imageUrls.push(match[1])
+    const url = match[1]
+    // 跳过空 URL 和 data URI（data URI 不需要上传到微信）
+    if (url && !url.startsWith('data:')) {
+      imageUrls.push(url)
+    }
   }
 
   // 去重
   const uniqueUrls = [...new Set(imageUrls)]
 
   if (uniqueUrls.length === 0) {
+    console.log('[Wechat Uploader] 未发现有效图片')
     return []
   }
 
@@ -303,11 +308,19 @@ export function replaceImagesWithMediaId(htmlContent, imageResults) {
 
   for (const result of imageResults) {
     if (result.media_id && result.url) {
-      // 替换 src 为微信 CDN 地址（result.url 是微信返回的图片 URL）
-      content = content.replace(
-        new RegExp(`src=["']${escapeRegex(result.originalUrl)}["']`, 'gi'),
-        `src="${result.url}"`
-      )
+      const originalUrl = result.originalUrl
+      // 多种替换模式：src="url" src='url' src=value
+      const patterns = [
+        new RegExp(`src=["']${escapeRegex(originalUrl)}["']`, 'gi'),
+        new RegExp(`src=${escapeRegex(originalUrl)}`, 'gi')
+      ]
+
+      for (const pattern of patterns) {
+        if (pattern.test(content)) {
+          content = content.replace(pattern, `src="${result.url}"`)
+          break
+        }
+      }
     }
   }
 
