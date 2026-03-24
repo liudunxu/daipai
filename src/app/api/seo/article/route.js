@@ -10,9 +10,17 @@ function markdownToHtml(md) {
   if (!md) return ''
 
   // 先处理图片，转换为响应式样式
+  // 增强：同时处理标准格式和 URL 为空的情况
   md = md.replace(
-    /!\[([^\]]*)\]\(([^)]+)\)/g,
-    '<img src="$2" alt="$1" class="rounded-xl w-full max-w-2xl mx-auto my-8 shadow-lg" loading="lazy" />'
+    /!\[([^\]]*)\]\(([^)]*)\)/g,
+    (match, alt, url) => {
+      // 如果 URL 为空，跳过该图片或使用默认占位图
+      if (!url || url.trim() === '') {
+        console.warn('[markdownToHtml] 发现空URL图片，跳过:', match)
+        return ''
+      }
+      return `<img src="${url}" alt="${alt}" class="rounded-xl w-full max-w-2xl mx-auto my-8 shadow-lg" loading="lazy" />`
+    }
   )
 
   return md
