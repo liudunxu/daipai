@@ -22,7 +22,6 @@ export default function SEOManagePage() {
   const [contentInput, setContentInput] = useState('')
   const [generatingKeyword, setGeneratingKeyword] = useState('')
   const [syncingWechat, setSyncingWechat] = useState(false)
-  const [dailyTasks, setDailyTasks] = useState([])
 
   // 获取存储的token
   const getToken = () => {
@@ -43,7 +42,6 @@ export default function SEOManagePage() {
   useEffect(() => {
     if (isAuthenticated) {
       fetchKeywords()
-      fetchDailyTasks()
     }
   }, [isAuthenticated])
 
@@ -117,18 +115,6 @@ export default function SEOManagePage() {
       console.error('获取关键词失败:', error)
     } finally {
       setLoading(false)
-    }
-  }
-
-  async function fetchDailyTasks() {
-    try {
-      const res = await fetchWithToken('/api/seo/daily-task')
-      const data = await res.json()
-      if (data.success) {
-        setDailyTasks(data.tasks)
-      }
-    } catch (error) {
-      console.error('获取每日任务失败:', error)
     }
   }
 
@@ -218,22 +204,6 @@ export default function SEOManagePage() {
     }
   }
 
-  async function setTodayTask(keywordId) {
-    try {
-      const res = await fetchWithToken('/api/seo/daily-task', {
-        method: 'POST',
-        body: JSON.stringify({ keywordId })
-      })
-      const data = await res.json()
-      if (data.success) {
-        fetchKeywords()
-        fetchDailyTasks()
-      }
-    } catch (error) {
-      console.error('设置今日任务失败:', error)
-    }
-  }
-
   async function deleteKeyword(id) {
     if (!confirm('确定删除？')) return
     try {
@@ -249,13 +219,11 @@ export default function SEOManagePage() {
 
   const statusColors = {
     pending: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
-    today: 'bg-red-500/20 text-red-400 border-red-500/30',
     done: 'bg-green-500/20 text-green-400 border-green-500/30'
   }
 
   const statusLabels = {
     pending: '待处理',
-    today: '今日任务',
     done: '已完成'
   }
 
@@ -335,20 +303,6 @@ export default function SEOManagePage() {
                 退出登录
               </button>
             </div>
-
-          {/* 今日任务 */}
-          {dailyTasks.length > 0 && (
-            <div className="bg-red-500/10 border border-red-500/30 rounded-2xl p-6 mb-8">
-              <h2 className="text-xl font-bold text-red-400 mb-4">今日任务 🚀</h2>
-              <div className="flex flex-wrap gap-2">
-                {dailyTasks.map(task => (
-                  <span key={task.id} className="bg-red-500/20 text-red-300 px-4 py-2 rounded-full">
-                    {task.keyword}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
 
           {/* Tab导航 */}
           <div className="flex gap-4 mb-6">
@@ -437,14 +391,6 @@ export default function SEOManagePage() {
                               {kw.wechatSynced ? '已同步' : (syncingWechat ? '同步中...' : '同步微信')}
                             </button>
                           </>
-                        )}
-                        {kw.status === 'pending' && (
-                          <button
-                            onClick={() => setTodayTask(kw.id)}
-                            className="px-4 py-2 bg-red-500/20 text-red-400 rounded-lg hover:bg-red-500/30"
-                          >
-                            设为今日
-                          </button>
                         )}
                         <button
                           onClick={() => deleteKeyword(kw.id)}
