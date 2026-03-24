@@ -287,6 +287,9 @@ export async function POST(request) {
     const homepageLink = `<p style="text-align:center;margin-top:32px;"><a href="https://www.zkwatcher.top" style="color:#60a5fa;font-size:14px;text-decoration:underline;">访问更多文章请访问：zkwatcher.top</a></p>`
     const finalContent = wechatContent + homepageLink
 
+    // 调试：检查末尾链接
+    console.log('[Wechat Sync] 末尾200字符:', finalContent.slice(-200))
+
     // 10. 构建草稿内容
     const draftContent = buildDraftContent({
       title: article.title,
