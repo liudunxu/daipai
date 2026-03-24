@@ -367,7 +367,7 @@ export default function SEOManagePage() {
             {/* 顶部导航 */}
             <div className="flex justify-between items-center mb-8">
               <div className="text-center flex-1">
-                <h1 className="text-4xl font-bold text-white mb-2">SEO文章自动创作系统</h1>
+                <h1 className="text-4xl font-bold text-white mb-2">文章生成助手</h1>
                 <p className="text-white/60">老铁们，这是雨姐整的贼啦牛X的SEO自动整活系统！</p>
               </div>
               <button

@@ -10,6 +10,7 @@ export default function ArticlePage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [regenerating, setRegenerating] = useState(false)
+  const [syncingWechat, setSyncingWechat] = useState(false)
   const [isLoggedIn, setIsLoggedIn] = useState(false)
 
   // 仅在客户端访问 sessionStorage/localStorage
@@ -87,6 +88,43 @@ export default function ArticlePage() {
     }
   }
 
+  async function handleSyncToWechat() {
+    if (!isLoggedIn) {
+      alert('请先在SEO管理页面登录后再试')
+      return
+    }
+
+    if (!confirm('确定要同步到微信公众号草稿箱吗？')) return
+
+    setSyncingWechat(true)
+    try {
+      const token = typeof window !== 'undefined'
+        ? sessionStorage.getItem('seo_token') || localStorage.getItem('seo_token')
+        : null
+      const keyword = decodeURIComponent(params?.keyword || '')
+
+      const res = await fetch('/api/seo/wechat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ keyword })
+      })
+
+      const data = await res.json()
+      if (data.success) {
+        alert('同步到微信公众号草稿箱成功！')
+      } else {
+        alert('同步失败: ' + (data.error || '未知错误'))
+      }
+    } catch (error) {
+      alert('同步失败，请重试')
+    } finally {
+      setSyncingWechat(false)
+    }
+  }
+
   const keyword = params?.keyword || ''
   const title = `${decodeURIComponent(keyword)} - 极客观察`
 
@@ -146,13 +184,22 @@ export default function ArticlePage() {
 
           <div className="mt-8 flex justify-center gap-4 flex-wrap">
             {isLoggedIn && (
-              <button
-                onClick={handleRegenerate}
-                disabled={regenerating}
-                className="px-6 py-2 bg-green-500/20 text-green-400 rounded-lg hover:bg-green-500/30 disabled:opacity-50 transition-colors"
-              >
-                {regenerating ? '重新生成中...' : '重新生成'}
-              </button>
+              <>
+                <button
+                  onClick={handleRegenerate}
+                  disabled={regenerating}
+                  className="px-6 py-2 bg-green-500/20 text-green-400 rounded-lg hover:bg-green-500/30 disabled:opacity-50 transition-colors"
+                >
+                  {regenerating ? '重新生成中...' : '重新生成'}
+                </button>
+                <button
+                  onClick={handleSyncToWechat}
+                  disabled={syncingWechat}
+                  className="px-6 py-2 bg-emerald-500/20 text-emerald-400 rounded-lg hover:bg-emerald-500/30 disabled:opacity-50 transition-colors"
+                >
+                  {syncingWechat ? '同步中...' : '同步到微信公众号'}
+                </button>
+              </>
             )}
             <a href="/seo" className="px-6 py-2 text-blue-400 hover:underline">
               ← 返回SEO管理页面
