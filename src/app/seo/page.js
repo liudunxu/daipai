@@ -391,11 +391,10 @@ export default function SEOManagePage() {
                     <div key={kw.id} className="bg-white/5 rounded-xl p-4 flex items-center justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
-                          <span className="text-white font-bold text-lg">{kw.keyword}</span>
+                          <span className="text-white font-bold text-lg truncate max-w-md" title={kw.keyword}>{kw.keyword.length > 30 ? kw.keyword.slice(0, 30) + '...' : kw.keyword}</span>
                           <span className={`px-3 py-1 rounded-full text-sm border ${statusColors[kw.status] || statusColors.pending}`}>
                             {statusLabels[kw.status] || '未知'}
                           </span>
-                          <span className="text-white/40 text-sm">{kw.category}</span>
                         </div>
                         <div className="text-white/40 text-sm">
                           计划日期: {kw.scheduledDate}
@@ -488,24 +487,6 @@ export default function SEOManagePage() {
             </div>
           )}
 
-          {/* 使用说明 */}
-          <div className="mt-8 bg-white/5 border border-white/10 rounded-2xl p-6">
-            <h2 className="text-2xl font-bold text-white mb-4">老铁们使用指南 🚀</h2>
-            <div className="space-y-4 text-white/80">
-              <div className="flex gap-4">
-                <span className="bg-blue-500/20 text-blue-400 w-8 h-8 rounded-full flex items-center justify-center font-bold">1</span>
-                <p>在"新建文章"中输入内容素材（网站、主题、描述等）</p>
-              </div>
-              <div className="flex gap-4">
-                <span className="bg-blue-500/20 text-blue-400 w-8 h-8 rounded-full flex items-center justify-center font-bold">2</span>
-                <p>保存到文章库后，在文章列表中可以生成文章</p>
-              </div>
-              <div className="flex gap-4">
-                <span className="bg-blue-500/20 text-blue-400 w-8 h-8 rounded-full flex items-center justify-center font-bold">3</span>
-                <p>文章会自动创建页面，直接访问查看效果！</p>
-              </div>
-            </div>
-          </div>
           </>
           )}
         </div>
