@@ -135,6 +135,7 @@ function buildGeneratePrompt(keyword, userContent) {
 - 一句话抛出核心观点
 - 直接告诉读者能获得什么
 - **重要：这段话将作为微信公众号摘要，务必控制在80字以内！**
+- **开头段落与正文之间用空行分隔，形成独立段落**
 
 ### 正文（3-4个小节）
 - **每节结构：标题 → 核心句(加粗) → 要点列表 → 图片**
@@ -168,6 +169,7 @@ function buildGeneratePrompt(keyword, userContent) {
 - 核心观点总结（3条加粗金句）
 - 一句话行动建议
 - 不要废话
+- **结尾段落与正文之间用空行分隔，形成独立段落**
 
 ## SEO要求
 
@@ -186,6 +188,7 @@ function buildGeneratePrompt(keyword, userContent) {
 - H3: "### "
 - 加粗: **内容**
 - 图片: 标准Markdown语法
+- **段落之间用空行分隔，特别是开头段、结尾段与正文之间必须有明显间隔**
 
 ## 输出
 
