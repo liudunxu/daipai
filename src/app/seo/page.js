@@ -20,7 +20,6 @@ export default function SEOManagePage() {
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('list')
   const [contentInput, setContentInput] = useState('')
-  const [newCategory, setNewCategory] = useState('')
   const [generatingKeyword, setGeneratingKeyword] = useState('')
   const [generatingFromContent, setGeneratingFromContent] = useState(false)
   const [syncingWechat, setSyncingWechat] = useState(false)
@@ -155,7 +154,6 @@ export default function SEOManagePage() {
       const data = await res.json()
       if (data.success) {
         setContentInput('')
-        setNewCategory('')
         setActiveTab('list')
         fetchKeywords()
         alert('添加成功！')
@@ -516,16 +514,6 @@ export default function SEOManagePage() {
                     placeholder="整点内容进去... 可以输入网站标题、业务描述、想写的文章主题等"
                     rows={6}
                     className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-white/30 resize-y"
-                  />
-                </div>
-                <div>
-                  <label className="block text-white/60 mb-2">分类</label>
-                  <input
-                    type="text"
-                    value={newCategory}
-                    onChange={e => setNewCategory(e.target.value)}
-                    placeholder="未分类"
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-white/30"
                   />
                 </div>
                 <div className="flex gap-4">
