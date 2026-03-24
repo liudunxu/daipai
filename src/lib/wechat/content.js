@@ -14,10 +14,11 @@ export function convertHtmlForWechat(content) {
   if (!content) return ''
 
   // 1. 先把 markdown 图片提取出来，避免 marked 解析时出问题
+  // 注意：占位符使用 <<>> 格式，避免被 marked 当作 markdown 语法处理
   const imageMap = new Map()
   let imageCounter = 0
   content = content.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (match, alt, url) => {
-    const placeholder = `__IMG_PLACEHOLDER_${imageCounter}__`
+    const placeholder = `<<IMG_PLACEHOLDER_${imageCounter}>>`
     imageMap.set(placeholder, { alt, url })
     imageCounter++
     return placeholder
