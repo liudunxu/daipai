@@ -292,8 +292,8 @@ export async function processArticleImages(htmlContent) {
 
   const results = await Promise.all(uploadPromises)
 
-  // 过滤成功的
-  const successful = results.filter(r => r.media_id)
+  // 过滤成功的（有 url 就说明上传成功）
+  const successful = results.filter(r => r.url)
 
   console.log(`[Wechat Uploader] 成功 ${successful.length}/${uniqueUrls.length} 张`)
 
@@ -311,7 +311,7 @@ export function replaceImagesWithMediaId(htmlContent, imageResults) {
   let content = htmlContent
 
   for (const result of imageResults) {
-    if (result.media_id && result.url) {
+    if (result.url) {  // 只要有 url 就替换
       const originalUrl = result.originalUrl
       const wechatUrl = result.url
 
