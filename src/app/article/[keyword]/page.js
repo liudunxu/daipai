@@ -94,8 +94,6 @@ export default function ArticlePage() {
       return
     }
 
-    if (!confirm('确定要同步到微信公众号草稿箱吗？')) return
-
     setSyncingWechat(true)
     try {
       const token = typeof window !== 'undefined'

@@ -178,7 +178,6 @@ export default function SEOManagePage() {
   }
 
   async function syncToWechat(keyword) {
-    if (!confirm(`确定同步「${keyword}」到微信公众号草稿箱？`)) return
     setSyncingWechat(true)
     try {
       const res = await fetchWithToken('/api/seo/wechat', {
@@ -192,7 +191,7 @@ export default function SEOManagePage() {
       }
       const data = await res.json()
       if (data.success) {
-        alert(`老铁，文章「${keyword}」整到微信草稿箱了！`)
+        alert('同步到微信草稿箱成功！')
       } else {
         alert(`同步失败: ${data.error}`)
       }
