@@ -22,6 +22,8 @@ export default function SEOManagePage() {
   const [contentInput, setContentInput] = useState('')
   const [generatingKeyword, setGeneratingKeyword] = useState('')
   const [syncingKeyword, setSyncingKeyword] = useState('')
+  const [showSuccessModal, setShowSuccessModal] = useState(false)
+  const [successData, setSuccessData] = useState({})
 
   // 获取存储的token
   const getToken = () => {
@@ -164,7 +166,8 @@ export default function SEOManagePage() {
       }
       const data = await res.json()
       if (data.success) {
-        alert(`文章生成成功！路径: ${data.pagePath}`)
+        setSuccessData({ pagePath: data.pagePath, keyword: data.keyword })
+        setShowSuccessModal(true)
         fetchKeywords()
       } else {
         alert('生成失败: ' + (data.error || '未知错误'))
@@ -436,6 +439,39 @@ export default function SEOManagePage() {
           )}
         </div>
       </div>
+
+      {/* 成功弹窗 */}
+      {showSuccessModal && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50" onClick={() => setShowSuccessModal(false)}>
+          <div className="bg-[#1a1a2e] border border-white/10 rounded-2xl p-6 max-w-md w-full mx-4 shadow-2xl" onClick={e => e.stopPropagation()}>
+            <div className="text-center">
+              <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-white mb-2">文章生成成功！</h3>
+              <p className="text-white/60 text-sm mb-4">关键词：{successData.keyword}</p>
+              <div className="flex flex-col gap-3">
+                <a
+                  href={successData.pagePath}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white font-bold rounded-xl hover:opacity-90 transition-opacity text-center"
+                >
+                  查看文章 →
+                </a>
+                <button
+                  onClick={() => setShowSuccessModal(false)}
+                  className="w-full py-2 bg-white/5 text-white/60 hover:bg-white/10 rounded-xl transition-colors text-sm"
+                >
+                  关闭
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   )
 }
