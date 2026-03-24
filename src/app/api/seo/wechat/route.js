@@ -263,6 +263,13 @@ export async function POST(request) {
     console.log(`[Wechat Sync] 图片处理结果:`, JSON.stringify(imageResults))
     console.log(`[Wechat Sync] 图片处理完成，成功 ${imageResults.filter(r => r.media_id).length}/${imageResults.length} 张`)
 
+    // 检查每张图片的 url 字段
+    for (const r of imageResults) {
+      console.log(`[Wechat Sync] 图片 ${r.originalUrl.slice(-30)}...`)
+      console.log(`  media_id: ${r.media_id ? '有' : '无'}`)
+      console.log(`  url: ${r.url ? r.url.slice(0, 50) + '...' : '无'}`)
+    }
+
     // 8. 替换内容中的图片为微信 CDN 地址
     console.log('[Wechat Sync] 开始替换图片...')
     const wechatContent = replaceImagesWithMediaId(htmlContent, imageResults)
