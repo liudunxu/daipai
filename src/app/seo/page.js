@@ -18,7 +18,7 @@ export default function SEOManagePage() {
   const [authError, setAuthError] = useState(false)
   const [keywords, setKeywords] = useState([])
   const [loading, setLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState('add')
+  const [activeTab, setActiveTab] = useState('list')
   const [contentInput, setContentInput] = useState('')
   const [generatingKeyword, setGeneratingKeyword] = useState('')
   const [syncingKeyword, setSyncingKeyword] = useState('')
