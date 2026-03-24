@@ -144,24 +144,24 @@ export default function ArticlePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
-        <div className="text-white/60">加载中...</div>
+      <div className="min-h-screen bg-[#f5f5f5] flex items-center justify-center">
+        <div className="text-[#999] text-sm">加载中...</div>
       </div>
     )
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-12 px-4">
-        <div className="max-w-4xl mx-auto">
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-8 text-center">
-            <h1 className="text-3xl font-bold text-white mb-4">文章不存在</h1>
-            <p className="text-white/60 mb-6">{error}</p>
-            <a href="/seo" className="text-blue-400 hover:underline">
+      <div className="min-h-screen bg-[#f5f5f5] py-12 px-4">
+        <article className="max-w-[680px] mx-auto">
+          <div className="bg-white rounded-lg p-8 text-center shadow-sm">
+            <h1 className="text-2xl font-bold text-[#333] mb-4">文章不存在</h1>
+            <p className="text-[#999] mb-6">{error}</p>
+            <a href="/seo" className="text-[#576b95] hover:underline">
               返回SEO管理页面 →
             </a>
           </div>
-        </div>
+        </article>
       </div>
     )
   }
@@ -202,34 +202,144 @@ export default function ArticlePage() {
         }} />
       </Head>
 
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-12 px-4">
-        <article className="max-w-4xl mx-auto">
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-8">
-            <div className="prose prose-invert prose-lg max-w-none">
-              <div dangerouslySetInnerHTML={{ __html: content }} />
+      <div className="min-h-screen bg-[#f5f5f5] py-8 px-4">
+        <article className="max-w-[680px] mx-auto">
+          {/* 微信风格文章卡片 */}
+          <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+            {/* 文章内容区域 */}
+            <div className="px-6 py-5">
+              <div
+                className="article-content text-[#3e3e3e] text-[16px] leading-[1.8]"
+                style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif' }}
+              >
+                <style jsx>{`
+                  .article-content h1 {
+                    font-size: 21px;
+                    font-weight: bold;
+                    color: #333;
+                    margin: 20px 0 15px;
+                    line-height: 1.4;
+                  }
+                  .article-content h2 {
+                    font-size: 18px;
+                    font-weight: bold;
+                    color: #333;
+                    margin: 18px 0 12px;
+                    line-height: 1.5;
+                  }
+                  .article-content h3 {
+                    font-size: 16px;
+                    font-weight: bold;
+                    color: #333;
+                    margin: 15px 0 10px;
+                    line-height: 1.5;
+                  }
+                  .article-content p {
+                    margin: 12px 0;
+                    line-height: 1.8;
+                    text-align: justify;
+                  }
+                  .article-content img {
+                    max-width: 100%;
+                    height: auto;
+                    margin: 15px 0;
+                    border-radius: 4px;
+                  }
+                  .article-content ul, .article-content ol {
+                    margin: 12px 0;
+                    padding-left: 25px;
+                  }
+                  .article-content li {
+                    margin: 6px 0;
+                    line-height: 1.7;
+                  }
+                  .article-content blockquote {
+                    margin: 15px 0;
+                    padding: 10px 15px;
+                    background: #f8f8f8;
+                    border-left: 3px solid #ccc;
+                    color: #666;
+                  }
+                  .article-content pre {
+                    margin: 15px 0;
+                    padding: 12px;
+                    background: #f8f8f8;
+                    border-radius: 4px;
+                    overflow-x: auto;
+                    font-size: 14px;
+                  }
+                  .article-content code {
+                    font-family: "SF Mono", Monaco, Consolas, monospace;
+                    background: #f5f5f5;
+                    padding: 2px 5px;
+                    border-radius: 3px;
+                    font-size: 14px;
+                  }
+                  .article-content a {
+                    color: #576b95;
+                    text-decoration: none;
+                  }
+                  .article-content a:hover {
+                    text-decoration: underline;
+                  }
+                  .article-content hr {
+                    margin: 20px 0;
+                    border: none;
+                    border-top: 1px solid #eee;
+                  }
+                  .article-content table {
+                    width: 100%;
+                    margin: 15px 0;
+                    border-collapse: collapse;
+                    font-size: 14px;
+                  }
+                  .article-content th, .article-content td {
+                    padding: 8px 12px;
+                    border: 1px solid #eee;
+                    text-align: left;
+                  }
+                  .article-content th {
+                    background: #f8f8f8;
+                    font-weight: bold;
+                  }
+                `}</style>
+                <div dangerouslySetInnerHTML={{ __html: content }} />
+              </div>
+            </div>
+
+            {/* 底部信息 */}
+            <div className="px-6 py-4 border-t border-[#eee]">
+              <div className="flex justify-between items-center text-xs text-[#999]">
+                <span>极客观察 · 原创文章</span>
+                <span>{articleMeta.generatedAt ? new Date(articleMeta.generatedAt).toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' }) : ''}</span>
+              </div>
             </div>
           </div>
 
-          <div className="mt-8 flex justify-center gap-4 flex-wrap">
+          {/* 操作按钮 */}
+          <div className="mt-6 flex justify-center gap-3 flex-wrap">
             {isLoggedIn && (
               <>
                 <button
                   onClick={handleRegenerate}
                   disabled={regenerating}
-                  className="px-6 py-2 bg-green-500/20 text-green-400 rounded-lg hover:bg-green-500/30 disabled:opacity-50 transition-colors"
+                  className="px-5 py-2 bg-[#4CAF50] text-white text-sm rounded-md hover:bg-[#45a049] disabled:opacity-50 transition-colors"
                 >
                   {regenerating ? '重新生成中...' : '重新生成'}
                 </button>
                 <button
                   onClick={handleSyncToWechat}
                   disabled={syncingWechat}
-                  className="px-6 py-2 bg-emerald-500/20 text-emerald-400 rounded-lg hover:bg-emerald-500/30 disabled:opacity-50 transition-colors"
+                  className="px-5 py-2 bg-[#07C160] text-white text-sm rounded-md hover:bg-[#06ad56] disabled:opacity-50 transition-colors"
                 >
                   {syncingWechat ? '同步中...' : '同步到微信公众号'}
                 </button>
               </>
             )}
-            <a href="/seo" className="px-6 py-2 text-blue-400 hover:underline">
+            <a
+              href="/seo"
+              className="px-5 py-2 text-sm text-[#576b95] hover:underline"
+            >
               ← 返回SEO管理页面
             </a>
           </div>
