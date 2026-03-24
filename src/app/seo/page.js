@@ -5,8 +5,8 @@ import { useState, useEffect } from 'react'
 
 const seoData = {
   title: 'SEO文章管理 - 极客观察',
-  description: '每日SEO文章自动生成系统，关键词规划、竞品分析、自动生成高质量SEO文章',
-  keywords: 'SEO,文章生成,关键词规划,竞品分析',
+  description: '每日SEO文章自动生成系统，文章主题规划、自动生成高质量SEO文章',
+  keywords: 'SEO,文章生成,文章主题规划',
   url: 'https://www.zkwatcher.top/seo'
 }
 
@@ -400,7 +400,7 @@ export default function SEOManagePage() {
                   : 'bg-white/5 text-white/60 hover:bg-white/10'
               }`}
             >
-              关键词列表
+              文章列表
             </button>
             <button
               onClick={() => setActiveTab('add')}
@@ -410,20 +410,20 @@ export default function SEOManagePage() {
                   : 'bg-white/5 text-white/60 hover:bg-white/10'
               }`}
             >
-              添加关键词
+              新建文章
             </button>
           </div>
 
-          {/* 关键词列表 */}
+          {/* 文章列表 */}
           {activeTab === 'list' && (
             <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
-              <h2 className="text-2xl font-bold text-white mb-6">关键词规划表</h2>
+              <h2 className="text-2xl font-bold text-white mb-6">文章列表</h2>
 
               {loading ? (
                 <div className="text-center text-white/60 py-8">加载中...</div>
               ) : keywords.length === 0 ? (
                 <div className="text-center text-white/60 py-8">
-                  还没有关键词，老铁整一个呗！
+                  还没有文章，老铁整一个呗！
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -501,7 +501,7 @@ export default function SEOManagePage() {
             </div>
           )}
 
-          {/* 添加关键词 */}
+          {/* 新建文章 */}
           {activeTab === 'add' && (
             <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
               <h2 className="text-2xl font-bold text-white mb-6">输入内容生成文章</h2>
@@ -528,7 +528,7 @@ export default function SEOManagePage() {
                     onClick={addKeyword}
                     className="flex-1 py-4 bg-gradient-to-r from-blue-500 to-purple-500 text-white font-bold rounded-xl hover:opacity-90 transition-opacity"
                   >
-                    保存到关键词库
+                    保存到文章库
                   </button>
                 </div>
               </div>
@@ -541,7 +541,7 @@ export default function SEOManagePage() {
             <div className="space-y-4 text-white/80">
               <div className="flex gap-4">
                 <span className="bg-blue-500/20 text-blue-400 w-8 h-8 rounded-full flex items-center justify-center font-bold">1</span>
-                <p>在"添加关键词"中输入内容素材（网站、主题、描述等）</p>
+                <p>在"新建文章"中输入内容素材（网站、主题、描述等）</p>
               </div>
               <div className="flex gap-4">
                 <span className="bg-blue-500/20 text-blue-400 w-8 h-8 rounded-full flex items-center justify-center font-bold">2</span>
