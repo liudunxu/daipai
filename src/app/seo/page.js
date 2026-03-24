@@ -22,7 +22,7 @@ export default function SEOManagePage() {
   const [newKeyword, setNewKeyword] = useState('')
   const [newCategory, setNewCategory] = useState('')
   const [analyzing, setAnalyzing] = useState(false)
-  const [generating, setGenerating] = useState(false)
+  const [generatingKeyword, setGeneratingKeyword] = useState('')
   const [syncingWechat, setSyncingWechat] = useState(false)
   const [analysisResult, setAnalysisResult] = useState(null)
   const [dailyTasks, setDailyTasks] = useState([])
@@ -204,7 +204,7 @@ export default function SEOManagePage() {
   }
 
   async function generateArticle(keyword) {
-    setGenerating(true)
+    setGeneratingKeyword(keyword)
     try {
       const res = await fetchWithToken('/api/seo/generate', {
         method: 'POST',
@@ -226,7 +226,7 @@ export default function SEOManagePage() {
       console.error('生成失败:', error)
       alert('网络错误，请检查网络连接')
     } finally {
-      setGenerating(false)
+      setGeneratingKeyword('')
     }
   }
 
@@ -467,24 +467,24 @@ export default function SEOManagePage() {
                         {kw.status !== 'done' && (
                           <button
                             onClick={() => generateArticle(kw.keyword)}
-                            disabled={generating}
+                            disabled={!!generatingKeyword}
                             className="px-4 py-2 bg-green-500/20 text-green-400 rounded-lg hover:bg-green-500/30 disabled:opacity-50"
                           >
-                            {generating ? '生成中...' : '生成'}
+                            {generatingKeyword === kw.keyword ? '生成中...' : '生成'}
                           </button>
                         )}
                         {kw.status === 'done' && (
                           <>
                             <button
                               onClick={() => generateArticle(kw.keyword)}
-                              disabled={generating}
+                              disabled={!!generatingKeyword}
                               className="px-4 py-2 bg-orange-500/20 text-orange-400 rounded-lg hover:bg-orange-500/30 disabled:opacity-50"
                             >
-                              {generating ? '生成中...' : '重新生成'}
+                              {generatingKeyword === kw.keyword ? '生成中...' : '重新生成'}
                             </button>
                             <button
                               onClick={() => syncToWechat(kw.keyword)}
-                              disabled={syncingWechat || kw.wechatSynced}
+                              disabled={syncingWechat || kw.wechatSynced || !!generatingKeyword}
                               className={`px-4 py-2 rounded-lg disabled:opacity-50 ${
                                 kw.wechatSynced
                                   ? 'bg-gray-500/20 text-gray-400 cursor-default'
