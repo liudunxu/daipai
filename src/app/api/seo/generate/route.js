@@ -146,7 +146,7 @@ export async function POST(request) {
       }
 
       console.log('[Generate] 插入成功, inserted id:', insertResult.data?.[0]?.id)
-    } else if (updateResult.count === 0 || updateResult.count === null) {
+    } else if (!updateResult.count || updateResult.count === 0) {
       // 更新没匹配到任何记录，尝试插入
       console.log('[Generate] 更新未匹配到记录，尝试插入新记录')
 
