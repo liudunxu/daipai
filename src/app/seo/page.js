@@ -146,8 +146,7 @@ export default function SEOManagePage() {
       const res = await fetchWithToken('/api/seo/keywords', {
         method: 'POST',
         body: JSON.stringify({
-          keyword: contentInput,
-          category: newCategory || '未分类'
+          keyword: contentInput
         })
       })
       const data = await res.json()
