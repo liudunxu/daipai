@@ -195,10 +195,25 @@ function convertTailwindToInlineStyle(html) {
     return `<em ${before1}style="${style}" ${before2}>${content}</em>`
   })
 
-  // 处理 a 标签（链接）
-  html = html.replace(/<a([^>]*)class="([^"]*)"([^>]*)>/gi, (match, before1, classes, before2) => {
+  // 处理 a 标签（链接）- 支持有 class 和没有 class 的情况
+  html = html.replace(/<a([^>]*)>/gi, (match, attrs) => {
+    // 检查是否已有 style
+    if (attrs.includes('style=')) return match
+    // 提取 class 属性
+    const classMatch = attrs.match(/class="([^"]*)"/)
+    const classes = classMatch ? classMatch[1] : ''
     const style = buildInlineStyle(classes, null, 'text-blue-400')
-    return `<a ${before1}style="${style}" ${before2}>`
+    // 如果没有内容要添加 style，直接返回原标签
+    if (!style) return match
+    // 在 class 属性后添加 style（如果没有 style 的话）
+    let newAttrs = attrs
+    if (classMatch && !attrs.includes('style=')) {
+      newAttrs = attrs.replace(/class="([^"]*)"/, `class="$1" style="${style}"`)
+    } else if (!classMatch) {
+      // 没有 class 属性，在 href 后添加 style
+      newAttrs = attrs.replace(/href="([^"]*)"/, `href="$1" style="${style}"`)
+    }
+    return `<a${newAttrs}>`
   })
 
   // 处理 span 标签
