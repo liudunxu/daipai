@@ -15,15 +15,20 @@ export function convertHtmlForWechat(content) {
 
   // 1. 先把 markdown 图片提取出来，避免 marked 解析时出问题
   // 注意：占位符使用 <<>> 格式，避免被 marked 当作 markdown 语法处理
+  // 支持格式: ![alt](url) ![alt](url "title") ![alt](url 'title')
   const imageMap = new Map()
   let imageCounter = 0
-  // 增强：同时处理标准格式和 URL 为空的情况
-  content = content.replace(/!\[([^\]]*)\]\(([^)]*)\)/g, (match, alt, url) => {
-    // 如果 URL 为空，跳过该图片（不添加占位符）
-    if (!url || url.trim() === '') {
+  // 修复：正确匹配带 title 的 markdown 图片语法
+  content = content.replace(/!\[([^\]]*)\]\(([^)"']*(?:"[^"]*|'[^']*)?)\)/g, (match, alt, urlWithTitle) => {
+    // 提取 URL（去掉 title 部分）
+    const urlMatch = urlWithTitle.match(/^([^"')\s]+)/)
+    const url = urlMatch ? urlMatch[1].trim() : ''
+
+    if (!url) {
       console.warn('[convertHtmlForWechat] 发现空URL图片，跳过:', match)
       return ''
     }
+
     const placeholder = `<<IMG_PLACEHOLDER_${imageCounter}>>`
     imageMap.set(placeholder, { alt, url })
     imageCounter++
