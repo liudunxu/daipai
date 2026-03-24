@@ -17,7 +17,6 @@ function proxyHttpsRequest(url, options = {}) {
     const proxyUrl = process.env.WECHAT_API_PROXY
 
     if (!proxyUrl) {
-      console.log('[Wechat Uploader] 不使用代理，直接请求')
       const req = https.request(url, options, (res) => {
         let data = ''
         res.on('data', chunk => data += chunk)
@@ -40,14 +39,10 @@ function proxyHttpsRequest(url, options = {}) {
       return
     }
 
-    console.log('[Wechat Uploader] 使用代理:', proxyUrl)
     const agent = new HttpsProxyAgent(proxyUrl)
     const reqOptions = { ...options, agent }
 
-    console.log('[Wechat Uploader] 开始请求:', url)
-
     const req = https.request(url, reqOptions, (res) => {
-      console.log('[Wechat Uploader] 收到响应, status:', res.statusCode)
       let data = ''
       res.on('data', chunk => data += chunk)
       res.on('end', () => {
@@ -67,15 +62,8 @@ function proxyHttpsRequest(url, options = {}) {
       })
     })
 
-    req.on('socket', (socket) => {
-      console.log('[Wechat Uploader] Socket 连接建立')
-      socket.on('close', () => console.log('[Wechat Uploader] Socket 关闭'))
-      socket.on('error', (err) => console.log('[Wechat Uploader] Socket 错误:', err.message))
-    })
-
     req.on('error', reject)
     req.on('timeout', () => {
-      console.error('[Wechat Uploader] 请求超时')
       req.destroy()
       reject(new Error('请求超时'))
     })
@@ -170,7 +158,6 @@ export async function uploadImage(imageUrl) {
   )
 
   const data = await response.json()
-  console.log('[uploadImage] 微信返回数据:', JSON.stringify(data))
 
   if (data.errcode) {
     throw new Error(`图片上传失败: ${data.errmsg} (${data.errcode})`)
@@ -273,11 +260,8 @@ export async function processArticleImages(htmlContent) {
   const uniqueUrls = [...new Set(imageUrls)]
 
   if (uniqueUrls.length === 0) {
-    console.log('[Wechat Uploader] 未发现有效图片')
     return []
   }
-
-  console.log(`[Wechat Uploader] 发现 ${uniqueUrls.length} 张图片待处理`)
 
   // 并行上传所有图片
   const uploadPromises = uniqueUrls.map(async (url) => {
@@ -290,14 +274,7 @@ export async function processArticleImages(htmlContent) {
     }
   })
 
-  const results = await Promise.all(uploadPromises)
-
-  // 过滤成功的（有 url 就说明上传成功）
-  const successful = results.filter(r => r.url)
-
-  console.log(`[Wechat Uploader] 成功 ${successful.length}/${uniqueUrls.length} 张`)
-
-  return results
+  return await Promise.all(uploadPromises)
 }
 
 /**
@@ -315,37 +292,17 @@ export function replaceImagesWithMediaId(htmlContent, imageResults) {
       const originalUrl = result.originalUrl
       const wechatUrl = result.url
 
-      // 调试日志
-      console.log('[replaceImages] originalUrl:', originalUrl)
-      console.log('[replaceImages] wechatUrl:', wechatUrl)
-
       // 多种替换模式：src="url" src='url' src=value
       const escapedUrl = escapeRegex(originalUrl)
-      console.log('[replaceImages] escapedUrl:', escapedUrl)
-
       const patterns = [
         new RegExp(`src=["']${escapedUrl}["']`, 'gi'),
         new RegExp(`src=${escapedUrl}`, 'gi')
       ]
 
-      let replaced = false
       for (const pattern of patterns) {
-        console.log('[replaceImages] testing pattern:', pattern)
         if (pattern.test(content)) {
           content = content.replace(pattern, `src="${wechatUrl}"`)
-          console.log('[replaceImages] 替换成功!')
-          replaced = true
           break
-        }
-      }
-
-      if (!replaced) {
-        console.log('[replaceImages] 未找到匹配项，检查 HTML 中是否有该 URL...')
-        // 检查 HTML 中是否包含原始 URL
-        const urlIndex = content.indexOf(originalUrl)
-        console.log('[replaceImages] urlIndex:', urlIndex)
-        if (urlIndex >= 0) {
-          console.log('[replaceImages] 找到URL，上下文:', content.slice(urlIndex - 20, urlIndex + 80))
         }
       }
     }
