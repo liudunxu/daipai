@@ -21,7 +21,6 @@ export default function SEOManagePage() {
   const [activeTab, setActiveTab] = useState('list')
   const [contentInput, setContentInput] = useState('')
   const [generatingKeyword, setGeneratingKeyword] = useState('')
-  const [generatingFromContent, setGeneratingFromContent] = useState(false)
   const [syncingWechat, setSyncingWechat] = useState(false)
   const [dailyTasks, setDailyTasks] = useState([])
 
@@ -163,44 +162,6 @@ export default function SEOManagePage() {
     } catch (error) {
       console.error('添加关键词失败:', error)
       alert('添加失败，请检查网络')
-    }
-  }
-
-  async function generateFromContent() {
-    if (!contentInput.trim()) {
-      alert('请输入内容')
-      return
-    }
-    const token = getToken()
-    if (!token) {
-      alert('请先登录')
-      return
-    }
-    setGeneratingFromContent(true)
-    try {
-      const res = await fetchWithToken('/api/seo/generate', {
-        method: 'POST',
-        body: JSON.stringify({ content: contentInput })
-      })
-      if (res.status === 401) {
-        alert('登录已过期，请重新登录')
-        handleLogout()
-        return
-      }
-      const data = await res.json()
-      if (data.success) {
-        alert(`文章生成成功！路径: ${data.pagePath}`)
-        setContentInput('')
-        fetchKeywords()
-        setActiveTab('list')
-      } else {
-        alert('生成失败: ' + (data.error || '未知错误'))
-      }
-    } catch (error) {
-      console.error('生成失败:', error)
-      alert('网络错误，请检查网络连接')
-    } finally {
-      setGeneratingFromContent(false)
     }
   }
 
@@ -518,13 +479,6 @@ export default function SEOManagePage() {
                 </div>
                 <div className="flex gap-4">
                   <button
-                    onClick={generateFromContent}
-                    disabled={generatingFromContent}
-                    className="flex-1 py-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white font-bold rounded-xl hover:opacity-90 transition-opacity disabled:opacity-50"
-                  >
-                    {generatingFromContent ? '生成中...' : '基于内容生成文章'}
-                  </button>
-                  <button
                     onClick={addKeyword}
                     className="flex-1 py-4 bg-gradient-to-r from-blue-500 to-purple-500 text-white font-bold rounded-xl hover:opacity-90 transition-opacity"
                   >
@@ -545,7 +499,7 @@ export default function SEOManagePage() {
               </div>
               <div className="flex gap-4">
                 <span className="bg-blue-500/20 text-blue-400 w-8 h-8 rounded-full flex items-center justify-center font-bold">2</span>
-                <p>点击"基于内容生成文章"，AI 自动整出一篇贼牛的文章！</p>
+                <p>保存到文章库后，在文章列表中可以生成文章</p>
               </div>
               <div className="flex gap-4">
                 <span className="bg-blue-500/20 text-blue-400 w-8 h-8 rounded-full flex items-center justify-center font-bold">3</span>
