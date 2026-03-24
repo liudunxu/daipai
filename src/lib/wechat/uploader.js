@@ -168,6 +168,7 @@ export async function uploadImage(imageUrl) {
   )
 
   const data = await response.json()
+  console.log('[uploadImage] 微信返回数据:', JSON.stringify(data))
 
   if (data.errcode) {
     throw new Error(`图片上传失败: ${data.errmsg} (${data.errcode})`)
