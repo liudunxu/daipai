@@ -20,8 +20,8 @@ const MINIMAX_MODEL = 'LongCat-Flash-Chat'
  * 使用 OpenRouter 或 MiniMax 生成 SEO 文章
  * 优先级：OpenRouter > MiniMax
  */
-export async function generateSEOArticle(keyword, competitorAnalysis) {
-  const prompt = buildGeneratePrompt(keyword, competitorAnalysis)
+export async function generateSEOArticle(keyword, userContent) {
+  const prompt = buildGeneratePrompt(keyword, userContent)
 
   // 优先使用 OpenRouter
   if (openrouterClient) {
@@ -73,11 +73,12 @@ export async function generateSEOArticle(keyword, competitorAnalysis) {
 /**
  * 构建生成提示词
  */
-function buildGeneratePrompt(keyword, competitorAnalysis) {
-  return `你是一个科普作家，写一篇关于"${keyword}"的通俗易懂的文章。
+function buildGeneratePrompt(keyword, userContent) {
+  const userMaterialSection = userContent
+    ? `\n## 用户提供的素材\n${userContent}\n\n请基于以上素材，生成一篇 SEO 文章。如果素材中有明确的网站标题/主题，优先使用素材中的核心内容。\n`
+    : ''
 
-## 竞品分析参考
-${competitorAnalysis}
+  return `你是一个科普作家，写一篇关于"${keyword}"的通俗易懂的文章。${userMaterialSection}
 
 ## 风格：罗永浩式表达
 
@@ -191,18 +192,85 @@ export function extractFAQs(content) {
 }
 
 /**
- * 提取文章元数据
+ * 提取文章元数据（生成吸引人的标题和摘要）
  */
-export function extractMetadata(content, keyword) {
+export async function extractMetadata(content, keyword, userContent) {
   const titleMatch = content.match(/^#\s+(.+)$/m)
   const firstParagraph = content.match(/^[^#\n]+$/m)
+  const originalTitle = titleMatch?.[1] || keyword
+  const originalDesc = firstParagraph?.[0]?.slice(0, 120) || `${keyword}专业解读`
 
+  // 使用 LLM 生成更吸引人的标题和摘要
+  try {
+    const prompt = buildMetadataPrompt(originalTitle, originalDesc, keyword, userContent)
+
+    let result
+    if (openrouterClient) {
+      const completion = await openrouterClient.chat.completions.create({
+        model: OPENROUTER_MODEL,
+        messages: [{ role: 'user', content: prompt }],
+        max_tokens: 512,
+        extra_headers: {
+          'HTTP-Referer': 'https://www.zkwatcher.top',
+          'X-Title': '极客观察 SEO 元数据生成'
+        }
+      })
+      result = completion.choices[0].message.content
+    } else {
+      const completion = await minimax.chat.completions.create({
+        model: MINIMAX_MODEL,
+        messages: [{ role: 'user', content: prompt }],
+        max_tokens: 512
+      })
+      result = completion.choices[0].message.content
+    }
+
+    // 解析 JSON 响应
+    const jsonMatch = result.match(/\{[\s\S]*?\}/)
+    if (jsonMatch) {
+      const parsed = JSON.parse(jsonMatch[0])
+      return {
+        title: parsed.title || originalTitle,
+        description: parsed.description || originalDesc,
+        keyword,
+        generatedAt: new Date().toISOString()
+      }
+    }
+  } catch (err) {
+    console.error('生成吸引人标题失败，使用原始标题:', err.message)
+  }
+
+  // 如果失败，使用原始标题但稍微优化一下
   return {
-    title: titleMatch?.[1] || `${keyword} - 极客观察`,
-    description: firstParagraph?.[0]?.slice(0, 120) || `${keyword}专业解读`,
+    title: originalTitle.includes(' - ') ? originalTitle : `${originalTitle} - 极客观察`,
+    description: originalDesc,
     keyword,
     generatedAt: new Date().toISOString()
   }
+}
+
+function buildMetadataPrompt(originalTitle, originalDesc, keyword, userContent) {
+  const materialContext = userContent ? `\n\n用户素材参考：\n${userContent}` : ''
+
+  return `你是一个公众号运营专家，为文章生成吸引人的标题和摘要。
+
+原始标题：${originalTitle}
+原始摘要：${originalDesc}${materialContext}
+
+要求：
+1. 标题要博人眼球、吸引点击，有悬念或好奇心
+2. 可以用数字、疑问、对比等方式吸引眼球
+3. 标题长度 15-30 字，不要太长
+4. 摘要 80-120 字，要有吸引力，让人想点进去
+5. 结合用户素材中的核心信息（如果有）
+
+直接返回 JSON 格式：
+{
+  "title": "新标题",
+  "description": "新摘要"
+}
+
+不要有任何解释，直接返回 JSON。`
 }
 
 /**

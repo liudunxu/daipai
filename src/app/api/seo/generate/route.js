@@ -1,9 +1,7 @@
 import { NextResponse } from 'next/server'
-import { analyzeCompetitors, buildAnalysisReport } from '../../../../lib/seo/analyzer'
 import { generateSEOArticle, extractMetadata } from '../../../../lib/seo/generator'
 import { supabase } from '../../../../lib/supabase'
 import { verifyRequest } from '../../../../lib/seo/auth'
-import { randomUUID } from 'crypto'
 
 const TABLE_KEYWORDS = 'seo_keywords'
 const TABLE_ARTICLES = 'seo_articles'
@@ -28,69 +26,50 @@ export async function POST(request) {
   if (auth.error) return auth.response
 
   try {
-    const { keyword } = await request.json()
+    const { keyword, content: userContent } = await request.json()
 
-    if (!keyword) {
-      return NextResponse.json({ error: '关键词不能为空' }, { status: 400 })
+    if (!keyword && !userContent) {
+      return NextResponse.json({ error: '关键词或内容不能都为空' }, { status: 400 })
     }
 
-    console.log(`开始生成文章: ${keyword}`)
-
-    // 1. 分析竞品
-    console.log(`分析竞品中: ${keyword}`)
-    let analysis
-    try {
-      analysis = await analyzeCompetitors(keyword)
-      console.log('[Route] analyzeCompetitors 完成, analysis 结构:', {
-        hasKeyword: !!analysis?.keyword,
-        hasSources: !!analysis?.sources,
-        hasCompetitors: !!analysis?.competitors,
-        hasSupplementaryKnowledge: !!analysis?.supplementaryKnowledge,
-        sourcesType: typeof analysis?.sources,
-        sourcesIsArray: Array.isArray(analysis?.sources)
-      })
-    } catch (analyzeErr) {
-      console.error('[Route] analyzeCompetitors 错误:', analyzeErr)
-      throw analyzeErr
+    // 如果有用户输入的内容，从内容中提取一个简短关键词用于文件名和竞品分析
+    let effectiveKeyword = keyword
+    if (!effectiveKeyword && userContent) {
+      // 从内容中提取前50个字符作为临时关键词
+      effectiveKeyword = userContent.slice(0, 50).replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g, ' ').trim() || '主题文章'
     }
 
-    let report
-    try {
-      report = buildAnalysisReport(analysis)
-      console.log('[Route] buildAnalysisReport 完成, report 长度:', report?.length)
-    } catch (reportErr) {
-      console.error('[Route] buildAnalysisReport 错误:', reportErr)
-      console.error('[Route] analysis 对象:', JSON.stringify(analysis)?.slice(0, 500))
-      throw reportErr
-    }
+    console.log(`开始生成文章: ${effectiveKeyword}`)
 
-    // 2. 生成文章
-    console.log(`生成文章中: ${keyword}`)
-    const content = await generateSEOArticle(keyword, report)
+    // 生成文章（直接生成，不做竞品分析）
+    console.log(`生成文章中: ${effectiveKeyword}`)
+    const content = await generateSEOArticle(effectiveKeyword, userContent)
 
-    // 3. 提取元数据
-    const metadata = extractMetadata(content, keyword)
+    // 提取元数据
+    const metadata = await extractMetadata(content, effectiveKeyword, userContent)
 
     // 4. 生成页面路径（使用 UUID 而不是 keyword）
     const articleId = generateShortId()
     const articlePath = `/article/${articleId}`
 
-    // 5. 更新关键词状态为done
+    // 5. 更新关键词状态为done（如果有匹配的关键词）
     const now = new Date().toISOString()
 
-    const { error: kwError } = await supabase
-      .from(TABLE_KEYWORDS)
-      .update({
-        status: 'done',
-        updated_at: now,
-        generated_at: now,
-        page_path: articlePath,
-        article_id: articleId
-      })
-      .eq('keyword', keyword)
+    if (keyword) {
+      const { error: kwError } = await supabase
+        .from(TABLE_KEYWORDS)
+        .update({
+          status: 'done',
+          updated_at: now,
+          generated_at: now,
+          page_path: articlePath,
+          article_id: articleId
+        })
+        .eq('keyword', keyword)
 
-    if (kwError) {
-      console.error('更新关键词状态失败:', kwError)
+      if (kwError) {
+        console.error('更新关键词状态失败:', kwError)
+      }
     }
 
     // 6. 使用 UPSERT 保存文章记录（基于 article_id，冲突时更新）
@@ -100,7 +79,7 @@ export async function POST(request) {
     const { error: upsertError } = await supabase
       .from(TABLE_ARTICLES)
       .upsert({
-        keyword,
+        keyword: effectiveKeyword,
         title: metadata.title,
         description: metadata.description,
         content: content,
@@ -127,7 +106,7 @@ export async function POST(request) {
 
     return NextResponse.json({
       success: true,
-      keyword,
+      keyword: effectiveKeyword,
       articleId,
       metadata,
       contentLength: content.length,

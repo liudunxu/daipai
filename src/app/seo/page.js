@@ -19,12 +19,11 @@ export default function SEOManagePage() {
   const [keywords, setKeywords] = useState([])
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('list')
-  const [newKeyword, setNewKeyword] = useState('')
+  const [contentInput, setContentInput] = useState('')
   const [newCategory, setNewCategory] = useState('')
-  const [analyzing, setAnalyzing] = useState(false)
   const [generatingKeyword, setGeneratingKeyword] = useState('')
+  const [generatingFromContent, setGeneratingFromContent] = useState(false)
   const [syncingWechat, setSyncingWechat] = useState(false)
-  const [analysisResult, setAnalysisResult] = useState(null)
   const [dailyTasks, setDailyTasks] = useState([])
 
   // 获取存储的token
@@ -115,16 +114,6 @@ export default function SEOManagePage() {
       const data = await res.json()
       if (data.success) {
         setKeywords(data.data)
-
-        // 刷新后恢复分析结果
-        const keywordWithAnalysis = data.data.find(kw => kw.analysisResult && kw.analyzedAt)
-        if (keywordWithAnalysis) {
-          setAnalysisResult({
-            ...keywordWithAnalysis.analysisResult,
-            totalCompetitors: keywordWithAnalysis.analysisResult.totalAnalyzed || 0
-          })
-          setActiveTab('analyze')
-        }
       }
     } catch (error) {
       console.error('获取关键词失败:', error)
@@ -146,8 +135,8 @@ export default function SEOManagePage() {
   }
 
   async function addKeyword() {
-    if (!newKeyword.trim()) {
-      alert('请输入关键词')
+    if (!contentInput.trim()) {
+      alert('请输入内容')
       return
     }
     const token = getToken()
@@ -159,13 +148,13 @@ export default function SEOManagePage() {
       const res = await fetchWithToken('/api/seo/keywords', {
         method: 'POST',
         body: JSON.stringify({
-          keyword: newKeyword,
+          keyword: contentInput,
           category: newCategory || '未分类'
         })
       })
       const data = await res.json()
       if (data.success) {
-        setNewKeyword('')
+        setContentInput('')
         setNewCategory('')
         setActiveTab('list')
         fetchKeywords()
@@ -179,11 +168,22 @@ export default function SEOManagePage() {
     }
   }
 
-  async function analyzeKeyword(keyword) {
-    setAnalyzing(true)
-    setAnalysisResult(null)
+  async function generateFromContent() {
+    if (!contentInput.trim()) {
+      alert('请输入内容')
+      return
+    }
+    const token = getToken()
+    if (!token) {
+      alert('请先登录')
+      return
+    }
+    setGeneratingFromContent(true)
     try {
-      const res = await fetchWithToken(`/api/seo/analyze?keyword=${encodeURIComponent(keyword)}`)
+      const res = await fetchWithToken('/api/seo/generate', {
+        method: 'POST',
+        body: JSON.stringify({ content: contentInput })
+      })
       if (res.status === 401) {
         alert('登录已过期，请重新登录')
         handleLogout()
@@ -191,15 +191,18 @@ export default function SEOManagePage() {
       }
       const data = await res.json()
       if (data.success) {
-        setAnalysisResult(data)
+        alert(`文章生成成功！路径: ${data.pagePath}`)
+        setContentInput('')
+        fetchKeywords()
+        setActiveTab('list')
       } else {
-        alert('分析失败: ' + (data.error || '未知错误'))
+        alert('生成失败: ' + (data.error || '未知错误'))
       }
     } catch (error) {
-      console.error('分析失败:', error)
+      console.error('生成失败:', error)
       alert('网络错误，请检查网络连接')
     } finally {
-      setAnalyzing(false)
+      setGeneratingFromContent(false)
     }
   }
 
@@ -411,16 +414,6 @@ export default function SEOManagePage() {
             >
               添加关键词
             </button>
-            <button
-              onClick={() => setActiveTab('analyze')}
-              className={`px-6 py-3 rounded-xl font-bold transition-all ${
-                activeTab === 'analyze'
-                  ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white'
-                  : 'bg-white/5 text-white/60 hover:bg-white/10'
-              }`}
-            >
-              竞品分析
-            </button>
           </div>
 
           {/* 关键词列表 */}
@@ -457,13 +450,6 @@ export default function SEOManagePage() {
                         )}
                       </div>
                       <div className="flex gap-2">
-                        <button
-                          onClick={() => analyzeKeyword(kw.keyword)}
-                          disabled={analyzing}
-                          className="px-4 py-2 bg-blue-500/20 text-blue-400 rounded-lg hover:bg-blue-500/30 disabled:opacity-50"
-                        >
-                          {analyzing ? '分析中...' : '分析'}
-                        </button>
                         {kw.status !== 'done' && (
                           <button
                             onClick={() => generateArticle(kw.keyword)}
@@ -520,16 +506,16 @@ export default function SEOManagePage() {
           {/* 添加关键词 */}
           {activeTab === 'add' && (
             <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
-              <h2 className="text-2xl font-bold text-white mb-6">添加新关键词</h2>
+              <h2 className="text-2xl font-bold text-white mb-6">输入内容生成文章</h2>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-white/60 mb-2">关键词</label>
-                  <input
-                    type="text"
-                    value={newKeyword}
-                    onChange={e => setNewKeyword(e.target.value)}
-                    placeholder="整点关键词..."
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-white/30"
+                  <label className="block text-white/60 mb-2">内容（网站、主题、描述等，支持几百字）</label>
+                  <textarea
+                    value={contentInput}
+                    onChange={e => setContentInput(e.target.value)}
+                    placeholder="整点内容进去... 可以输入网站标题、业务描述、想写的文章主题等"
+                    rows={6}
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-white/30 resize-y"
                   />
                 </div>
                 <div>
@@ -542,60 +528,22 @@ export default function SEOManagePage() {
                     className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-white/30"
                   />
                 </div>
-                <button
-                  onClick={addKeyword}
-                  className="w-full py-4 bg-gradient-to-r from-blue-500 to-purple-500 text-white font-bold rounded-xl hover:opacity-90 transition-opacity"
-                >
-                  添加关键词
-                </button>
+                <div className="flex gap-4">
+                  <button
+                    onClick={generateFromContent}
+                    disabled={generatingFromContent}
+                    className="flex-1 py-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white font-bold rounded-xl hover:opacity-90 transition-opacity disabled:opacity-50"
+                  >
+                    {generatingFromContent ? '生成中...' : '基于内容生成文章'}
+                  </button>
+                  <button
+                    onClick={addKeyword}
+                    className="flex-1 py-4 bg-gradient-to-r from-blue-500 to-purple-500 text-white font-bold rounded-xl hover:opacity-90 transition-opacity"
+                  >
+                    保存到关键词库
+                  </button>
+                </div>
               </div>
-            </div>
-          )}
-
-          {/* 竞品分析 */}
-          {activeTab === 'analyze' && (
-            <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
-              <h2 className="text-2xl font-bold text-white mb-6">竞品分析</h2>
-
-              {analysisResult ? (
-                <div className="space-y-6">
-                  <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-4">
-                    <p className="text-green-400 font-bold mb-2">分析完成！</p>
-                    <p className="text-white/60">分析了 {analysisResult.totalCompetitors} 篇竞品文章</p>
-                    <p className="text-white/60">平均字数: {analysisResult.analysis.avgWordCount}</p>
-                  </div>
-
-                  <div>
-                    <h3 className="text-lg font-bold text-white mb-3">竞品列表</h3>
-                    <div className="space-y-3">
-                      {analysisResult.analysis.competitors.map((comp, idx) => (
-                        <div key={idx} className="bg-white/5 rounded-xl p-4">
-                          <h4 className="text-white font-bold mb-2">{comp.title}</h4>
-                          <p className="text-white/60 text-sm mb-2">{comp.snippet}</p>
-                          <a href={comp.url} target="_blank" className="text-blue-400 text-sm hover:underline">
-                            {comp.url}
-                          </a>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div>
-                    <h3 className="text-lg font-bold text-white mb-3">常见话题</h3>
-                    <div className="flex flex-wrap gap-2">
-                      {analysisResult.analysis.commonTopics.map((topic, idx) => (
-                        <span key={idx} className="bg-purple-500/20 text-purple-300 px-3 py-1 rounded-full text-sm">
-                          {topic}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div className="text-center text-white/60 py-8">
-                  {analyzing ? '分析中...' : '选择一个关键词进行分析'}
-                </div>
-              )}
             </div>
           )}
 
@@ -605,18 +553,14 @@ export default function SEOManagePage() {
             <div className="space-y-4 text-white/80">
               <div className="flex gap-4">
                 <span className="bg-blue-500/20 text-blue-400 w-8 h-8 rounded-full flex items-center justify-center font-bold">1</span>
-                <p>在"添加关键词"中添加你想写的文章主题（建议先做关键词规划）</p>
+                <p>在"添加关键词"中输入内容素材（网站、主题、描述等）</p>
               </div>
               <div className="flex gap-4">
                 <span className="bg-blue-500/20 text-blue-400 w-8 h-8 rounded-full flex items-center justify-center font-bold">2</span>
-                <p>使用"分析"功能看看竞品们都整了啥玩意儿</p>
+                <p>点击"基于内容生成文章"，AI 自动整出一篇贼牛的文章！</p>
               </div>
               <div className="flex gap-4">
                 <span className="bg-blue-500/20 text-blue-400 w-8 h-8 rounded-full flex items-center justify-center font-bold">3</span>
-                <p>点击"生成"让AI自动整出一篇比竞品牛X的文章！</p>
-              </div>
-              <div className="flex gap-4">
-                <span className="bg-blue-500/20 text-blue-400 w-8 h-8 rounded-full flex items-center justify-center font-bold">4</span>
                 <p>文章会自动创建页面，直接访问查看效果！</p>
               </div>
             </div>
