@@ -99,7 +99,7 @@ export default function ArticlePage() {
       const token = typeof window !== 'undefined'
         ? sessionStorage.getItem('seo_token') || localStorage.getItem('seo_token')
         : null
-      const keyword = decodeURIComponent(params?.keyword || '')
+      const articleId = decodeURIComponent(params?.keyword || '')
 
       const res = await fetch('/api/seo/wechat', {
         method: 'POST',
@@ -107,7 +107,7 @@ export default function ArticlePage() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ keyword })
+        body: JSON.stringify({ articleId })
       })
 
       const data = await res.json()

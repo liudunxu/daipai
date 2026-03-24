@@ -180,20 +180,22 @@ export async function POST(request) {
   if (auth.error) return auth.response
 
   try {
-    const { keyword } = await request.json()
+    const { keyword, articleId } = await request.json()
 
-    if (!keyword) {
-      return NextResponse.json({ error: '关键词不能为空' }, { status: 400 })
+    if (!keyword && !articleId) {
+      return NextResponse.json({ error: '关键词或文章ID不能都为空' }, { status: 400 })
     }
 
-    console.log(`[Wechat Sync] 开始同步文章: ${keyword}`)
+    console.log(`[Wechat Sync] 开始同步文章: keyword=${keyword}, articleId=${articleId}`)
 
     // 1. 从 Supabase 获取文章
-    const { data: article, error } = await supabase
-      .from(TABLE_ARTICLES)
-      .select('*')
-      .eq('keyword', keyword)
-      .single()
+    let query = supabase.from(TABLE_ARTICLES).select('*')
+    if (articleId) {
+      query = query.eq('article_id', articleId)
+    } else {
+      query = query.eq('keyword', keyword)
+    }
+    const { data: article, error } = await query.single()
 
     if (error || !article) {
       console.error('[Wechat Sync] 文章不存在:', keyword)
