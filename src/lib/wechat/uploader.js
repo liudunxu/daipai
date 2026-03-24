@@ -3,6 +3,7 @@ import https from 'https'
 import { HttpsProxyAgent } from 'https-proxy-agent'
 
 const UPLOAD_URL = 'https://api.weixin.qq.com/cgi-bin/media/upload'
+const UPLOAD_TEMP_URL = 'https://api.weixin.qq.com/cgi-bin/media/uploadimg' // 临时素材接口，返回URL
 
 // 重试配置
 const MAX_RETRIES = 5
@@ -140,7 +141,7 @@ function sleep(ms) {
 }
 
 /**
- * 上传单张图片到微信素材库
+ * 上传单张图片到微信（使用临时素材接口，直接返回URL）
  * @param {string} imageUrl - 图片 URL 或 data:image base64
  * @returns {Promise<{media_id: string, url: string}>}
  */
@@ -159,8 +160,9 @@ export async function uploadImage(imageUrl) {
   const formData = new FormData()
   formData.append('media', blob, 'image.jpg')
 
+  // 使用临时素材接口上传图片（返回 CDN URL）
   const response = await fetchWithRetry(
-    `${UPLOAD_URL}?access_token=${accessToken}&type=image`,
+    `${UPLOAD_TEMP_URL}?access_token=${accessToken}`,
     {
       method: 'POST',
       body: formData
@@ -174,43 +176,11 @@ export async function uploadImage(imageUrl) {
     throw new Error(`图片上传失败: ${data.errmsg} (${data.errcode})`)
   }
 
-  // 永久素材图片需要通过 get_material 获取 CDN URL
-  let wechatUrl = data.url
-  if (!wechatUrl && data.media_id) {
-    try {
-      wechatUrl = await getPermanentImageUrl(data.media_id, accessToken)
-    } catch (e) {
-      console.error('[uploadImage] 获取永久素材URL失败:', e.message)
-    }
-  }
-
+  // 临时素材接口直接返回 url
   return {
-    media_id: data.media_id,
-    url: wechatUrl
+    media_id: data.media_id || '',
+    url: data.url
   }
-}
-
-/**
- * 获取永久素材的图片URL
- */
-async function getPermanentImageUrl(mediaId, accessToken) {
-  const url = `https://api.weixin.qq.com/cgi-bin/material/get_material?access_token=${accessToken}`
-
-  const response = await fetchWithRetry(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ media_id: mediaId })
-  })
-
-  const data = await response.json()
-
-  if (data.errcode) {
-    throw new Error(`获取永久素材失败: ${data.errmsg} (${data.errcode})`)
-  }
-
-  // 返回的 data 可能是直接返回的图片二进制，或者包含 url
-  // 对于图片素材，微信返回的是二进制数据，需要特殊处理
-  return data.url || null
 }
 
 /**
