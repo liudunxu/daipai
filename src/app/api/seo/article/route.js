@@ -1,39 +1,38 @@
 import { NextResponse } from 'next/server'
 import { supabase } from '../../../../lib/supabase'
-import fs from 'fs/promises'
-import path from 'path'
+import { marked } from 'marked'
 
 const TABLE_ARTICLES = 'seo_articles'
 
-// Markdown 转 HTML
+// 配置 marked
+marked.setOptions({
+  gfm: true,
+  breaks: true
+})
+
+// Markdown 转 HTML（带 Tailwind 样式）
 function markdownToHtml(md) {
   if (!md) return ''
 
-  // 先处理图片，转换为响应式样式
-  // 增强：同时处理标准格式和 URL 为空的情况
-  md = md.replace(
-    /!\[([^\]]*)\]\(([^)]*)\)/g,
-    (match, alt, url) => {
-      // 如果 URL 为空，跳过该图片或使用默认占位图
-      if (!url || url.trim() === '') {
-        console.warn('[markdownToHtml] 发现空URL图片，跳过:', match)
-        return ''
-      }
-      return `<img src="${url}" alt="${alt}" class="rounded-xl w-full max-w-2xl mx-auto my-8 shadow-lg" loading="lazy" />`
-    }
-  )
+  // 用 marked 解析 markdown
+  let html = marked.parse(md)
 
-  return md
-    .replace(/^### (.+)$/gm, '<h3 class="text-xl font-bold text-white mt-10 mb-4">$1</h3>')
-    .replace(/^## (.+)$/gm, '<h2 class="text-2xl font-bold text-white mt-12 mb-6 border-b border-white/10 pb-2">$1</h2>')
-    .replace(/^# (.+)$/gm, '<h1 class="text-3xl font-bold text-white mb-8">$1</h1>')
-    .replace(/\*\*(.+?)\*\*/g, '<strong class="text-yellow-400 font-bold">$1</strong>')
-    .replace(/\*(.+?)\*/g, '<em>$1</em>')
-    .replace(/^- (.+)$/gm, '<li class="text-white/80 mb-2 ml-4">$1</li>')
-    .replace(/(<li.*<\/li>)/s, '<ul class="list-disc list-inside my-4">$1</ul>')
-    .replace(/\n\n/g, '</p><p class="text-white/80 mb-4 leading-relaxed">')
-    .replace(/^(?!<[puhl])/gm, '<p class="text-white/80 mb-4 leading-relaxed">')
-    .replace(/<p class="text-white\/80 mb-4 leading-relaxed"><\/p>/g, '')
+  // 给 img 标签添加响应式 Tailwind 类
+  html = html.replace(/<img([^>]*)>/gi, (match, attrs) => {
+    if (attrs.includes('class=')) return match
+    return `<img class="rounded-xl w-full max-w-2xl mx-auto my-8 shadow-lg" loading="lazy"${attrs}>`
+  })
+
+  // 清理不必要的属性，保留基本结构
+  html = html
+    .replace(/\s*data-[\w-]+=["'][^"']*["']/gi, '')
+    .replace(/\s*class="[^"]*"/gi, (m) => {
+      // 保留 img 的 class
+      return m
+    })
+    .replace(/<p>\s*<\/p>/gi, '')
+
+  return html
 }
 
 // GET 获取文章内容（公开接口，不需要认证）
@@ -78,31 +77,14 @@ export async function GET(request) {
       return NextResponse.json({ success: false, error: error.message }, { status: 500 })
     }
 
-    // 如果Supabase没有，尝试读取文件（仅本地开发模式）
-    if (!data && decodedKeyword) {
-      const safeKeyword = encodeURIComponent(decodedKeyword)
-      const pagePath = path.join(process.cwd(), 'src/app/seo', safeKeyword, 'page.js')
-
-      try {
-        const fileContent = await fs.readFile(pagePath, 'utf-8')
-        const contentMatch = fileContent.match(/const content = `([\s\S]*?)`;/)
-        if (contentMatch) {
-          return NextResponse.json({
-            success: true,
-            keyword: decodedKeyword,
-            content: markdownToHtml(contentMatch[1]),
-            pagePath: `/article/${safeKeyword}`
-          })
-        }
-      } catch {}
-    }
-
     if (data) {
       return NextResponse.json({
         success: true,
         keyword: data.keyword,
         content: markdownToHtml(data.content),
         title: data.title,
+        description: data.description,
+        generatedAt: data.generated_at,
         pagePath: data.page_path
       })
     }

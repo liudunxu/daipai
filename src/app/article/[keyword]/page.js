@@ -38,7 +38,8 @@ export default function ArticlePage() {
               setArticleMeta({
                 title: data.title || decodeURIComponent(keyword),
                 description: data.description || '',
-                keyword: data.keyword || decodeURIComponent(keyword)
+                keyword: data.keyword || decodeURIComponent(keyword),
+                generatedAt: data.generatedAt || null
               })
             }
           } else {
@@ -188,8 +189,8 @@ export default function ArticlePage() {
             headline: articleTitle,
             description: articleDesc,
             keywords: siteKeyword,
-            datePublished: new Date().toISOString(),
-            dateModified: new Date().toISOString(),
+            datePublished: articleMeta.generatedAt || new Date().toISOString(),
+            dateModified: articleMeta.generatedAt || new Date().toISOString(),
             author: { '@type': 'Person', name: '极客观察' },
             publisher: {
               '@type': 'Organization',
