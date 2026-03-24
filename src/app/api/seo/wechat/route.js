@@ -260,11 +260,19 @@ export async function POST(request) {
     // 7. 处理内容中的图片（此时已是 HTML，可以提取 <img> 标签）
     console.log('[Wechat Sync] 开始处理内容中的图片...')
     const imageResults = await processArticleImages(htmlContent)
-    console.log(`[Wechat Sync] 图片处理结果:`, JSON.stringify(imageResults).slice(0, 500))
+    console.log(`[Wechat Sync] 图片处理结果:`, JSON.stringify(imageResults))
     console.log(`[Wechat Sync] 图片处理完成，成功 ${imageResults.filter(r => r.media_id).length}/${imageResults.length} 张`)
 
     // 8. 替换内容中的图片为微信 CDN 地址
+    console.log('[Wechat Sync] 开始替换图片...')
     const wechatContent = replaceImagesWithMediaId(htmlContent, imageResults)
+
+    // 调试：检查替换后的 HTML
+    const replacedImgMatches = wechatContent.match(/<img[^>]*>/gi)
+    console.log('[Wechat Sync] 替换后 img 标签数量:', replacedImgMatches ? replacedImgMatches.length : 0)
+    if (replacedImgMatches && replacedImgMatches.length > 0) {
+      console.log('[Wechat Sync] 替换后第一个 img:', replacedImgMatches[0].slice(0, 200))
+    }
 
     // 9. 构建草稿内容
     const draftContent = buildDraftContent({
