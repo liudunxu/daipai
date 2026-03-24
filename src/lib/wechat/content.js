@@ -13,6 +13,14 @@ import { marked } from 'marked'
 export function convertHtmlForWechat(content) {
   if (!content) return ''
 
+  // 0. 先处理常见的 markdown 格式，确保 **text** 等被正确转换
+  // 处理加粗 **text** -> <strong>text</strong>
+  content = content.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+  // 处理斜体 *text* -> <em>text</em>
+  content = content.replace(/(?<!\*)\*([^*\n]+)\*(?!\*)/g, '<em>$1</em>')
+  // 处理删除线 ~~text~~ -> <s>text</s>
+  content = content.replace(/~~(.+?)~~/g, '<s>$1</s>')
+
   // 1. 先把 markdown 图片提取出来，避免 marked 解析时出问题
   // 注意：占位符使用 <<>> 格式，避免被 marked 当作 markdown 语法处理
   // 支持格式: ![alt](url) ![alt](url "title") ![alt](url 'title')
@@ -307,10 +315,20 @@ function buildInlineStyle(classStr, defaultFontSize, defaultColor, defaultFontWe
  * @returns {string}
  */
 export function extractDigest(htmlContent, maxLength = 120) {
-  const text = htmlContent
-    .replace(/<[^>]+>/g, '')
-    .replace(/\s+/g, ' ')
-    .trim()
+  let text = htmlContent || ''
+
+  // 先去除 HTML 标签
+  text = text.replace(/<[^>]+>/g, '')
+
+  // 去除 markdown 格式
+  text = text.replace(/\*\*(.+?)\*\*/g, '$1')  // **加粗**
+  text = text.replace(/\*(.+?)\*/g, '$1')       // *斜体*
+  text = text.replace(/~~(.+?)~~/g, '$1')        // ~~删除线~~
+  text = text.replace(/`(.+?)`/g, '$1')          // `行内代码`
+  text = text.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')  // [链接文字](url)
+
+  // 清理空白
+  text = text.replace(/\s+/g, ' ').trim()
 
   // 微信摘要限制约120字符，带...会超限，直接截断
   return text.length > maxLength ? text.slice(0, maxLength) : text
