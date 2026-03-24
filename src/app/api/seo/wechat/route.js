@@ -283,12 +283,16 @@ export async function POST(request) {
       console.log('[Wechat Sync] 替换后第一个 img:', replacedImgMatches[0].slice(0, 200))
     }
 
-    // 9. 构建草稿内容
+    // 9. 在文章末尾附加主页链接，引导用户访问
+    const homepageLink = `<p style="text-align:center;margin-top:32px;"><a href="https://www.zkwatcher.top" style="color:#60a5fa;font-size:14px;">了解更多内容，请访问：zkwatcher.top</a></p>`
+    const finalContent = wechatContent + homepageLink
+
+    // 10. 构建草稿内容
     const draftContent = buildDraftContent({
       title: article.title,
       author: 'DeepDrinker',
       digest,
-      content: wechatContent,
+      content: finalContent,
       thumbMediaId,
       showCoverPic: thumbMediaId ? 1 : 0
     })
