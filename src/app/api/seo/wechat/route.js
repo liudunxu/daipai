@@ -249,9 +249,18 @@ export async function POST(request) {
     // 6. 先将 Markdown 转换为 HTML
     const htmlContent = convertHtmlForWechat(article.content)
 
+    // 调试：打印转换后的 HTML 内容，检查是否包含 img 标签
+    console.log('[Wechat Sync] 转换后HTML内容长度:', htmlContent.length)
+    const imgMatches = htmlContent.match(/<img[^>]*>/gi)
+    console.log('[Wechat Sync] HTML中发现 img 标签数量:', imgMatches ? imgMatches.length : 0)
+    if (imgMatches) {
+      imgMatches.forEach((img, i) => console.log(`[Wechat Sync] img[${i}]:`, img.slice(0, 200)))
+    }
+
     // 7. 处理内容中的图片（此时已是 HTML，可以提取 <img> 标签）
     console.log('[Wechat Sync] 开始处理内容中的图片...')
     const imageResults = await processArticleImages(htmlContent)
+    console.log(`[Wechat Sync] 图片处理结果:`, JSON.stringify(imageResults).slice(0, 500))
     console.log(`[Wechat Sync] 图片处理完成，成功 ${imageResults.filter(r => r.media_id).length}/${imageResults.length} 张`)
 
     // 8. 替换内容中的图片为微信 CDN 地址
