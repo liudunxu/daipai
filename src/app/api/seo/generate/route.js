@@ -109,7 +109,7 @@ export async function POST(request) {
         word_count: content.length,
         article_id: articleId
       }, {
-        onConflict: 'article_id'
+        onConflict: 'keyword'
       })
 
     if (upsertError) {
