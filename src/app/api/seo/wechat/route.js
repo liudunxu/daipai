@@ -267,7 +267,7 @@ export async function POST(request) {
     for (const r of imageResults) {
       console.log(`[Wechat Sync] 图片 ${r.originalUrl.slice(-30)}...`)
       console.log(`  media_id: ${r.media_id ? '有' : '无'}`)
-      console.log(`  url: ${r.url ? r.url.slice(0, 50) + '...' : '无'}`)
+      console.log(`  url: ${r.url ? r.url : '无'}`)
     }
 
     // 8. 替换内容中的图片为微信 CDN 地址
