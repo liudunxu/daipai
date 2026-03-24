@@ -10,6 +10,109 @@ import { multiSourceImageSearch, buildImageReport } from './image-search'
 const RESULTS_LIMIT = 8
 
 /**
+ * Tavily Search API (免费额度 1000次/月)
+ * https://tavily.com - 需要 API Key
+ */
+async function searchTavily(keyword) {
+  const apiKey = process.env.TAVILY_API_KEY
+  if (!apiKey) {
+    console.log('[MultiSearch] Tavily API Key 未配置')
+    return []
+  }
+
+  try {
+    const response = await proxyFetch('https://api.tavily.com/search', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        api_key: apiKey,
+        query: keyword,
+        search_depth: 'basic',
+        max_results: RESULTS_LIMIT,
+        include_answer: false,
+        include_images: false,
+        include_raw_content: false
+      })
+    })
+
+    if (!response.ok) {
+      console.error('[MultiSearch] Tavily 请求失败:', response.status)
+      return []
+    }
+
+    const data = await response.json()
+    const results = []
+
+    if (data.results) {
+      for (const item of data.results) {
+        results.push({
+          title: item.title || '',
+          url: item.url || '',
+          snippet: item.content || item.snippet || '',
+          source: 'tavily'
+        })
+      }
+    }
+
+    console.log(`[MultiSearch] Tavily 获取到 ${results.length} 条结果`)
+    return results
+  } catch (error) {
+    console.error('[MultiSearch] Tavily 搜索失败:', error.message)
+    return []
+  }
+}
+
+/**
+ * SerpAPI (Google/Bing 搜索结果)
+ * https://serpapi.com - 需要 API Key
+ */
+async function searchSerpapi(keyword) {
+  const apiKey = process.env.SERPAPI_API_KEY
+  if (!apiKey) {
+    console.log('[MultiSearch] SerpAPI Key 未配置')
+    return []
+  }
+
+  try {
+    // 使用 Google 搜索
+    const url = `https://serpapi.com/search.json?q=${encodeURIComponent(keyword)}&api_key=${apiKey}&num=${RESULTS_LIMIT}`
+
+    const response = await proxyFetch(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'
+      }
+    })
+
+    if (!response.ok) {
+      console.error('[MultiSearch] SerpAPI 请求失败:', response.status)
+      return []
+    }
+
+    const data = await response.json()
+    const results = []
+
+    if (data.organic_results) {
+      for (const item of data.organic_results) {
+        results.push({
+          title: item.title || '',
+          url: item.link || '',
+          snippet: item.snippet || '',
+          source: 'serpapi'
+        })
+      }
+    }
+
+    console.log(`[MultiSearch] SerpAPI 获取到 ${results.length} 条结果`)
+    return results
+  } catch (error) {
+    console.error('[MultiSearch] SerpAPI 搜索失败:', error.message)
+    return []
+  }
+}
+
+/**
  * 1. DuckDuckGo 搜索 (免费，无需 API Key)
  * 使用 DuckDuckGo HTML 页面解析
  */
@@ -353,7 +456,9 @@ export async function multiSourceSearch(keyword, options = {}) {
     includeBing = true,
     includeSogou = true,
     includeTavily = true,
-    tavilyResults = []
+    includeSerpapi = true,
+    tavilyResults = [],
+    serpapiResults = []
   } = options
 
   console.log(`[MultiSearch] 开始多源搜索: ${keyword}`)
@@ -377,6 +482,14 @@ export async function multiSourceSearch(keyword, options = {}) {
 
   if (includeBaiduBaike) {
     searchPromises.push(withTimeout(searchBaiduBaike(keyword), 5000))
+  }
+
+  if (includeTavily) {
+    searchPromises.push(withTimeout(searchTavily(keyword), 8000))
+  }
+
+  if (includeSerpapi) {
+    searchPromises.push(withTimeout(searchSerpapi(keyword), 10000))
   }
 
   // 收集所有结果
@@ -406,6 +519,20 @@ export async function multiSourceSearch(keyword, options = {}) {
         allResults.push({
           ...item,
           source: 'tavily'
+        })
+      }
+    }
+  }
+
+  // 添加 SerpAPI 结果（如果提供）
+  if (includeSerpapi && serpapiResults.length > 0) {
+    for (const item of serpapiResults) {
+      const urlKey = item.url?.split('?')[0] || ''
+      if (!seenUrls.has(urlKey) && item.title) {
+        seenUrls.add(urlKey)
+        allResults.push({
+          ...item,
+          source: 'serpapi'
         })
       }
     }
@@ -516,6 +643,7 @@ export function buildEnhancedReport(keyword, multiSearchResults = {}, supplement
         'sogou': '🐸 搜狗',
         'wikipedia': '📘 Wikipedia',
         'tavily': '🔮 Tavily',
+        'serpapi': '🔍 SerpAPI',
         'bing': '🟢 Bing',
         'baidu_baike': '📖 百度百科',
         'zhihu': '❓ 知乎'
