@@ -11,6 +11,75 @@ function generateShortId() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 6)
 }
 
+/**
+ * 检查图片URL是否可访问
+ */
+async function checkImageAccessible(url) {
+  try {
+    const response = await fetch(url, {
+      method: 'HEAD',
+      signal: AbortSignal.timeout(5000)
+    })
+    return response.ok
+  } catch {
+    return false
+  }
+}
+
+/**
+ * 获取可用的备用图片URL
+ */
+function getFallbackImageUrl(keyword, index) {
+  // 使用 LoremPicsum，基于关键词生成稳定的随机图片
+  const seed = encodeURIComponent(keyword.slice(0, 15) + index)
+  return `https://picsum.photos/seed/${seed}/800/400`
+}
+
+/**
+ * 验证并修复文章中的图片
+ * 检查所有图片是否可访问，不可访问的替换为备用图片
+ */
+async function validateAndFixImages(content, keyword) {
+  // 提取所有 markdown 图片格式 ![描述](URL)
+  const imageRegex = /!\[([^\]]*)\]\(([^)]+)\)/g
+  const images = []
+  let match
+
+  while ((match = imageRegex.exec(content)) !== null) {
+    images.push({
+      fullMatch: match[0],
+      alt: match[1],
+      url: match[2]
+    })
+  }
+
+  if (images.length === 0) {
+    console.log('[ImageFix] 文章中没有图片，无需修复')
+    return content
+  }
+
+  console.log(`[ImageFix] 发现 ${images.length} 张图片，开始验证...`)
+
+  let fixedContent = content
+  let fixCount = 0
+
+  for (let i = 0; i < images.length; i++) {
+    const img = images[i]
+    const isAccessible = await checkImageAccessible(img.url)
+
+    if (!isAccessible) {
+      console.log(`[ImageFix] 图片不可访问: ${img.url}`)
+      const fallbackUrl = getFallbackImageUrl(keyword, i)
+      const newImage = `![${img.alt}](${fallbackUrl})`
+      fixedContent = fixedContent.replace(img.fullMatch, newImage)
+      fixCount++
+    }
+  }
+
+  console.log(`[ImageFix] 修复完成，共替换 ${fixCount} 张图片`)
+  return fixedContent
+}
+
 // 验证token
 async function authCheck(request) {
   const result = await verifyRequest(request)
@@ -45,8 +114,11 @@ export async function POST(request) {
     console.log(`生成文章中: ${effectiveKeyword}`)
     const content = await generateSEOArticle(effectiveKeyword, userContent)
 
-    // 提取元数据
-    const metadata = await extractMetadata(content, effectiveKeyword, userContent)
+    // 验证并修复文章中的图片
+    const fixedContent = await validateAndFixImages(content, effectiveKeyword)
+
+    // 提取元数据（使用修复后的内容）
+    const metadata = await extractMetadata(fixedContent, effectiveKeyword, userContent)
 
     // 4. 生成页面路径（使用 UUID 而不是 keyword）
     const articleId = generateShortId()
@@ -82,10 +154,10 @@ export async function POST(request) {
         keyword: effectiveKeyword,
         title: metadata.title,
         description: metadata.description,
-        content: content,
+        content: fixedContent,
         page_path: articlePath,
         generated_at: now,
-        word_count: content.length,
+        word_count: fixedContent.length,
         article_id: articleId
       }, {
         onConflict: 'keyword'
