@@ -161,6 +161,8 @@ function buildGeneratePrompt(keyword, userContent) {
 - **3-4张图片必须分散在文章各处**
 - 图片要紧跟相关文字段落
 - 格式：![图片描述](图片URL)
+- 图片必须来自 Pexels/Pixabay/Unsplash/Wikipedia 等免费图源，必须是可访问的真实URL（不要用占位符或本地路径）
+- 必须在图片链接后标注来源，格式：![描述](URL "图片来源: xxx")
 
 ### 结尾
 - 核心观点总结（3条加粗金句）
@@ -169,13 +171,13 @@ function buildGeneratePrompt(keyword, userContent) {
 
 ## SEO要求
 
-1. **字数**: 1200-1500字（重点突出，言简意赅）
-2. **关键词密度**: "${keyword}"自然出现5-6次
+1. **字数**: 1500-2000字（内容充实有利于搜索排名）
+2. **关键词密度**: "${keyword}"自然出现5-8次，核心关键词放标题、前100字、小标题
 3. **准确性**: 基础定义必须与参考的Wikipedia/百度百科一致
-4. **图片**: 3-5张
-   - **优先使用竞品分析中提供的图片URL**（来自 Pexels/Pixabay/Unsplash/Wikipedia）
-   - 格式：![图片描述](图片URL)
-   - 必须包含图片来源和摄影师信息（格式：![描述](URL "图片来源: xxx | 摄影师: xxx")）
+4. **图片**: 3-5张，必须是真实可访问的URL（不要占位符）
+   - **优先使用 Pexels/Pixabay/Unsplash/Wikipedia 等免费图源**
+   - 格式：![图片描述](图片URL "图片来源: xxx")
+   - 图片要紧跟相关段落，不要堆在一起
 
 ## 格式
 
@@ -187,7 +189,7 @@ function buildGeneratePrompt(keyword, userContent) {
 
 ## 输出
 
-直接输出文章，不要任何说明。`
+直接输出文章，不要任何说明。文章末尾用一行标注封面图URL，格式：![cover](图片URL)，这张图将用于社交分享展示。`
 }
 
 /**

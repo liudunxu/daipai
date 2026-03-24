@@ -7,6 +7,7 @@ import { useParams } from 'next/navigation'
 export default function ArticlePage() {
   const params = useParams()
   const [content, setContent] = useState(null)
+  const [articleMeta, setArticleMeta] = useState({})
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [regenerating, setRegenerating] = useState(false)
@@ -32,6 +33,14 @@ export default function ArticlePage() {
           const data = await res.json()
           if (data.content) {
             setContent(data.content)
+            // 保存从API返回的真实元数据
+            if (data.title || data.keyword) {
+              setArticleMeta({
+                title: data.title || decodeURIComponent(keyword),
+                description: data.description || '',
+                keyword: data.keyword || decodeURIComponent(keyword)
+              })
+            }
           } else {
             setError('文章不存在或尚未生成')
           }
@@ -124,7 +133,13 @@ export default function ArticlePage() {
   }
 
   const keyword = params?.keyword || ''
-  const title = `${decodeURIComponent(keyword)} - 极客观察`
+  const articleTitle = articleMeta.title || decodeURIComponent(keyword)
+  const articleDesc = articleMeta.description || `关于${decodeURIComponent(keyword)}的专业解读`
+  const title = articleTitle ? `${articleTitle} - 极客观察` : '极客观察'
+  const siteKeyword = articleMeta.keyword || decodeURIComponent(keyword)
+  // 从文章内容中提取第一张图片作为 og:image
+  const firstImgMatch = content ? content.match(/<img[^>]+src=["']([^"']+)["']/i) : null
+  const ogImage = firstImgMatch ? firstImgMatch[1] : ''
 
   if (loading) {
     return (
@@ -154,20 +169,34 @@ export default function ArticlePage() {
     <>
       <Head>
         <title>{title}</title>
-        <meta name="description" content={`关于${keyword}的专业解读`} />
-        <meta name="keywords" content={keyword} />
-        <link rel="canonical" href={`https://www.zkwatcher.top/article/${keyword}`} />
+        <meta name="description" content={articleDesc} />
+        <meta name="keywords" content={siteKeyword} />
+        <link rel="canonical" href={`https://www.zkwatcher.top/article/${encodeURIComponent(siteKeyword)}`} />
         <meta property="og:title" content={title} />
-        <meta property="og:description" content={`关于${keyword}的专业解读`} />
+        <meta property="og:description" content={articleDesc} />
+        {ogImage && <meta property="og:image" content={ogImage} />}
         <meta property="og:type" content="article" />
+        <meta property="og:url" content={`https://www.zkwatcher.top/article/${encodeURIComponent(siteKeyword)}`} />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={title} />
+        <meta name="twitter:description" content={articleDesc} />
+        {ogImage && <meta name="twitter:image" content={ogImage} />}
         <script type="application/ld+json" dangerouslySetInnerHTML={{
           __html: JSON.stringify({
             '@context': 'https://schema.org',
             '@type': 'Article',
-            headline: title,
-            keywords: keyword,
+            headline: articleTitle,
+            description: articleDesc,
+            keywords: siteKeyword,
             datePublished: new Date().toISOString(),
-            author: { '@type': 'Person', name: '东北雨姐' }
+            dateModified: new Date().toISOString(),
+            author: { '@type': 'Person', name: '极客观察' },
+            publisher: {
+              '@type': 'Organization',
+              name: '极客观察',
+              url: 'https://www.zkwatcher.top'
+            },
+            image: ogImage ? [ogImage] : []
           })
         }} />
       </Head>
