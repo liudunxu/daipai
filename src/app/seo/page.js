@@ -18,7 +18,7 @@ export default function SEOManagePage() {
   const [authError, setAuthError] = useState(false)
   const [keywords, setKeywords] = useState([])
   const [loading, setLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState('list')
+  const [activeTab, setActiveTab] = useState('add')
   const [contentInput, setContentInput] = useState('')
   const [generatingKeyword, setGeneratingKeyword] = useState('')
   const [syncingWechat, setSyncingWechat] = useState(false)
@@ -354,16 +354,6 @@ export default function SEOManagePage() {
           {/* Tab导航 */}
           <div className="flex gap-4 mb-6">
             <button
-              onClick={() => setActiveTab('list')}
-              className={`px-6 py-3 rounded-xl font-bold transition-all ${
-                activeTab === 'list'
-                  ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white'
-                  : 'bg-white/5 text-white/60 hover:bg-white/10'
-              }`}
-            >
-              文章列表
-            </button>
-            <button
               onClick={() => setActiveTab('add')}
               className={`px-6 py-3 rounded-xl font-bold transition-all ${
                 activeTab === 'add'
@@ -372,6 +362,16 @@ export default function SEOManagePage() {
               }`}
             >
               新建文章
+            </button>
+            <button
+              onClick={() => setActiveTab('list')}
+              className={`px-6 py-3 rounded-xl font-bold transition-all ${
+                activeTab === 'list'
+                  ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white'
+                  : 'bg-white/5 text-white/60 hover:bg-white/10'
+              }`}
+            >
+              文章列表
             </button>
           </div>
 
