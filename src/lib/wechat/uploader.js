@@ -5,8 +5,8 @@ import { HttpsProxyAgent } from 'https-proxy-agent'
 const UPLOAD_URL = 'https://api.weixin.qq.com/cgi-bin/media/upload'
 
 // 重试配置
-const MAX_RETRIES = 3
-const RETRY_DELAY = 1000 // ms
+const MAX_RETRIES = 5
+const RETRY_DELAY = 2000 // ms
 
 /**
  * 使用 Node.js 原生 https 通过代理发送请求
@@ -224,15 +224,26 @@ async function uploadBase64Image(base64Data, accessToken) {
 }
 
 /**
- * 下载外链图片为 ArrayBuffer（不走代理）
+ * 下载外链图片为 ArrayBuffer（不走代理，带重试）
  */
 async function downloadImage(url) {
-  // 下载图片不需要代理，直接使用原生 fetch
-  const response = await fetch(url)
-  if (!response.ok) {
-    throw new Error(`图片下载失败: ${response.status} ${response.statusText}`)
+  let lastError
+  for (let i = 0; i < MAX_RETRIES; i++) {
+    try {
+      const response = await fetch(url)
+      if (!response.ok) {
+        throw new Error(`图片下载失败: ${response.status} ${response.statusText}`)
+      }
+      return await response.arrayBuffer()
+    } catch (error) {
+      lastError = error
+      console.error(`[Wechat Uploader] 图片下载失败 [${i + 1}/${MAX_RETRIES}]: ${url} - ${error.message}`)
+      if (i < MAX_RETRIES - 1) {
+        await sleep(RETRY_DELAY * (i + 1))
+      }
+    }
   }
-  return response.arrayBuffer()
+  throw lastError
 }
 
 /**
