@@ -21,7 +21,7 @@ export default function SEOManagePage() {
   const [activeTab, setActiveTab] = useState('add')
   const [contentInput, setContentInput] = useState('')
   const [generatingKeyword, setGeneratingKeyword] = useState('')
-  const [syncingWechat, setSyncingWechat] = useState(false)
+  const [syncingKeyword, setSyncingKeyword] = useState('')
 
   // 获取存储的token
   const getToken = () => {
@@ -178,7 +178,7 @@ export default function SEOManagePage() {
   }
 
   async function syncToWechat(keyword) {
-    setSyncingWechat(true)
+    setSyncingKeyword(keyword)
     try {
       const res = await fetchWithToken('/api/seo/wechat', {
         method: 'POST',
@@ -199,7 +199,7 @@ export default function SEOManagePage() {
       console.error('同步失败:', error)
       alert('网络错误，同步失败')
     } finally {
-      setSyncingWechat(false)
+      setSyncingKeyword('')
     }
   }
 
@@ -380,14 +380,14 @@ export default function SEOManagePage() {
                             </button>
                             <button
                               onClick={() => syncToWechat(kw.keyword)}
-                              disabled={syncingWechat || kw.wechatSynced || !!generatingKeyword}
+                              disabled={syncingKeyword === kw.keyword || kw.wechatSynced || !!generatingKeyword}
                               className={`px-4 py-2 rounded-lg disabled:opacity-50 ${
                                 kw.wechatSynced
                                   ? 'bg-gray-500/20 text-gray-400 cursor-default'
                                   : 'bg-green-500/20 text-green-400 hover:bg-green-500/30'
                               }`}
                             >
-                              {kw.wechatSynced ? '已同步' : (syncingWechat ? '同步中...' : '同步微信')}
+                              {kw.wechatSynced ? '已同步' : (syncingKeyword === kw.keyword ? '同步中...' : '同步微信')}
                             </button>
                           </>
                         )}
