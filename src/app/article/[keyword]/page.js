@@ -224,20 +224,33 @@ export default function ArticlePage() {
                     font-size: 18px;
                     font-weight: bold;
                     color: #333;
-                    margin: 18px 0 12px;
+                    margin: 28px 0 14px;
                     line-height: 1.5;
+                    padding-top: 10px;
+                    border-top: 1px solid #eee;
+                  }
+                  .article-content h2:first-child {
+                    margin-top: 0;
+                    padding-top: 0;
+                    border-top: none;
                   }
                   .article-content h3 {
                     font-size: 16px;
                     font-weight: bold;
                     color: #333;
-                    margin: 15px 0 10px;
+                    margin: 22px 0 12px;
                     line-height: 1.5;
                   }
                   .article-content p {
-                    margin: 12px 0;
-                    line-height: 1.8;
+                    margin: 18px 0;
+                    line-height: 1.9;
                     text-align: justify;
+                  }
+                  .article-content p:first-child {
+                    margin-top: 0;
+                  }
+                  .article-content p:last-child {
+                    margin-bottom: 0;
                   }
                   .article-content img {
                     max-width: 100%;
@@ -246,12 +259,12 @@ export default function ArticlePage() {
                     border-radius: 4px;
                   }
                   .article-content ul, .article-content ol {
-                    margin: 12px 0;
-                    padding-left: 25px;
+                    margin: 18px 0;
+                    padding-left: 28px;
                   }
                   .article-content li {
-                    margin: 6px 0;
-                    line-height: 1.7;
+                    margin: 8px 0;
+                    line-height: 1.8;
                   }
                   .article-content blockquote {
                     margin: 15px 0;
