@@ -126,6 +126,7 @@ ${competitorAnalysis}
 ### 开头（100字内）
 - 痛点切入、颠覆认知、或直接给结论
 - 让人想继续读下去
+- **重要：这段话将作为微信公众号摘要，务必控制在100字以内！**
 
 ### 正文（4-6个小节）
 - 每节聚焦一个点
@@ -189,7 +190,7 @@ export function extractMetadata(content, keyword) {
 
   return {
     title: titleMatch?.[1] || `${keyword} - 极客观察`,
-    description: firstParagraph?.[0]?.slice(0, 160) || `${keyword}专业解读`,
+    description: firstParagraph?.[0]?.slice(0, 120) || `${keyword}专业解读`,
     keyword,
     generatedAt: new Date().toISOString()
   }
