@@ -31,7 +31,7 @@ function getProxyAgent() {
 
 /**
  * 根据文章标题搜索封面图片
- * 优先级：文章内容图片 > Pexels > Unsplash > Wikipedia > 默认图
+ * 优先级：文章内容图片 > Wikipedia > Bing > Unsplash > Pexels > 默认图
  */
 async function searchCoverImage(article) {
   const { title, keyword, content } = article
@@ -51,30 +51,44 @@ async function searchCoverImage(article) {
 
     const searchQuery = keyword || title.replace(/[^\w\u4e00-\u9fa5]/g, ' ').trim().split(' ')[0]
 
-    // 2. 尝试 Pexels API
-    const pexelsKey = process.env.PEXELS_API_KEY
-    if (pexelsKey) {
-      try {
-        const searchUrl = `https://api.pexels.com/v1/search?query=${encodeURIComponent(searchQuery)}&per_page=3&orientation=landscape`
-        const response = await fetch(searchUrl, {
-          headers: { 'Authorization': pexelsKey }
-        })
-        if (response.ok) {
-          const data = await response.json()
-          if (data.photos && data.photos.length > 0) {
-            // 选一张合适的
-            const photo = data.photos[0]
-            const imgUrl = photo.src.large2x || photo.src.large || photo.src.medium
-            console.log('[Wechat Sync] Pexels 找到封面图:', imgUrl)
+    // 2. 尝试 Wikipedia 图片
+    try {
+      const wikiUrl = `https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(searchQuery)}&prop=pageimages&format=json&pithumbsize=800&origin=*`
+      const wikiResponse = await fetch(wikiUrl)
+      if (wikiResponse.ok) {
+        const wikiData = await wikiResponse.json()
+        const pages = wikiData.query?.pages
+        if (pages) {
+          const pageId = Object.keys(pages)[0]
+          if (pageId && pageId !== '-1' && pages[pageId].thumbnail) {
+            const imgUrl = pages[pageId].thumbnail.source
+            console.log('[Wechat Sync] Wikipedia 找到封面图:', imgUrl)
             return imgUrl
           }
         }
-      } catch (e) {
-        console.log('[Wechat Sync] Pexels 请求失败:', e.message)
       }
+    } catch (e) {
+      console.log('[Wechat Sync] Wikipedia 图片搜索失败:', e.message)
     }
 
-    // 3. 尝试 Unsplash API
+    // 3. 尝试 Bing 图片搜索（不需要 API key）
+    try {
+      const bingUrl = `https://www.bing.com/images/api/search?q=${encodeURIComponent(searchQuery + ' high quality')}&count=1&safeSearch=Strict`
+      const bingResponse = await fetch(bingUrl)
+      if (bingResponse.ok) {
+        const bingText = await bingResponse.text()
+        const m = bingText.match(/"murl":"([^"]+)"/)
+        if (m) {
+          const imgUrl = m[1].replace(/\\:/g, ':').replace(/\\/g, '/')
+          console.log('[Wechat Sync] Bing 找到封面图:', imgUrl)
+          return imgUrl
+        }
+      }
+    } catch (e) {
+      console.log('[Wechat Sync] Bing 图片搜索失败:', e.message)
+    }
+
+    // 4. 尝试 Unsplash API
     const unsplashKey = process.env.UNSPLASH_API_KEY
     if (unsplashKey) {
       try {
@@ -96,41 +110,26 @@ async function searchCoverImage(article) {
       }
     }
 
-    // 4. 尝试 Wikipedia 图片
-    try {
-      const wikiUrl = `https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(searchQuery)}&prop=pageimages&format=json&pithumbsize=800&origin=*`
-      const wikiResponse = await fetch(wikiUrl)
-      if (wikiResponse.ok) {
-        const wikiData = await wikiResponse.json()
-        const pages = wikiData.query?.pages
-        if (pages) {
-          const pageId = Object.keys(pages)[0]
-          if (pageId && pageId !== '-1' && pages[pageId].thumbnail) {
-            const imgUrl = pages[pageId].thumbnail.source
-            console.log('[Wechat Sync] Wikipedia 找到封面图:', imgUrl)
+    // 5. 尝试 Pexels API
+    const pexelsKey = process.env.PEXELS_API_KEY
+    if (pexelsKey) {
+      try {
+        const searchUrl = `https://api.pexels.com/v1/search?query=${encodeURIComponent(searchQuery)}&per_page=3&orientation=landscape`
+        const response = await fetch(searchUrl, {
+          headers: { 'Authorization': pexelsKey }
+        })
+        if (response.ok) {
+          const data = await response.json()
+          if (data.photos && data.photos.length > 0) {
+            const photo = data.photos[0]
+            const imgUrl = photo.src.large2x || photo.src.large || photo.src.medium
+            console.log('[Wechat Sync] Pexels 找到封面图:', imgUrl)
             return imgUrl
           }
         }
+      } catch (e) {
+        console.log('[Wechat Sync] Pexels 请求失败:', e.message)
       }
-    } catch (e) {
-      console.log('[Wechat Sync] Wikipedia 图片搜索失败:', e.message)
-    }
-
-    // 5. 尝试 Bing 图片搜索（不需要 API key）
-    try {
-      const bingUrl = `https://www.bing.com/images/api/search?q=${encodeURIComponent(searchQuery + ' high quality')}&count=1&safeSearch=Strict`
-      const bingResponse = await fetch(bingUrl)
-      if (bingResponse.ok) {
-        const bingText = await bingResponse.text()
-        const m = bingText.match(/"murl":"([^"]+)"/)
-        if (m) {
-          const imgUrl = m[1].replace(/\\:/g, ':').replace(/\\/g, '/')
-          console.log('[Wechat Sync] Bing 找到封面图:', imgUrl)
-          return imgUrl
-        }
-      }
-    } catch (e) {
-      console.log('[Wechat Sync] Bing 图片搜索失败:', e.message)
     }
 
     console.log('[Wechat Sync] 所有图片搜索都失败，使用默认图片')
