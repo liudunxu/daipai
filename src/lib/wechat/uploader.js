@@ -174,10 +174,43 @@ export async function uploadImage(imageUrl) {
     throw new Error(`图片上传失败: ${data.errmsg} (${data.errcode})`)
   }
 
+  // 永久素材图片需要通过 get_material 获取 CDN URL
+  let wechatUrl = data.url
+  if (!wechatUrl && data.media_id) {
+    try {
+      wechatUrl = await getPermanentImageUrl(data.media_id, accessToken)
+    } catch (e) {
+      console.error('[uploadImage] 获取永久素材URL失败:', e.message)
+    }
+  }
+
   return {
     media_id: data.media_id,
-    url: data.url
+    url: wechatUrl
   }
+}
+
+/**
+ * 获取永久素材的图片URL
+ */
+async function getPermanentImageUrl(mediaId, accessToken) {
+  const url = `https://api.weixin.qq.com/cgi-bin/material/get_material?access_token=${accessToken}`
+
+  const response = await fetchWithRetry(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ media_id: mediaId })
+  })
+
+  const data = await response.json()
+
+  if (data.errcode) {
+    throw new Error(`获取永久素材失败: ${data.errmsg} (${data.errcode})`)
+  }
+
+  // 返回的 data 可能是直接返回的图片二进制，或者包含 url
+  // 对于图片素材，微信返回的是二进制数据，需要特殊处理
+  return data.url || null
 }
 
 /**
