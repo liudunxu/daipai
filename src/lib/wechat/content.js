@@ -24,7 +24,7 @@ export function convertHtmlForWechat(content) {
   content = content.replace(/^---$/gm, '<hr/>')
 
   // 1. 先把 markdown 图片提取出来，避免 marked 解析时出问题
-  // 注意：占位符使用 <<>> 格式，避免被 marked 当作 markdown 语法处理
+  // 注意：占位符使用 {{}} 格式，避免被 marked 当作 HTML 标签解析（<< 会导致问题）
   // 支持格式: ![alt](url) ![alt](url "title") ![alt](url 'title')
   const imageMap = new Map()
   let imageCounter = 0
@@ -39,7 +39,7 @@ export function convertHtmlForWechat(content) {
       return ''
     }
 
-    const placeholder = `<<IMG_PLACEHOLDER_${imageCounter}>>`
+    const placeholder = `{{IMG_PLACEHOLDER_${imageCounter}}}`
     imageMap.set(placeholder, { alt, url })
     imageCounter++
     return placeholder
