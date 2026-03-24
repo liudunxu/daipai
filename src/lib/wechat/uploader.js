@@ -309,16 +309,39 @@ export function replaceImagesWithMediaId(htmlContent, imageResults) {
   for (const result of imageResults) {
     if (result.media_id && result.url) {
       const originalUrl = result.originalUrl
+      const wechatUrl = result.url
+
+      // 调试日志
+      console.log('[replaceImages] originalUrl:', originalUrl)
+      console.log('[replaceImages] wechatUrl:', wechatUrl)
+
       // 多种替换模式：src="url" src='url' src=value
+      const escapedUrl = escapeRegex(originalUrl)
+      console.log('[replaceImages] escapedUrl:', escapedUrl)
+
       const patterns = [
-        new RegExp(`src=["']${escapeRegex(originalUrl)}["']`, 'gi'),
-        new RegExp(`src=${escapeRegex(originalUrl)}`, 'gi')
+        new RegExp(`src=["']${escapedUrl}["']`, 'gi'),
+        new RegExp(`src=${escapedUrl}`, 'gi')
       ]
 
+      let replaced = false
       for (const pattern of patterns) {
+        console.log('[replaceImages] testing pattern:', pattern)
         if (pattern.test(content)) {
-          content = content.replace(pattern, `src="${result.url}"`)
+          content = content.replace(pattern, `src="${wechatUrl}"`)
+          console.log('[replaceImages] 替换成功!')
+          replaced = true
           break
+        }
+      }
+
+      if (!replaced) {
+        console.log('[replaceImages] 未找到匹配项，检查 HTML 中是否有该 URL...')
+        // 检查 HTML 中是否包含原始 URL
+        const urlIndex = content.indexOf(originalUrl)
+        console.log('[replaceImages] urlIndex:', urlIndex)
+        if (urlIndex >= 0) {
+          console.log('[replaceImages] 找到URL，上下文:', content.slice(urlIndex - 20, urlIndex + 80))
         }
       }
     }
