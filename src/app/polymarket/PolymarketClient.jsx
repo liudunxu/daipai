@@ -24,7 +24,7 @@ export default function PolymarketClient() {
       console.log('Polymarket API result:', JSON.stringify(result, null, 2).substring(0, 3000))
 
       if (result.success && result.data) {
-        // events API 返回 { events: [...] } 或直接是数组
+        // API 直接返回数组或 { events: [...] }
         let eventsData = []
         if (Array.isArray(result.data)) {
           eventsData = result.data
@@ -47,14 +47,34 @@ export default function PolymarketClient() {
     }
   }
 
-  // 解析概率 - events API 中 probability 可能是嵌套的
+  // 解析概率 - outcomes 和 outcomePrices 是字符串格式的 JSON
   function getOutcomesWithProb(market) {
-    const outcomes = market.outcomes || []
+    let outcomes = []
     let probabilities = []
 
-    // 尝试从多个可能的字段获取概率
-    if (market.probabilities && Array.isArray(market.probabilities)) {
-      probabilities = market.probabilities.map(p => (parseFloat(p) * 100).toFixed(1))
+    // 解析 outcomes（可能是字符串或数组）
+    if (typeof market.outcomes === 'string') {
+      try {
+        outcomes = JSON.parse(market.outcomes)
+      } catch (e) {
+        outcomes = []
+      }
+    } else if (Array.isArray(market.outcomes)) {
+      outcomes = market.outcomes
+    }
+
+    // 解析概率（可能是字符串或数组）
+    if (market.probabilities) {
+      if (typeof market.probabilities === 'string') {
+        try {
+          probabilities = JSON.parse(market.probabilities)
+        } catch (e) {
+          probabilities = []
+        }
+      } else if (Array.isArray(market.probabilities)) {
+        probabilities = market.probabilities
+      }
+      probabilities = probabilities.map(p => (parseFloat(p) * 100).toFixed(1))
     } else if (market.outcomePrices) {
       try {
         const prices = typeof market.outcomePrices === 'string'
