@@ -102,22 +102,22 @@ export default function PolymarketClient() {
 
   // 过滤事件
   const filteredEvents = events.filter(event => {
-    const question = (event.question || '').toLowerCase()
+    // 优先用 title，其次用 markets[0].question
+    const questionText = (event.title || event.markets?.[0]?.question || '').toLowerCase()
     if (activeTab === 'all') return true
     if (activeTab === 'crypto') {
-      return question.includes('bitcoin') || question.includes('crypto') ||
-             question.includes('eth') || question.includes('solana') ||
-             question.includes('trump') && question.includes('bitcoin')
+      return questionText.includes('bitcoin') || questionText.includes('crypto') ||
+             questionText.includes('eth') || questionText.includes('solana')
     }
     if (activeTab === 'politics') {
-      return question.includes('trump') || question.includes('biden') ||
-             question.includes('election') || question.includes('president') ||
-             question.includes('congress') || question.includes('senate')
+      return questionText.includes('trump') || questionText.includes('biden') ||
+             questionText.includes('election') || questionText.includes('president') ||
+             questionText.includes('congress') || questionText.includes('senate')
     }
     if (activeTab === 'tech') {
-      return question.includes('ai') || question.includes('apple') ||
-             question.includes('google') || question.includes('meta') ||
-             question.includes('microsoft') || question.includes('nvidia')
+      return questionText.includes('ai') || questionText.includes('apple') ||
+             questionText.includes('google') || questionText.includes('meta') ||
+             questionText.includes('microsoft') || questionText.includes('nvidia')
     }
     return true
   })
@@ -212,15 +212,15 @@ export default function PolymarketClient() {
                       key={event.id || index}
                       className="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10 hover:bg-white/15 transition-colors"
                     >
-                      {/* 问题标题 */}
+                      {/* 问题标题 - 优先用 title，否则用 markets[0].question */}
                       <h3 className="text-white font-bold text-lg mb-3 line-clamp-2">
-                        {event.question || '未知问题'}
+                        {event.title || event.markets?.[0]?.question || '未知问题'}
                       </h3>
 
                       {/* 描述 */}
                       {event.description && (
                         <p className="text-white/50 text-sm mb-3 line-clamp-2">
-                          {event.description}
+                          {event.description.substring(0, 200)}
                         </p>
                       )}
 
