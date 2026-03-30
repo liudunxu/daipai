@@ -2,23 +2,30 @@
 
 import { useState } from 'react'
 
-// metadata 需要放在 layout.js 中，这里只保留组件
+// 年龄选项 3-80岁
+const ageOptions = Array.from({ length: 78 }, (_, i) => i + 3)
+
+// 身高选项 100-220cm
+const heightOptions = Array.from({ length: 121 }, (_, i) => i + 100)
+
+// 体重选项 20-150kg（每0.5kg递增）
+const weightOptions = Array.from({ length: 261 }, (_, i) => (i * 0.5 + 20).toFixed(1))
+
 export default function BMIPage() {
-  const [height, setHeight] = useState('')
-  const [weight, setWeight] = useState('')
-  const [age, setAge] = useState('')
+  const [height, setHeight] = useState(null)
+  const [weight, setWeight] = useState(null)
+  const [age, setAge] = useState(18)
   const [gender, setGender] = useState('male')
   const [result, setResult] = useState(null)
+  const [showHeightPicker, setShowHeightPicker] = useState(false)
+  const [showWeightPicker, setShowWeightPicker] = useState(false)
 
   const calculateBMI = () => {
+    if (!height || !weight) return
+
     const h = parseFloat(height)
     const w = parseFloat(weight)
     const a = parseInt(age)
-
-    if (!h || !w || !a || h <= 0 || w <= 0 || a <= 0) {
-      setResult(null)
-      return
-    }
 
     // BMI = 体重(kg) / 身高(m)²
     const bmi = w / ((h / 100) ** 2)
@@ -29,9 +36,7 @@ export default function BMIPage() {
 
     // 儿童BMI判断标准（根据年龄）
     if (a < 18) {
-      // 儿童BMI参考标准（简化版）
       if (a >= 6 && a <= 18) {
-        // 6-18岁儿童BMI参考
         const boyThresholds = {
           6: { under: 14.2, normal: 14.2, over: 17.7, obese: 19.4 },
           7: { under: 14.0, normal: 14.0, over: 18.1, obese: 20.3 },
@@ -89,7 +94,6 @@ export default function BMIPage() {
           color = 'text-red-400'
         }
       } else {
-        // 6岁以下儿童
         if (bmi < 14) {
           category = '偏瘦'
           description = '婴幼儿期建议咨询儿科医生'
@@ -151,77 +155,131 @@ export default function BMIPage() {
           </p>
         </header>
 
-        {/* 输入表单 */}
+        {/* 选择表单 */}
         <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 mb-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* 年龄 */}
-            <div>
-              <label className="block text-white/70 text-sm mb-2">年龄（岁）</label>
-              <input
-                type="number"
-                value={age}
-                onChange={(e) => setAge(e.target.value)}
-                placeholder="请输入年龄"
-                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/30 focus:outline-none focus:border-cyan-400"
-              />
+          {/* 性别 */}
+          <div className="mb-6">
+            <label className="block text-white/70 text-sm mb-3">性别</label>
+            <div className="flex gap-3">
+              <button
+                onClick={() => { setGender('male'); setResult(null); }}
+                className={`flex-1 py-3 rounded-xl font-medium transition-all ${
+                  gender === 'male'
+                    ? 'bg-cyan-500 text-white'
+                    : 'bg-white/10 text-white/60 hover:bg-white/20'
+                }`}
+              >
+                👦 男
+              </button>
+              <button
+                onClick={() => { setGender('female'); setResult(null); }}
+                className={`flex-1 py-3 rounded-xl font-medium transition-all ${
+                  gender === 'female'
+                    ? 'bg-pink-500 text-white'
+                    : 'bg-white/10 text-white/60 hover:bg-white/20'
+                }`}
+              >
+                👧 女
+              </button>
             </div>
+          </div>
 
-            {/* 性别 */}
-            <div>
-              <label className="block text-white/70 text-sm mb-2">性别</label>
-              <div className="flex gap-2">
+          {/* 年龄 */}
+          <div className="mb-6">
+            <label className="block text-white/70 text-sm mb-3">年龄（岁）</label>
+            <div className="flex flex-wrap gap-2">
+              {ageOptions.slice(0, 24).map((a) => (
                 <button
-                  onClick={() => setGender('male')}
-                  className={`flex-1 py-3 rounded-xl font-medium transition-all ${
-                    gender === 'male'
+                  key={a}
+                  onClick={() => { setAge(a); setResult(null); }}
+                  className={`w-12 py-2 rounded-lg text-sm font-medium transition-all ${
+                    age === a
                       ? 'bg-cyan-500 text-white'
                       : 'bg-white/10 text-white/60 hover:bg-white/20'
                   }`}
                 >
-                  👦 男
+                  {a}
                 </button>
-                <button
-                  onClick={() => setGender('female')}
-                  className={`flex-1 py-3 rounded-xl font-medium transition-all ${
-                    gender === 'female'
-                      ? 'bg-pink-500 text-white'
-                      : 'bg-white/10 text-white/60 hover:bg-white/20'
-                  }`}
-                >
-                  👧 女
-                </button>
+              ))}
+              <button
+                onClick={() => setShowHeightPicker(!showHeightPicker)}
+                className="w-12 py-2 rounded-lg text-sm bg-white/10 text-white/60"
+              >
+                ...
+              </button>
+            </div>
+            {age >= 3 && age <= 26 && (
+              <div className="text-center mt-2">
+                <span className="text-cyan-300 text-sm">当前: {age}岁</span>
               </div>
-            </div>
+            )}
+          </div>
 
-            {/* 身高 */}
-            <div>
-              <label className="block text-white/70 text-sm mb-2">身高（cm）</label>
-              <input
-                type="number"
-                value={height}
-                onChange={(e) => setHeight(e.target.value)}
-                placeholder="请输入身高"
-                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/30 focus:outline-none focus:border-cyan-400"
-              />
-            </div>
+          {/* 身高 */}
+          <div className="mb-6">
+            <label className="block text-white/70 text-sm mb-3">身高（cm）</label>
+            <button
+              onClick={() => setShowHeightPicker(!showHeightPicker)}
+              className="w-full py-4 bg-white/10 border border-white/20 rounded-xl text-white text-lg font-medium hover:bg-white/20 transition-all"
+            >
+              {height ? `${height} cm` : '👉 点击选择身高'}
+            </button>
+            {showHeightPicker && (
+              <div className="mt-3 max-h-48 overflow-y-auto grid grid-cols-5 md:grid-cols-8 gap-2 p-2 bg-black/20 rounded-xl">
+                {heightOptions.map((h) => (
+                  <button
+                    key={h}
+                    onClick={() => { setHeight(h); setShowHeightPicker(false); setResult(null); }}
+                    className={`py-2 rounded-lg text-sm font-medium transition-all ${
+                      height === h
+                        ? 'bg-cyan-500 text-white'
+                        : 'bg-white/10 text-white/60 hover:bg-white/20'
+                    }`}
+                  >
+                    {h}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
 
-            {/* 体重 */}
-            <div>
-              <label className="block text-white/70 text-sm mb-2">体重（kg）</label>
-              <input
-                type="number"
-                value={weight}
-                onChange={(e) => setWeight(e.target.value)}
-                placeholder="请输入体重"
-                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/30 focus:outline-none focus:border-cyan-400"
-              />
-            </div>
+          {/* 体重 */}
+          <div className="mb-6">
+            <label className="block text-white/70 text-sm mb-3">体重（kg）</label>
+            <button
+              onClick={() => setShowWeightPicker(!showWeightPicker)}
+              className="w-full py-4 bg-white/10 border border-white/20 rounded-xl text-white text-lg font-medium hover:bg-white/20 transition-all"
+            >
+              {weight ? `${weight} kg` : '👉 点击选择体重'}
+            </button>
+            {showWeightPicker && (
+              <div className="mt-3 max-h-48 overflow-y-auto grid grid-cols-6 md:grid-cols-9 gap-2 p-2 bg-black/20 rounded-xl">
+                {weightOptions.map((w) => (
+                  <button
+                    key={w}
+                    onClick={() => { setWeight(w); setShowWeightPicker(false); setResult(null); }}
+                    className={`py-2 rounded-lg text-xs font-medium transition-all ${
+                      weight === w
+                        ? 'bg-cyan-500 text-white'
+                        : 'bg-white/10 text-white/60 hover:bg-white/20'
+                    }`}
+                  >
+                    {w}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* 计算按钮 */}
           <button
             onClick={calculateBMI}
-            className="w-full mt-6 py-4 bg-gradient-to-r from-cyan-500 to-teal-500 text-white font-bold rounded-xl hover:from-cyan-400 hover:to-teal-400 transition-all transform hover:scale-[1.02]"
+            disabled={!height || !weight}
+            className={`w-full py-4 text-white font-bold rounded-xl transition-all transform ${
+              height && weight
+                ? 'bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-400 hover:to-teal-400 hover:scale-[1.02]'
+                : 'bg-white/20 cursor-not-allowed'
+            }`}
           >
             计算BMI
           </button>
