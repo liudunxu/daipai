@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 // 中国儿童身高参考标准（cm）
 const heightStandards = {
@@ -58,7 +58,7 @@ export default function HeightCheckPage() {
   const [gender, setGender] = useState('male')
   const [age, setAge] = useState(7)
   const [height, setHeight] = useState(null)
-  const [showResult, setShowResult] = useState(false)
+  const [showModal, setShowModal] = useState(false)
 
   const currentStandard = heightStandards[gender][age]
   const heightOptions = generateHeightOptions(currentStandard.min, currentStandard.max)
@@ -70,18 +70,18 @@ export default function HeightCheckPage() {
     const p75 = min + range * 0.75
     const p90 = min + range * 0.9
 
-    if (h < min - 5) return { level: '极低', color: 'text-red-600', desc: '低于同龄人较多，建议就医检查' }
-    if (h < min) return { level: '偏矮', color: 'text-orange-500', desc: '略低于标准，建议关注营养' }
-    if (h < p25) return { level: '偏低', color: 'text-yellow-500', desc: '在正常偏低范围' }
-    if (h < p75) return { level: '正常', color: 'text-green-500', desc: '身高正常，保持良好生活习惯' }
-    if (h < p90) return { level: '偏高', color: 'text-cyan-500', desc: '高于同龄人平均水平' }
-    if (h <= max) return { level: '偏高', color: 'text-blue-500', desc: '高于大多数同龄人' }
-    return { level: '极高', color: 'text-purple-500', desc: '明显高于同龄人，注意发育情况' }
+    if (h < min - 5) return { level: '极低', color: 'bg-red-500', textColor: 'text-red-500', desc: '低于同龄人较多，建议就医检查' }
+    if (h < min) return { level: '偏矮', color: 'bg-orange-500', textColor: 'text-orange-500', desc: '略低于标准，建议关注营养' }
+    if (h < p25) return { level: '偏低', color: 'bg-yellow-500', textColor: 'text-yellow-500', desc: '在正常偏低范围' }
+    if (h < p75) return { level: '正常', color: 'bg-green-500', textColor: 'text-green-500', desc: '身高正常，保持良好生活习惯' }
+    if (h < p90) return { level: '偏高', color: 'bg-cyan-500', textColor: 'text-cyan-500', desc: '高于同龄人平均水平' }
+    if (h <= max) return { level: '偏高', color: 'bg-blue-500', textColor: 'text-blue-500', desc: '高于大多数同龄人' }
+    return { level: '极高', color: 'bg-purple-500', textColor: 'text-purple-500', desc: '明显高于同龄人，注意发育情况' }
   }
 
   const handleHeightSelect = (h) => {
     setHeight(h)
-    setShowResult(true)
+    setShowModal(true)
   }
 
   const result = height ? getLevel(height) : null
@@ -104,7 +104,7 @@ export default function HeightCheckPage() {
           <h3 className="text-white font-bold mb-4 text-center">👶 性别</h3>
           <div className="flex gap-4">
             <button
-              onClick={() => { setGender('male'); setHeight(null); setShowResult(false); }}
+              onClick={() => { setGender('male'); setHeight(null); }}
               className={`flex-1 py-4 rounded-xl font-bold text-lg transition-all ${
                 gender === 'male'
                   ? 'bg-blue-500 text-white'
@@ -114,7 +114,7 @@ export default function HeightCheckPage() {
               👦 男孩
             </button>
             <button
-              onClick={() => { setGender('female'); setHeight(null); setShowResult(false); }}
+              onClick={() => { setGender('female'); setHeight(null); }}
               className={`flex-1 py-4 rounded-xl font-bold text-lg transition-all ${
                 gender === 'female'
                   ? 'bg-pink-500 text-white'
@@ -133,7 +133,7 @@ export default function HeightCheckPage() {
             {ageOptions.map((a) => (
               <button
                 key={a}
-                onClick={() => { setAge(a); setHeight(null); setShowResult(false); }}
+                onClick={() => { setAge(a); setHeight(null); }}
                 className={`py-3 rounded-xl font-medium transition-all ${
                   age === a
                     ? 'bg-emerald-500 text-white'
@@ -179,58 +179,6 @@ export default function HeightCheckPage() {
           </div>
         </div>
 
-        {/* 评估结果 */}
-        {showResult && result && (
-          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 mb-4">
-            <div className="text-center">
-              <div className="text-white/60 text-sm mb-2">评估结果</div>
-              <div className={`text-4xl font-black ${result.color} mb-2`}>
-                {result.level}
-              </div>
-              <div className="text-white/80 text-lg mb-2">
-                身高 {height} cm
-              </div>
-              <div className="text-white/60 text-sm">
-                {result.desc}
-              </div>
-            </div>
-
-            {/* 身高进度条 */}
-            <div className="mt-6">
-              <div className="relative h-8 bg-white/10 rounded-full overflow-hidden">
-                {/* 刻度标记 */}
-                <div className="absolute top-0 left-1/4 w-0.5 h-full bg-white/20"></div>
-                <div className="absolute top-0 left-1/2 w-0.5 h-full bg-white/20"></div>
-                <div className="absolute top-0 left-3/4 w-0.5 h-full bg-white/20"></div>
-
-                {/* 当前位置 */}
-                <div
-                  className="absolute top-0 h-full bg-emerald-500 transition-all duration-500"
-                  style={{
-                    left: '0%',
-                    width: `${Math.min(100, Math.max(0, ((height - (currentStandard.min - 15)) / (currentStandard.max - currentStandard.min + 30)) * 100))}%`
-                  }}
-                ></div>
-
-                {/* 当前位置标记 */}
-                <div
-                  className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full border-2 border-emerald-500 shadow-lg"
-                  style={{
-                    left: `${Math.min(95, Math.max(5, ((height - (currentStandard.min - 15)) / (currentStandard.max - currentStandard.min + 30)) * 100))}%`
-                  }}
-                ></div>
-              </div>
-
-              {/* 刻度标签 */}
-              <div className="flex justify-between text-xs text-white/40 mt-1">
-                <span>偏矮</span>
-                <span>正常</span>
-                <span>偏高</span>
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* 说明 */}
         <div className="text-center text-white/40 text-sm mt-4">
           <p>数据参考中国九省/市儿童体格发育调查结果</p>
@@ -243,6 +191,71 @@ export default function HeightCheckPage() {
             ← 返回首页
           </a>
         </footer>
+
+        {/* 弹窗结果 */}
+        {showModal && result && (
+          <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
+            <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-6 w-full max-w-sm border border-white/20 shadow-2xl">
+              {/* 标题 */}
+              <div className="text-center mb-6">
+                <div className="text-white/60 text-sm">评估结果</div>
+                <div className={`text-4xl font-black mt-2 ${result.textColor}`}>
+                  {result.level}
+                </div>
+              </div>
+
+              {/* 信息 */}
+              <div className="text-center mb-6">
+                <div className="text-white/60 text-sm mb-1">当前身高</div>
+                <div className="text-3xl font-bold text-white">{height} cm</div>
+                <div className="text-white/40 text-sm mt-2">
+                  {age}岁{gender === 'male' ? '男孩' : '女孩'}标准：{currentStandard.min}-{currentStandard.max}cm
+                </div>
+              </div>
+
+              {/* 进度条 */}
+              <div className="mb-6">
+                <div className="relative h-6 bg-white/10 rounded-full overflow-hidden">
+                  <div className="absolute top-0 left-1/4 w-0.5 h-full bg-white/20"></div>
+                  <div className="absolute top-0 left-1/2 w-0.5 h-full bg-white/20"></div>
+                  <div className="absolute top-0 left-3/4 w-0.5 h-full bg-white/20"></div>
+                  <div
+                    className={`absolute top-0 h-full ${result.color} transition-all duration-500`}
+                    style={{
+                      left: '0%',
+                      width: `${Math.min(100, Math.max(0, ((height - (currentStandard.min - 15)) / (currentStandard.max - currentStandard.min + 30)) * 100))}%`
+                    }}
+                  ></div>
+                  <div
+                    className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full border-2 border-gray-400 shadow-lg"
+                    style={{
+                      left: `${Math.min(95, Math.max(5, ((height - (currentStandard.min - 15)) / (currentStandard.max - currentStandard.min + 30)) * 100))}%`
+                    }}
+                  ></div>
+                </div>
+                <div className="flex justify-between text-xs text-white/40 mt-1">
+                  <span>偏矮</span>
+                  <span>正常</span>
+                  <span>偏高</span>
+                </div>
+              </div>
+
+              {/* 建议 */}
+              <div className="bg-white/10 rounded-xl p-4 mb-6">
+                <div className="text-white/60 text-sm mb-1">建议</div>
+                <div className="text-white">{result.desc}</div>
+              </div>
+
+              {/* 关闭按钮 */}
+              <button
+                onClick={() => setShowModal(false)}
+                className="w-full py-3 bg-emerald-500 text-white font-bold rounded-xl hover:bg-emerald-400 transition-all"
+              >
+                知道了
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
