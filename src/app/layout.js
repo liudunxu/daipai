@@ -65,9 +65,9 @@ export const metadata = {
     },
   },
   verification: {
-    google: 'google-site-verification-code',
-    baidu: 'baidu-site-verification-code',
-    yandex: 'yandex-verification-code',
+    google: process.env.GOOGLE_SITE_VERIFICATION || '',
+    baidu: process.env.BAIDU_SITE_VERIFICATION || '',
+    yandex: process.env.YANDEX_SITE_VERIFICATION || '',
   },
 }
 
@@ -76,13 +76,19 @@ export default function RootLayout({ children }) {
     <html lang="zh-CN">
       <head>
         {/* 百度搜索资源平台验证 */}
-        <meta name="baidu-site-verification" content="codeva-XXXXXXXXXX" />
+        {process.env.BAIDU_SITE_VERIFICATION && (
+          <meta name="baidu-site-verification" content={process.env.BAIDU_SITE_VERIFICATION} />
+        )}
 
         {/* 360 站长平台验证 */}
-        <meta name="360-site-verification" content="XXXXXXXXXX" />
+        {process.env.Z360_SITE_VERIFICATION && (
+          <meta name="360-site-verification" content={process.env.Z360_SITE_VERIFICATION} />
+        )}
 
         {/* 搜狗站长平台验证 */}
-        <meta name="sogou_site_verification" content="XXXXXXXXXX" />
+        {process.env.SOGOU_SITE_VERIFICATION && (
+          <meta name="sogou_site_verification" content={process.env.SOGOU_SITE_VERIFICATION} />
+        )}
 
         {/* 结构化数据 */}
         <OrganizationSchema />
