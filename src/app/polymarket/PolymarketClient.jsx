@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 
 export default function PolymarketClient() {
-  const [markets, setMarkets] = useState([])
+  const [events, setEvents] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [lastUpdate, setLastUpdate] = useState(null)
@@ -21,22 +21,22 @@ export default function PolymarketClient() {
       const response = await fetch('/api/polymarket')
       const result = await response.json()
 
-      console.log('Polymarket API result:', JSON.stringify(result, null, 2).substring(0, 2000))
+      console.log('Polymarket API result:', JSON.stringify(result, null, 2).substring(0, 3000))
 
       if (result.success && result.data) {
-        // 提取 markets 数组 - 检查不同可能的格式
-        let marketsData = []
+        // events API 返回 { events: [...] } 或直接是数组
+        let eventsData = []
         if (Array.isArray(result.data)) {
-          marketsData = result.data
-        } else if (Array.isArray(result.data.markets)) {
-          marketsData = result.data.markets
-        } else if (Array.isArray(result.data.data)) {
-          marketsData = result.data.data
+          eventsData = result.data
+        } else if (result.data.events) {
+          eventsData = result.data.events
+        } else if (result.data.data) {
+          eventsData = result.data.data
         }
-        setMarkets(marketsData)
+        setEvents(eventsData)
         setLastUpdate(new Date(result.timestamp))
       } else {
-        setMarkets([])
+        setEvents([])
         setError('暂无数据')
       }
     } catch (err) {
@@ -47,45 +47,57 @@ export default function PolymarketClient() {
     }
   }
 
-  // 格式化概率显示
-  function formatProbability(market) {
-    if (!market.outcomes || market.outcomes.length < 2) return null
+  // 解析概率 - events API 中 probability 可能是嵌套的
+  function getOutcomesWithProb(market) {
+    const outcomes = market.outcomes || []
+    let probabilities = []
 
-    const outcomes = market.outcomes
-    const prices = market.outcomePrices ? JSON.parse(market.outcomePrices) : null
-
-    return outcomes.map((outcome, i) => {
-      const price = prices ? prices[i] : null
-      const probability = price ? (parseFloat(price) * 100).toFixed(1) : '—'
-      return { outcome, probability }
-    })
-  }
-
-  // 解析 YES 概率
-  function getYesProbability(market) {
-    try {
-      const prices = market.outcomePrices ? JSON.parse(market.outcomePrices) : null
-      if (prices && prices.length > 0) {
-        return (parseFloat(prices[0]) * 100).toFixed(1)
+    // 尝试从多个可能的字段获取概率
+    if (market.probabilities && Array.isArray(market.probabilities)) {
+      probabilities = market.probabilities.map(p => (parseFloat(p) * 100).toFixed(1))
+    } else if (market.outcomePrices) {
+      try {
+        const prices = typeof market.outcomePrices === 'string'
+          ? JSON.parse(market.outcomePrices)
+          : market.outcomePrices
+        probabilities = prices.map(p => (parseFloat(p) * 100).toFixed(1))
+      } catch (e) {
+        probabilities = []
       }
-    } catch (e) {}
-    return null
+    }
+
+    return outcomes.map((outcome, i) => ({
+      outcome,
+      probability: probabilities[i] || '—'
+    }))
   }
 
-  // 过滤市场
-  const filteredMarkets = markets.filter(market => {
+  // 判断 outcome 类型
+  function getOutcomeType(outcome) {
+    const lower = outcome.toLowerCase()
+    if (lower.includes('yes') || lower === 'yes' || lower === 'true') return 'yes'
+    if (lower.includes('no') || lower === 'no' || lower === 'false') return 'no'
+    return 'other'
+  }
+
+  // 过滤事件
+  const filteredEvents = events.filter(event => {
+    const question = (event.question || '').toLowerCase()
     if (activeTab === 'all') return true
     if (activeTab === 'crypto') {
-      const question = (market.question || '').toLowerCase()
-      return question.includes('bitcoin') || question.includes('crypto') || question.includes('eth')
+      return question.includes('bitcoin') || question.includes('crypto') ||
+             question.includes('eth') || question.includes('solana') ||
+             question.includes('trump') && question.includes('bitcoin')
     }
     if (activeTab === 'politics') {
-      const question = (market.question || '').toLowerCase()
-      return question.includes('trump') || question.includes('biden') || question.includes('election') || question.includes('president')
+      return question.includes('trump') || question.includes('biden') ||
+             question.includes('election') || question.includes('president') ||
+             question.includes('congress') || question.includes('senate')
     }
     if (activeTab === 'tech') {
-      const question = (market.question || '').toLowerCase()
-      return question.includes('ai') || question.includes('tech') || question.includes('google') || question.includes('meta')
+      return question.includes('ai') || question.includes('apple') ||
+             question.includes('google') || question.includes('meta') ||
+             question.includes('microsoft') || question.includes('nvidia')
     }
     return true
   })
@@ -163,91 +175,108 @@ export default function PolymarketClient() {
               ))}
             </div>
 
-            {/* 市场卡片 */}
-            {filteredMarkets.length === 0 ? (
+            {/* 事件卡片 */}
+            {filteredEvents.length === 0 ? (
               <div className="text-center py-20">
                 <div className="text-6xl mb-4">📭</div>
                 <p className="text-white/60">暂无市场数据</p>
               </div>
             ) : (
               <div className="grid gap-4">
-                {filteredMarkets.map((market, index) => {
-                  const yesProb = getYesProbability(market)
+                {filteredEvents.map((event, index) => {
+                  const markets = event.markets || []
+                  const primaryMarket = markets[0] || {}
 
                   return (
                     <div
-                      key={market.id || index}
+                      key={event.id || index}
                       className="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10 hover:bg-white/15 transition-colors"
                     >
                       {/* 问题标题 */}
                       <h3 className="text-white font-bold text-lg mb-3 line-clamp-2">
-                        {market.question || '未知问题'}
+                        {event.question || '未知问题'}
                       </h3>
 
-                      {/* 概率显示 */}
-                      <div className="flex flex-wrap gap-3 mb-3">
-                        {Array.isArray(market.outcomes) && market.outcomes.map((outcome, i) => {
-                          const prob = formatProbability(market)
-                          const probability = prob ? prob[i]?.probability : '—'
-                          const isYes = outcome.toLowerCase().includes('yes') || outcome === 'Yes'
-                          const isNo = outcome.toLowerCase().includes('no') || outcome === 'No'
+                      {/* 描述 */}
+                      {event.description && (
+                        <p className="text-white/50 text-sm mb-3 line-clamp-2">
+                          {event.description}
+                        </p>
+                      )}
 
-                          return (
-                            <div
-                              key={i}
-                              className={`px-4 py-2 rounded-xl ${
-                                isYes ? 'bg-green-500/30' : isNo ? 'bg-red-500/30' : 'bg-white/10'
-                              }`}
-                            >
-                              <span className="text-white/70 text-sm">{outcome}</span>
-                              <span className={`ml-2 font-bold ${
-                                isYes ? 'text-green-400' : isNo ? 'text-red-400' : 'text-white'
-                              }`}>
-                                {probability}%
-                              </span>
-                            </div>
-                          )
-                        })}
-                        {!Array.isArray(market.outcomes) && (
-                          <span className="text-white/50 text-sm">概率数据不可用</span>
-                        )}
-                      </div>
+                      {/* 概率显示 - 从第一个市场获取 */}
+                      {primaryMarket.outcomes && primaryMarket.outcomes.length > 0 ? (
+                        <div className="flex flex-wrap gap-3 mb-3">
+                          {getOutcomesWithProb(primaryMarket).map((item, i) => {
+                            const type = getOutcomeType(item.outcome)
+                            return (
+                              <div
+                                key={i}
+                                className={`px-4 py-2 rounded-xl ${
+                                  type === 'yes' ? 'bg-green-500/30' :
+                                  type === 'no' ? 'bg-red-500/30' : 'bg-white/10'
+                                }`}
+                              >
+                                <span className="text-white/70 text-sm">{item.outcome}</span>
+                                <span className={`ml-2 font-bold ${
+                                  type === 'yes' ? 'text-green-400' :
+                                  type === 'no' ? 'text-red-400' : 'text-white'
+                                }`}>
+                                  {item.probability !== '—' ? `${item.probability}%` : '—'}
+                                </span>
+                              </div>
+                            )
+                          })}
+                        </div>
+                      ) : (
+                        <p className="text-white/50 text-sm mb-3">暂无概率数据</p>
+                      )}
 
                       {/* 市场信息 */}
                       <div className="flex flex-wrap items-center gap-4 text-sm text-white/50">
-                        {market.volume && (
+                        {primaryMarket.volume && (
                           <span className="flex items-center gap-1">
-                            📊 交易量: ${(parseFloat(market.volume) / 1000000).toFixed(2)}M
+                            📊 交易量: ${(parseFloat(primaryMarket.volume) / 1000000).toFixed(2)}M
                           </span>
                         )}
-                        {market.liquidity && (
+                        {primaryMarket.liquidity && (
                           <span className="flex items-center gap-1">
-                            💧 流动性: ${(parseFloat(market.liquidity) / 1000000).toFixed(2)}M
+                            💧 流动性: ${(parseFloat(primaryMarket.liquidity) / 1000000).toFixed(2)}M
                           </span>
                         )}
-                        {market.endDate && (
+                        {event.endDate && (
                           <span className="flex items-center gap-1">
-                            📅 截止: {new Date(market.endDate).toLocaleDateString('zh-CN')}
+                            📅 截止: {new Date(event.endDate).toLocaleDateString('zh-CN')}
                           </span>
                         )}
-                        {market.isResolved !== undefined && (
+                        {event.closed !== undefined && (
                           <span className={`px-2 py-0.5 rounded text-xs ${
-                            market.isResolved ? 'bg-green-500/30 text-green-400' : 'bg-blue-500/30 text-blue-400'
+                            event.closed ? 'bg-green-500/30 text-green-400' : 'bg-blue-500/30 text-blue-400'
                           }`}>
-                            {market.isResolved ? '✅ 已结算' : '🔄 进行中'}
+                            {event.closed ? '✅ 已结束' : '🔄 进行中'}
                           </span>
                         )}
                       </div>
 
                       {/* 跳转链接 */}
-                      {market.url && (
+                      {event.url && (
                         <a
-                          href={market.url}
+                          href={event.url}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="inline-block mt-3 text-blue-400 hover:text-blue-300 text-sm"
                         >
                           查看详情 →
+                        </a>
+                      )}
+                      {!event.url && event.id && (
+                        <a
+                          href={`https://polymarket.com/event/${event.slug || event.id}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-block mt-3 text-blue-400 hover:text-blue-300 text-sm"
+                        >
+                          在 Polymarket 查看 →
                         </a>
                       )}
                     </div>
