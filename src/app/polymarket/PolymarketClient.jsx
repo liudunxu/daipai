@@ -63,28 +63,39 @@ export default function PolymarketClient() {
       outcomes = market.outcomes
     }
 
-    // 解析概率（可能是字符串或数组）
-    if (market.probabilities) {
-      if (typeof market.probabilities === 'string') {
-        try {
-          probabilities = JSON.parse(market.probabilities)
-        } catch (e) {
-          probabilities = []
-        }
-      } else if (Array.isArray(market.probabilities)) {
-        probabilities = market.probabilities
-      }
-      probabilities = probabilities.map(p => (parseFloat(p) * 100).toFixed(1))
-    } else if (market.outcomePrices) {
+    // 解析概率
+    // 优先使用 outcomePrices（已经在 0-1 范围）
+    if (market.outcomePrices) {
       try {
         const prices = typeof market.outcomePrices === 'string'
           ? JSON.parse(market.outcomePrices)
           : market.outcomePrices
+        // outcomePrices 是 0-1 的小数，转为百分比
         probabilities = prices.map(p => (parseFloat(p) * 100).toFixed(1))
       } catch (e) {
+        console.log('outcomePrices parse error:', e)
         probabilities = []
       }
     }
+
+    // 如果没有 outcomePrices，尝试 probabilities
+    if (probabilities.length === 0 && market.probabilities) {
+      try {
+        const probs = typeof market.probabilities === 'string'
+          ? JSON.parse(market.probabilities)
+          : market.probabilities
+        // probabilities 可能是百分比或小数
+        probabilities = probs.map(p => {
+          const val = parseFloat(p)
+          return val > 1 ? val.toFixed(1) : (val * 100).toFixed(1)
+        })
+      } catch (e) {
+        console.log('probabilities parse error:', e)
+        probabilities = []
+      }
+    }
+
+    console.log('Market outcomes:', outcomes, 'probabilities:', probabilities, 'raw outcomePrices:', market.outcomePrices)
 
     return outcomes.map((outcome, i) => ({
       outcome,
