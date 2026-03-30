@@ -64,16 +64,13 @@ export default function PolymarketClient() {
     }
 
     // 解析概率
-    // 优先使用 outcomePrices（已经在 0-1 范围）
     if (market.outcomePrices) {
       try {
         const prices = typeof market.outcomePrices === 'string'
           ? JSON.parse(market.outcomePrices)
           : market.outcomePrices
-        // outcomePrices 是 0-1 的小数，转为百分比
         probabilities = prices.map(p => (parseFloat(p) * 100).toFixed(1))
       } catch (e) {
-        console.log('outcomePrices parse error:', e)
         probabilities = []
       }
     }
@@ -84,18 +81,14 @@ export default function PolymarketClient() {
         const probs = typeof market.probabilities === 'string'
           ? JSON.parse(market.probabilities)
           : market.probabilities
-        // probabilities 可能是百分比或小数
         probabilities = probs.map(p => {
           const val = parseFloat(p)
           return val > 1 ? val.toFixed(1) : (val * 100).toFixed(1)
         })
       } catch (e) {
-        console.log('probabilities parse error:', e)
         probabilities = []
       }
     }
-
-    console.log('Market outcomes:', outcomes, 'probabilities:', probabilities, 'raw outcomePrices:', market.outcomePrices)
 
     return outcomes.map((outcome, i) => ({
       outcome,
@@ -235,11 +228,14 @@ export default function PolymarketClient() {
                         </p>
                       )}
 
-                      {/* 概率显示 - 从第一个市场获取 */}
+                      {/* 概率显示 - 根据市场状态显示不同内容 */}
                       {primaryMarket.outcomes && primaryMarket.outcomes.length > 0 ? (
                         <div className="flex flex-wrap gap-3 mb-3">
                           {getOutcomesWithProb(primaryMarket).map((item, i) => {
                             const type = getOutcomeType(item.outcome)
+                            const prob = item.probability !== '—' ? `${item.probability}%` : '—'
+                            const isResolved = primaryMarket.closed
+
                             return (
                               <div
                                 key={i}
@@ -253,7 +249,7 @@ export default function PolymarketClient() {
                                   type === 'yes' ? 'text-green-400' :
                                   type === 'no' ? 'text-red-400' : 'text-white'
                                 }`}>
-                                  {item.probability !== '—' ? `${item.probability}%` : '—'}
+                                  {isResolved ? `结算 ${prob}` : prob}
                                 </span>
                               </div>
                             )
@@ -280,11 +276,11 @@ export default function PolymarketClient() {
                             📅 截止: {new Date(event.endDate).toLocaleDateString('zh-CN')}
                           </span>
                         )}
-                        {event.closed !== undefined && (
+                        {primaryMarket.closed !== undefined && (
                           <span className={`px-2 py-0.5 rounded text-xs ${
-                            event.closed ? 'bg-green-500/30 text-green-400' : 'bg-blue-500/30 text-blue-400'
+                            primaryMarket.closed ? 'bg-green-500/30 text-green-400' : 'bg-blue-500/30 text-blue-400'
                           }`}>
-                            {event.closed ? '✅ 已结束' : '🔄 进行中'}
+                            {primaryMarket.closed ? '✅ 已结算' : '🔄 进行中'}
                           </span>
                         )}
                       </div>
