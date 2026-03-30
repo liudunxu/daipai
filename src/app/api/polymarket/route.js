@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server'
 export const dynamic = 'force-dynamic'
 export const revalidate = 300 // 5分钟缓存
 
-const POLYMARKET_API = 'https://gamma.polymarket.com'
+const POLYMARKET_API = 'https://gamma-api.polymarket.com'
 
 // 获取市场列表
 async function fetchMarkets() {
