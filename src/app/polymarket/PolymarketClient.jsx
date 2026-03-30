@@ -21,9 +21,18 @@ export default function PolymarketClient() {
       const response = await fetch('/api/polymarket')
       const result = await response.json()
 
+      console.log('Polymarket API result:', JSON.stringify(result, null, 2).substring(0, 2000))
+
       if (result.success && result.data) {
-        // 提取 markets 数组
-        const marketsData = result.data.markets || result.data || []
+        // 提取 markets 数组 - 检查不同可能的格式
+        let marketsData = []
+        if (Array.isArray(result.data)) {
+          marketsData = result.data
+        } else if (Array.isArray(result.data.markets)) {
+          marketsData = result.data.markets
+        } else if (Array.isArray(result.data.data)) {
+          marketsData = result.data.data
+        }
         setMarkets(marketsData)
         setLastUpdate(new Date(result.timestamp))
       } else {
@@ -177,7 +186,7 @@ export default function PolymarketClient() {
 
                       {/* 概率显示 */}
                       <div className="flex flex-wrap gap-3 mb-3">
-                        {market.outcomes && market.outcomes.map((outcome, i) => {
+                        {Array.isArray(market.outcomes) && market.outcomes.map((outcome, i) => {
                           const prob = formatProbability(market)
                           const probability = prob ? prob[i]?.probability : '—'
                           const isYes = outcome.toLowerCase().includes('yes') || outcome === 'Yes'
@@ -199,6 +208,9 @@ export default function PolymarketClient() {
                             </div>
                           )
                         })}
+                        {!Array.isArray(market.outcomes) && (
+                          <span className="text-white/50 text-sm">概率数据不可用</span>
+                        )}
                       </div>
 
                       {/* 市场信息 */}
