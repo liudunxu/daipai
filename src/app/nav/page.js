@@ -93,6 +93,7 @@ const navGroups = [
       { name: '开发工具', url: '/tool', desc: 'JSON/时间戳/Base64/MD5' },
       { name: '密码生成', url: '/tool/password', desc: '安全强密码生成' },
       { name: 'BMI计算', url: '/tool/bmi', desc: '身体质量指数计算' },
+      { name: '身高评估', url: '/tool/height', desc: '儿童身高发育评估' },
       { name: '运势测算', url: '/tool/lucky', desc: '2026年运势测算' },
       { name: '火星文', url: '/tool/huoxing', desc: '火星文转换器' },
       { name: 'SEO文章', url: '/seo', desc: 'SEO文章自动生成' },
