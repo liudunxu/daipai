@@ -7,24 +7,22 @@ export default function PolymarketClient() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [lastUpdate, setLastUpdate] = useState(null)
+  const [sortBy, setSortBy] = useState('trending')
   const [activeTab, setActiveTab] = useState('all')
 
   useEffect(() => {
     fetchMarkets()
-  }, [])
+  }, [sortBy])
 
   async function fetchMarkets() {
     try {
       setLoading(true)
       setError(null)
 
-      const response = await fetch('/api/polymarket')
+      const response = await fetch(`/api/polymarket?type=${sortBy}`)
       const result = await response.json()
 
-      console.log('Polymarket API result:', JSON.stringify(result, null, 2).substring(0, 3000))
-
       if (result.success && result.data) {
-        // API 直接返回数组或 { events: [...] }
         let eventsData = []
         if (Array.isArray(result.data)) {
           eventsData = result.data
@@ -47,12 +45,11 @@ export default function PolymarketClient() {
     }
   }
 
-  // 解析概率 - outcomes 和 outcomePrices 是字符串格式的 JSON
+  // 解析概率
   function getOutcomesWithProb(market) {
     let outcomes = []
     let probabilities = []
 
-    // 解析 outcomes（可能是字符串或数组）
     if (typeof market.outcomes === 'string') {
       try {
         outcomes = JSON.parse(market.outcomes)
@@ -63,7 +60,6 @@ export default function PolymarketClient() {
       outcomes = market.outcomes
     }
 
-    // 解析概率
     if (market.outcomePrices) {
       try {
         const prices = typeof market.outcomePrices === 'string'
@@ -75,7 +71,6 @@ export default function PolymarketClient() {
       }
     }
 
-    // 如果没有 outcomePrices，尝试 probabilities
     if (probabilities.length === 0 && market.probabilities) {
       try {
         const probs = typeof market.probabilities === 'string'
@@ -96,7 +91,6 @@ export default function PolymarketClient() {
     }))
   }
 
-  // 判断 outcome 类型
   function getOutcomeType(outcome) {
     const lower = outcome.toLowerCase()
     if (lower.includes('yes') || lower === 'yes' || lower === 'true') return 'yes'
@@ -106,22 +100,32 @@ export default function PolymarketClient() {
 
   // 过滤事件
   const filteredEvents = events.filter(event => {
-    // 优先用 title，其次用 markets[0].question
     const questionText = (event.title || event.markets?.[0]?.question || '').toLowerCase()
+    const tickerText = (event.ticker || '').toLowerCase()
+
     if (activeTab === 'all') return true
     if (activeTab === 'crypto') {
       return questionText.includes('bitcoin') || questionText.includes('crypto') ||
-             questionText.includes('eth') || questionText.includes('solana')
+             questionText.includes('eth') || questionText.includes('solana') ||
+             tickerText.includes('bitcoin') || tickerText.includes('crypto')
     }
     if (activeTab === 'politics') {
       return questionText.includes('trump') || questionText.includes('biden') ||
              questionText.includes('election') || questionText.includes('president') ||
-             questionText.includes('congress') || questionText.includes('senate')
+             questionText.includes('congress') || questionText.includes('senate') ||
+             questionText.includes('ukraine') || questionText.includes('russia') ||
+             questionText.includes('china')
     }
     if (activeTab === 'tech') {
       return questionText.includes('ai') || questionText.includes('apple') ||
              questionText.includes('google') || questionText.includes('meta') ||
-             questionText.includes('microsoft') || questionText.includes('nvidia')
+             questionText.includes('microsoft') || questionText.includes('nvidia') ||
+             questionText.includes('tesla') || questionText.includes('openai')
+    }
+    if (activeTab === 'sports') {
+      return questionText.includes('nba') || questionText.includes('nfl') ||
+             questionText.includes('mlb') || questionText.includes('soccer') ||
+             questionText.includes('football') || questionText.includes('world cup')
     }
     return true
   })
@@ -177,29 +181,80 @@ export default function PolymarketClient() {
         {/* 市场列表 */}
         {!loading && !error && (
           <>
-            {/* 分类标签 */}
-            <div className="flex flex-wrap justify-center gap-2 mb-8">
-              {[
-                { key: 'all', label: '全部', emoji: '📊' },
-                { key: 'crypto', label: '加密货币', emoji: '₿' },
-                { key: 'politics', label: '政治', emoji: '🏛️' },
-                { key: 'tech', label: '科技', emoji: '💻' },
-              ].map(tab => (
-                <button
-                  key={tab.key}
-                  onClick={() => setActiveTab(tab.key)}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                    activeTab === tab.key
-                      ? 'bg-blue-500 text-white'
-                      : 'bg-white/10 text-white/60 hover:bg-white/20'
-                  }`}
-                >
-                  {tab.emoji} {tab.label}
-                </button>
-              ))}
+            {/* 排序和分类标签 */}
+            <div className="flex flex-col gap-4 mb-8">
+              {/* 排序选项 */}
+              <div className="flex flex-wrap justify-center gap-2">
+                <span className="text-white/50 text-sm py-2">排序：</span>
+                {[
+                  { key: 'trending', label: '🔥 热门', emoji: '🔥' },
+                  { key: 'latest', label: '🕐 最新', emoji: '🕐' },
+                ].map(tab => (
+                  <button
+                    key={tab.key}
+                    onClick={() => setSortBy(tab.key)}
+                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                      sortBy === tab.key
+                        ? 'bg-blue-500 text-white'
+                        : 'bg-white/10 text-white/60 hover:bg-white/20'
+                    }`}
+                  >
+                    {tab.emoji} {tab.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* 分类筛选 */}
+              <div className="flex flex-wrap justify-center gap-2">
+                {[
+                  { key: 'all', label: '全部', emoji: '📊' },
+                  { key: 'crypto', label: '加密', emoji: '₿' },
+                  { key: 'politics', label: '政治', emoji: '🏛️' },
+                  { key: 'tech', label: '科技', emoji: '💻' },
+                  { key: 'sports', label: '体育', emoji: '⚽' },
+                ].map(tab => (
+                  <button
+                    key={tab.key}
+                    onClick={() => setActiveTab(tab.key)}
+                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                      activeTab === tab.key
+                        ? 'bg-purple-500 text-white'
+                        : 'bg-white/5 text-white/50 hover:bg-white/10'
+                    }`}
+                  >
+                    {tab.emoji} {tab.label}
+                  </button>
+                ))}
+              </div>
             </div>
 
-            {/* 事件卡片 */}
+            {/* 统计概览 */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+              <div className="bg-white/10 rounded-xl p-4 text-center">
+                <div className="text-2xl font-bold text-white">{filteredEvents.length}</div>
+                <div className="text-white/50 text-xs">市场数量</div>
+              </div>
+              <div className="bg-white/10 rounded-xl p-4 text-center">
+                <div className="text-2xl font-bold text-green-400">
+                  {filteredEvents.filter(e => !e.closed).length}
+                </div>
+                <div className="text-white/50 text-xs">进行中</div>
+              </div>
+              <div className="bg-white/10 rounded-xl p-4 text-center">
+                <div className="text-2xl font-bold text-orange-400">
+                  {filteredEvents.filter(e => e.volume24hr > 0).length}
+                </div>
+                <div className="text-white/50 text-xs">24h活跃</div>
+              </div>
+              <div className="bg-white/10 rounded-xl p-4 text-center">
+                <div className="text-2xl font-bold text-blue-400">
+                  ${(filteredEvents.reduce((sum, e) => sum + (e.volume24hr || 0), 0) / 1000000).toFixed(1)}M
+                </div>
+                <div className="text-white/50 text-xs">24h交易量</div>
+              </div>
+            </div>
+
+            {/* 事件卡片列表 */}
             {filteredEvents.length === 0 ? (
               <div className="text-center py-20">
                 <div className="text-6xl mb-4">📭</div>
@@ -210,28 +265,36 @@ export default function PolymarketClient() {
                 {filteredEvents.map((event, index) => {
                   const markets = event.markets || []
                   const primaryMarket = markets[0] || {}
+                  const outcomesWithProb = getOutcomesWithProb(primaryMarket)
 
                   return (
                     <div
                       key={event.id || index}
                       className="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10 hover:bg-white/15 transition-colors"
                     >
-                      {/* 问题标题 - 优先用 title，否则用 markets[0].question */}
-                      <h3 className="text-white font-bold text-lg mb-3 line-clamp-2">
-                        {event.title || event.markets?.[0]?.question || '未知问题'}
-                      </h3>
+                      {/* 标题行 */}
+                      <div className="flex items-start justify-between gap-3 mb-3">
+                        <h3 className="text-white font-bold text-lg line-clamp-2 flex-1">
+                          {event.title || primaryMarket.question || '未知问题'}
+                        </h3>
+                        {event.featured && (
+                          <span className="px-2 py-0.5 bg-yellow-500/30 text-yellow-400 text-xs rounded shrink-0">
+                            ⭐ 精选
+                          </span>
+                        )}
+                      </div>
 
                       {/* 描述 */}
                       {event.description && (
-                        <p className="text-white/50 text-sm mb-3 line-clamp-2">
-                          {event.description.substring(0, 200)}
+                        <p className="text-white/40 text-sm mb-3 line-clamp-2">
+                          {event.description.substring(0, 150)}
                         </p>
                       )}
 
-                      {/* 概率显示 - 根据市场状态显示不同内容 */}
-                      {primaryMarket.outcomes && primaryMarket.outcomes.length > 0 ? (
-                        <div className="flex flex-wrap gap-3 mb-3">
-                          {getOutcomesWithProb(primaryMarket).map((item, i) => {
+                      {/* 概率显示 */}
+                      {outcomesWithProb.length > 0 ? (
+                        <div className="flex flex-wrap gap-2 mb-3">
+                          {outcomesWithProb.map((item, i) => {
                             const type = getOutcomeType(item.outcome)
                             const prob = item.probability !== '—' ? `${item.probability}%` : '—'
                             const isResolved = primaryMarket.closed
@@ -239,73 +302,82 @@ export default function PolymarketClient() {
                             return (
                               <div
                                 key={i}
-                                className={`px-4 py-2 rounded-xl ${
-                                  type === 'yes' ? 'bg-green-500/30' :
-                                  type === 'no' ? 'bg-red-500/30' : 'bg-white/10'
+                                className={`px-3 py-1.5 rounded-lg flex items-center gap-2 ${
+                                  type === 'yes' ? 'bg-green-500/20 border border-green-500/30' :
+                                  type === 'no' ? 'bg-red-500/20 border border-red-500/30' : 'bg-white/10'
                                 }`}
                               >
-                                <span className="text-white/70 text-sm">{item.outcome}</span>
-                                <span className={`ml-2 font-bold ${
+                                <span className={`text-sm font-medium ${
                                   type === 'yes' ? 'text-green-400' :
-                                  type === 'no' ? 'text-red-400' : 'text-white'
+                                  type === 'no' ? 'text-red-400' : 'text-white/70'
                                 }`}>
-                                  {isResolved ? `结算 ${prob}` : prob}
+                                  {prob}
                                 </span>
+                                <span className="text-white/60 text-xs">{item.outcome}</span>
+                                {isResolved && (
+                                  <span className="text-[10px] text-white/40">结算</span>
+                                )}
                               </div>
                             )
                           })}
                         </div>
                       ) : (
-                        <p className="text-white/50 text-sm mb-3">暂无概率数据</p>
+                        <p className="text-white/30 text-xs mb-3">暂无概率数据</p>
                       )}
 
-                      {/* 市场信息 */}
-                      <div className="flex flex-wrap items-center gap-4 text-sm text-white/50">
-                        {primaryMarket.volume && (
-                          <span className="flex items-center gap-1">
-                            📊 交易量: ${(parseFloat(primaryMarket.volume) / 1000000).toFixed(2)}M
-                          </span>
-                        )}
-                        {primaryMarket.liquidity && (
-                          <span className="flex items-center gap-1">
-                            💧 流动性: ${(parseFloat(primaryMarket.liquidity) / 1000000).toFixed(2)}M
-                          </span>
-                        )}
-                        {event.endDate && (
-                          <span className="flex items-center gap-1">
-                            📅 截止: {new Date(event.endDate).toLocaleDateString('zh-CN')}
-                          </span>
-                        )}
-                        {primaryMarket.closed !== undefined && (
-                          <span className={`px-2 py-0.5 rounded text-xs ${
-                            primaryMarket.closed ? 'bg-green-500/30 text-green-400' : 'bg-blue-500/30 text-blue-400'
-                          }`}>
-                            {primaryMarket.closed ? '✅ 已结算' : '🔄 进行中'}
-                          </span>
-                        )}
+                      {/* 市场信息网格 */}
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+                        <div className="bg-white/5 rounded-lg p-2">
+                          <div className="text-white/40">24h交易量</div>
+                          <div className="text-orange-400 font-medium">
+                            {event.volume24hr > 0 ? `$${(event.volume24hr / 1000).toFixed(1)}K` : '—'}
+                          </div>
+                        </div>
+                        <div className="bg-white/5 rounded-lg p-2">
+                          <div className="text-white/40">总交易量</div>
+                          <div className="text-white font-medium">
+                            {event.volume > 0 ? `$${(event.volume / 1000000).toFixed(2)}M` : '—'}
+                          </div>
+                        </div>
+                        <div className="bg-white/5 rounded-lg p-2">
+                          <div className="text-white/40">流动性</div>
+                          <div className="text-cyan-400 font-medium">
+                            {event.liquidity > 0 ? `$${(event.liquidity / 1000).toFixed(1)}K` : '—'}
+                          </div>
+                        </div>
+                        <div className="bg-white/5 rounded-lg p-2">
+                          <div className="text-white/40">截止日期</div>
+                          <div className="text-white/70 font-medium">
+                            {event.endDate ? new Date(event.endDate).toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' }) : '—'}
+                          </div>
+                        </div>
                       </div>
 
-                      {/* 跳转链接 */}
-                      {event.url && (
-                        <a
-                          href={event.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-block mt-3 text-blue-400 hover:text-blue-300 text-sm"
-                        >
-                          查看详情 →
-                        </a>
-                      )}
-                      {!event.url && event.id && (
+                      {/* 状态和链接 */}
+                      <div className="flex items-center justify-between mt-3 pt-3 border-t border-white/5">
+                        <div className="flex items-center gap-2">
+                          {primaryMarket.closed !== undefined && (
+                            <span className={`px-2 py-0.5 rounded text-xs ${
+                              primaryMarket.closed ? 'bg-green-500/20 text-green-400' : 'bg-blue-500/20 text-blue-400'
+                            }`}>
+                              {primaryMarket.closed ? '✅ 已结算' : '🔄 进行中'}
+                            </span>
+                          )}
+                          {event.commentCount > 0 && (
+                            <span className="text-white/30 text-xs">
+                              💬 {event.commentCount}
+                            </span>
+                          )}
+                        </div>
                         <a
                           href={`https://polymarket.com/event/${event.slug || event.id}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-block mt-3 text-blue-400 hover:text-blue-300 text-sm"
+                          className="text-blue-400 hover:text-blue-300 text-xs"
                         >
                           在 Polymarket 查看 →
                         </a>
-                      )}
+                      </div>
                     </div>
                   )
                 })}
