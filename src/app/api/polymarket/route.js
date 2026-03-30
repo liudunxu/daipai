@@ -5,11 +5,11 @@ export const revalidate = 60 // 1分钟缓存
 
 const POLYMARKET_API = 'https://gamma-api.polymarket.com'
 
-// 获取热门事件（按24小时交易量排序）
+// 获取热门事件（按交易量排序）
 async function fetchTrendingEvents() {
   try {
     const response = await fetch(
-      `${POLYMARKET_API}/events?active=true&closed=false&order=volume_24hr&ascending=false&limit=50`,
+      `${POLYMARKET_API}/events?active=true&closed=false&order=volume&ascending=false&limit=50`,
       {
         headers: { 'Accept': 'application/json' },
         next: { revalidate: 60 }
@@ -27,7 +27,7 @@ async function fetchTrendingEvents() {
 async function fetchLatestEvents() {
   try {
     const response = await fetch(
-      `${POLYMARKET_API}/events?active=true&closed=false&order=start_date&ascending=false&limit=50`,
+      `${POLYMARKET_API}/events?active=true&closed=false&order=end_date&ascending=true&limit=50`,
       {
         headers: { 'Accept': 'application/json' },
         next: { revalidate: 60 }
