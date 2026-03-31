@@ -5,6 +5,7 @@ import ShareButtons from '../components/ShareButtons'
 import FAQSchema, { homePageFAQs } from '../components/FAQSchema'
 import { CollectionPageSchema, PageContentSummary } from '../components/RAGTools'
 import { popularTools } from '../lib/constants'
+import { supabase } from '../lib/supabase'
 
 // 标签颜色映射
 const tagColors = {
@@ -59,6 +60,21 @@ export default function Home() {
       }
     }
     fetchNews()
+
+    // 随机延迟 1-5 秒后 ping supabase，防止因长期不活跃而 pause
+    const randomDelay = Math.random() * 4000 + 1000
+    const timer = setTimeout(async () => {
+      try {
+        // 执行一个简单的查询来保持 supabase 活跃
+        const { supabase: sb } = await import('../lib/supabase')
+        await sb.from('supporters').select('id').limit(1)
+        console.log('[Supabase] Ping successful')
+      } catch (e) {
+        // 静默失败，不影响用户体验
+      }
+    }, randomDelay)
+
+    return () => clearTimeout(timer)
   }, [])
 
   return (
