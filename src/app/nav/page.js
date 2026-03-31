@@ -91,6 +91,8 @@ const navGroups = [
       { name: '姓名大全', url: '/names', desc: '100个常用人名' },
       { name: '开发工具', url: '/tool', desc: 'JSON/时间戳/Base64/MD5' },
       { name: '密码生成', url: '/tool/password', desc: '安全强密码生成' },
+      { name: '单位换算', url: '/tool/unit', desc: '长度/重量/温度/面积转换' },
+      { name: '倒数日', url: '/tool/countdown', desc: '重要日子倒计时' },
       { name: 'BMI计算', url: '/tool/bmi', desc: '身体质量指数计算' },
       { name: '身高评估', url: '/tool/height', desc: '儿童身高发育评估' },
       { name: '睡眠推荐', url: '/tool/sleep', desc: '各年龄段睡眠时长' },
