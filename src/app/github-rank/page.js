@@ -1,7 +1,23 @@
-'use client'
-
-import { useState, useEffect } from 'react'
 import Link from 'next/link'
+
+export const metadata = {
+  title: 'GitHub每周热门项目 - 追踪开源项目趋势',
+  description: '追踪GitHub每周最受欢迎的开源项目，查看bytedance/deer-flow、Claude编程学习等热门项目的star数量和增长趋势。数据来源于OpenGithubs.github-weekly-rank。',
+  keywords: ['GitHub热门', '开源项目', 'GitHub Trending', 'deer-flow', 'Claude', 'AI项目', '开源软件'],
+  openGraph: {
+    type: 'website',
+    locale: 'zh_CN',
+    url: 'https://www.zkwatcher.top/github-rank',
+    siteName: '极客观察',
+    title: 'GitHub每周热门项目 Top 20',
+    description: '追踪GitHub每周最受欢迎的开源项目，包含AI、编程工具、Agent框架等热门项目排行。',
+  },
+  twitter: {
+    card: 'summary',
+    title: 'GitHub每周热门项目 Top 20',
+    description: 'GitHub开源项目周榜，了解本周最火爆的开源项目。',
+  },
+}
 
 // 写死的最新数据 (2026.03.24-2026.03.29)
 const RANKING_DATA = {
@@ -63,7 +79,7 @@ const RANKING_DATA = {
 }
 
 export default function GitHubRankPage() {
-  const [data] = useState(RANKING_DATA)
+  const data = RANKING_DATA
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4 md:p-8">
