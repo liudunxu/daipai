@@ -22,64 +22,51 @@ const minimax = new OpenAI({
 
 const MINIMAX_MODEL = 'LongCat-Flash-Chat'
 
-// 需要过滤的关键词（不符合中国国内规范的内容）
-const BLOCKED_KEYWORDS = [
-  'taiwan', 'tibet', 'xinjiang', 'hong kong', 'hk',
-  'falun', 'falun gong', 'tiananmen', '1989',
-  'uighur', 'uyghur', 'dalai', 'zhonggong',
-  'tiananmen square', 'massacre', 'jiang zemin',
-  'zheng zhi', 'political prisoner', 'dissident',
-  'protest china', 'human rights china', 'trump',
-]
+// 使用大模型检查和优化标题
+async function processEventWithLLM(event) {
+  const originalTitle = event.title || event.question || ''
+  const originalDescription = event.description || ''
 
-// 需要过滤的分类
-const BLOCKED_TAGS = ['2'] // Politics
+  // 如果标题已经比较短且无敏感内容，先简单检查
+  if (originalTitle.length <= 40) {
+    // 检查是否有明显的敏感词
+    const sensitivePatterns = [
+      /台湾|台独|台湾省|台海|两岸|统一|独立|分裂|政权更迭|六四|天安门事件|文革|三年困难|三年饥荒/,
+      /新疆|西藏|内蒙古|香港|澳门|一国两制|五十年不变/,
+      /法轮功|全能神|呼喊派|门徒会/,
+      /美国大选|特朗普|拜登|哈里斯|共和党|民主党|美国选举/,
+      /习近|胡锦涛|江泽民|温家宝|朱镕基|李克强/,
+      /抗议|示威|游行|罢工|暴动|叛乱|起义/,
+    ]
 
-// 判断是否需要过滤
-function shouldFilterEvent(event) {
-  const title = (event.title || '').toLowerCase()
-  const description = (event.description || '').toLowerCase()
-  const question = (event.question || '').toLowerCase()
-
-  const allText = `${title} ${description} ${question}`
-
-  for (const keyword of BLOCKED_KEYWORDS) {
-    if (allText.includes(keyword.toLowerCase())) {
-      return true
-    }
-  }
-
-  if (event.tags) {
-    for (const tag of event.tags) {
-      if (BLOCKED_TAGS.includes(tag.id) || BLOCKED_TAGS.includes(String(tag))) {
-        return true
+    for (const pattern of sensitivePatterns) {
+      if (pattern.test(originalTitle) || pattern.test(originalDescription)) {
+        console.log(`[Filter] 过滤敏感内容: ${originalTitle}`)
+        return null
       }
     }
+    return event
   }
 
-  return false
-}
-
-// 使用大模型简化标题
-async function simplifyTitleWithLLM(event) {
-  const originalTitle = event.title || event.question || ''
-
-  // 如果标题已经比较短，直接返回
-  if (originalTitle.length <= 60) {
-    return originalTitle
-  }
-
-  const prompt = `简化以下预测市场事件的标题，使其更简洁易懂（20-40字），保留核心信息：
+  const prompt = `你是一个内容审核专家和标题优化助手。
 
 原始标题：${originalTitle}
+原始描述：${originalDescription || '无'}
 
-要求：
-1. 用中文输出
-2. 保留核心事件信息
-3. 去除冗余词汇
-4. 直接返回简化后的标题，不要任何解释
+请执行以下任务：
 
-简化后的标题：`
+1. **内容审核**：检查这个预测市场事件是否包含以下不适合在中国展示的内容：
+   - 政治敏感内容（台湾、西藏、香港、新疆、法轮功、美国选举、中国领导人等）
+   - 争议性政治事件
+   - 如果有任何不适合的内容，直接返回 "FILTERED"
+
+2. **标题优化**：如果内容适合，用中文简化标题（20-40字），保留核心信息，去除冗余
+
+输出格式：
+- 如果需要过滤：直接返回 "FILTERED"
+- 如果可以展示：只返回优化后的标题，不要任何解释
+
+请判断：`
 
   try {
     let result
@@ -90,7 +77,7 @@ async function simplifyTitleWithLLM(event) {
         max_tokens: 100,
         extra_headers: {
           'HTTP-Referer': 'https://www.zkwatcher.top',
-          'X-Title': '极客观察 标题简化'
+          'X-Title': '极客观察 内容审核与标题优化'
         }
       })
       result = completion.choices[0].message.content
@@ -103,12 +90,23 @@ async function simplifyTitleWithLLM(event) {
       result = completion.choices[0].message.content
     }
 
+    // 检查是否需要过滤
+    if (result?.toUpperCase().includes('FILTERED') || result?.includes('过滤')) {
+      console.log(`[Filter] LLM建议过滤: ${originalTitle}`)
+      return null
+    }
+
     // 清理结果
     const simplified = result?.trim().replace(/^["']|["']$/g, '')
-    return simplified || originalTitle
+    if (simplified && simplified.length > 0 && simplified.length < 100) {
+      return { ...event, title: simplified }
+    }
+
+    return event
   } catch (error) {
-    console.error('标题简化失败:', error.message)
-    return originalTitle
+    console.error('LLM处理失败:', error.message)
+    // 处理失败时保守处理，返回原事件
+    return event
   }
 }
 
@@ -122,17 +120,13 @@ async function fetchTrendingEvents() {
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
     const data = await response.json()
 
-    const filtered = (data || []).filter(e => !shouldFilterEvent(e))
-
-    // 简化标题
-    const simplified = await Promise.all(
-      filtered.map(async (event) => ({
-        ...event,
-        title: await simplifyTitleWithLLM(event)
-      }))
+    // LLM 处理（检查+优化）
+    const processed = await Promise.all(
+      (data || []).map(async (event) => await processEventWithLLM(event))
     )
 
-    return simplified
+    // 过滤 null
+    return processed.filter(e => e !== null)
   } catch (error) {
     console.error('Failed to fetch trending events:', error)
     return null
@@ -149,17 +143,12 @@ async function fetchExpiringEvents() {
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
     const data = await response.json()
 
-    const filtered = (data || []).filter(e => !shouldFilterEvent(e))
-
-    // 简化标题
-    const simplified = await Promise.all(
-      filtered.map(async (event) => ({
-        ...event,
-        title: await simplifyTitleWithLLM(event)
-      }))
+    // LLM 处理
+    const processed = await Promise.all(
+      (data || []).map(async (event) => await processEventWithLLM(event))
     )
 
-    return simplified
+    return processed.filter(e => e !== null)
   } catch (error) {
     console.error('Failed to fetch expiring events:', error)
     return null
@@ -169,7 +158,6 @@ async function fetchExpiringEvents() {
 // 获取分类标签
 async function fetchTags() {
   try {
-    // 过滤掉政治标签
     const response = await fetch(`${POLYMARKET_API}/tags`, {
       headers: { 'Accept': 'application/json' },
       next: { revalidate: 3600 }
@@ -203,7 +191,8 @@ async function fetchSports() {
 // 按标签获取事件
 async function fetchEventsByTag(tagId) {
   try {
-    if (BLOCKED_TAGS.includes(tagId)) {
+    // 过滤政治标签
+    if (tagId === '2') {
       return []
     }
 
@@ -214,17 +203,12 @@ async function fetchEventsByTag(tagId) {
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
     const data = await response.json()
 
-    const filtered = (data || []).filter(e => !shouldFilterEvent(e))
-
-    // 简化标题
-    const simplified = await Promise.all(
-      filtered.map(async (event) => ({
-        ...event,
-        title: await simplifyTitleWithLLM(event)
-      }))
+    // LLM 处理
+    const processed = await Promise.all(
+      (data || []).map(async (event) => await processEventWithLLM(event))
     )
 
-    return simplified
+    return processed.filter(e => e !== null)
   } catch (error) {
     console.error('Failed to fetch events by tag:', error)
     return null
