@@ -22,33 +22,29 @@ const minimax = new OpenAI({
 
 const MINIMAX_MODEL = 'LongCat-Flash-Chat'
 
-// 使用大模型检查和优化标题
+// 使用大模型翻译和优化
 async function processEventWithLLM(event) {
   const originalTitle = event.title || event.question || ''
   const originalDescription = event.description || ''
 
-  // 如果标题已经比较短且无敏感内容，先简单检查
-  if (originalTitle.length <= 40) {
-    // 检查是否有明显的敏感词
-    const sensitivePatterns = [
-      /台湾|台独|台湾省|台海|两岸|统一|独立|分裂|政权更迭|六四|天安门事件|文革|三年困难|三年饥荒/,
-      /新疆|西藏|内蒙古|香港|澳门|一国两制|五十年不变/,
-      /法轮功|全能神|呼喊派|门徒会/,
-      /美国大选|特朗普|拜登|哈里斯|共和党|民主党|美国选举/,
-      /习近|胡锦涛|江泽民|温家宝|朱镕基|李克强/,
-      /抗议|示威|游行|罢工|暴动|叛乱|起义/,
-    ]
+  // 敏感词检查（不翻译直接过滤）
+  const sensitivePatterns = [
+    /台湾|台独|台湾省|台海|两岸|统一|独立|分裂|政权更迭|六四|天安门事件|文革|三年困难|三年饥荒/,
+    /新疆|西藏|内蒙古|香港|澳门|一国两制|五十年不变/,
+    /法轮功|全能神|呼喊派|门徒会/,
+    /特朗普|拜登|哈里斯|共和党|民主党|美国选举/,
+    /习近|胡锦涛|江泽民|温家宝|朱镕基|李克强/,
+    /抗议|示威|游行|罢工|暴动|叛乱|起义/,
+  ]
 
-    for (const pattern of sensitivePatterns) {
-      if (pattern.test(originalTitle) || pattern.test(originalDescription)) {
-        console.log(`[Filter] 过滤敏感内容: ${originalTitle}`)
-        return null
-      }
+  for (const pattern of sensitivePatterns) {
+    if (pattern.test(originalTitle) || pattern.test(originalDescription)) {
+      console.log(`[Filter] 过滤敏感内容: ${originalTitle}`)
+      return null
     }
-    return event
   }
 
-  const prompt = `你是一个内容审核专家和标题优化助手。
+  const prompt = `你是一个内容审核和翻译专家。
 
 原始标题：${originalTitle}
 原始描述：${originalDescription || '无'}
@@ -60,13 +56,13 @@ async function processEventWithLLM(event) {
    - 争议性政治事件
    - 如果有任何不适合的内容，直接返回 "FILTERED"
 
-2. **标题优化**：如果内容适合，用中文简化标题（20-40字），保留核心信息，去除冗余
+2. **翻译成中文**：如果内容适合，将标题翻译成中文并简化（20-40字），描述也翻译成中文（保留核心信息）
 
-输出格式：
-- 如果需要过滤：直接返回 "FILTERED"
-- 如果可以展示：只返回优化后的标题，不要任何解释
+输出格式（JSON）：
+- 如果需要过滤：{"filtered": true}
+- 如果可以展示：{"title": "翻译后的中文标题", "description": "翻译后的中文描述"}
 
-请判断：`
+请处理：`
 
   try {
     let result
@@ -74,10 +70,10 @@ async function processEventWithLLM(event) {
       const completion = await openrouterClient.chat.completions.create({
         model: OPENROUTER_MODEL,
         messages: [{ role: 'user', content: prompt }],
-        max_tokens: 100,
+        max_tokens: 500,
         extra_headers: {
           'HTTP-Referer': 'https://www.zkwatcher.top',
-          'X-Title': '极客观察 内容审核与标题优化'
+          'X-Title': '极客观察 内容审核与翻译'
         }
       })
       result = completion.choices[0].message.content
@@ -85,27 +81,38 @@ async function processEventWithLLM(event) {
       const completion = await minimax.chat.completions.create({
         model: MINIMAX_MODEL,
         messages: [{ role: 'user', content: prompt }],
-        max_tokens: 100
+        max_tokens: 500
       })
       result = completion.choices[0].message.content
     }
 
     // 检查是否需要过滤
-    if (result?.toUpperCase().includes('FILTERED') || result?.includes('过滤')) {
+    if (result?.toUpperCase().includes('FILTERED') || result?.includes('"filtered": true')) {
       console.log(`[Filter] LLM建议过滤: ${originalTitle}`)
       return null
     }
 
-    // 清理结果
-    const simplified = result?.trim().replace(/^["']|["']$/g, '')
-    if (simplified && simplified.length > 0 && simplified.length < 100) {
-      return { ...event, title: simplified }
+    // 解析 JSON 结果
+    try {
+      const jsonMatch = result.match(/\{[\s\S]*\}/)
+      if (jsonMatch) {
+        const parsed = JSON.parse(jsonMatch[0])
+        if (parsed.title) {
+          return {
+            ...event,
+            title: parsed.title,
+            description: parsed.description || event.description
+          }
+        }
+      }
+    } catch (e) {
+      console.error('JSON解析失败，使用原始内容')
     }
 
+    // 解析失败时返回原事件
     return event
   } catch (error) {
     console.error('LLM处理失败:', error.message)
-    // 处理失败时保守处理，返回原事件
     return event
   }
 }
@@ -120,12 +127,11 @@ async function fetchTrendingEvents() {
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
     const data = await response.json()
 
-    // LLM 处理（检查+优化）
+    // LLM 处理
     const processed = await Promise.all(
       (data || []).map(async (event) => await processEventWithLLM(event))
     )
 
-    // 过滤 null
     return processed.filter(e => e !== null)
   } catch (error) {
     console.error('Failed to fetch trending events:', error)
@@ -191,10 +197,7 @@ async function fetchSports() {
 // 按标签获取事件
 async function fetchEventsByTag(tagId) {
   try {
-    // 过滤政治标签
-    if (tagId === '2') {
-      return []
-    }
+    if (tagId === '2') return []
 
     const response = await fetch(
       `${POLYMARKET_API}/events?active=true&closed=false&tag_id=${tagId}&order=volume&ascending=false&limit=30`,
