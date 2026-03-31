@@ -2,15 +2,13 @@
 
 import { useState, useEffect } from 'react'
 
-// 预设标签配置（从 Polymarket 文档获取）
+// 预设标签配置（移除 Politics）
 const PRESET_TAGS = [
-  { id: '2', name: 'Politics', emoji: '🏛️', slug: 'politics' },
   { id: '120', name: 'Finance', emoji: '💰', slug: 'finance' },
   { id: '21', name: 'Crypto', emoji: '₿', slug: 'crypto' },
   { id: '100639', name: 'Sports', emoji: '⚽', slug: 'sports' },
   { id: '100381', name: 'Economics', emoji: '📊', slug: 'economics' },
   { id: '555', name: 'Tech', emoji: '💻', slug: 'tech' },
-  { id: '185', name: 'World', emoji: '🌍', slug: 'world' },
   { id: '100100', name: 'Science', emoji: '🔬', slug: 'science' },
 ]
 
