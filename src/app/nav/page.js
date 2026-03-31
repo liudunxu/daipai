@@ -71,7 +71,6 @@ const navGroups = [
     items: [
       { name: '今天会涨吗', url: '/stock', desc: '股市行情预测，娱乐一下' },
       { name: '股票回测', url: '/stock/backtest', desc: '模拟一周股票表现' },
-      { name: 'Polymarket', url: '/polymarket', desc: '预测市场实时热点' },
     ],
   },
   {
