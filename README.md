@@ -62,7 +62,7 @@ npm run dev
 |------|------|
 | /stock | 今天会涨吗 |
 | /stock/backtest | 股票回测 |
-| /polymarket | Polymarket预测市场 |
+| /guru | 投资大佬持仓 |
 
 ### AI工具
 | 页面 | 说明 |
@@ -75,7 +75,7 @@ npm run dev
 | /prompt | AI提示词 |
 | /maic | OpenMAIC |
 
-### 实用工具（儿童健康）
+### 实用工具
 | 页面 | 说明 |
 |------|------|
 | /tool | 开发工具 |
@@ -85,6 +85,8 @@ npm run dev
 | /tool/sleep | 睡眠推荐 |
 | /tool/lucky | 运势测算 |
 | /tool/huoxing | 火星文转换 |
+| /tool/unit | 单位换算器 |
+| /tool/countdown | 倒数日 |
 
 ### 资讯热点
 | 页面 | 说明 |

@@ -109,6 +109,8 @@ claude-code/
 | GET/POST | /api/stock/record | 股票记录 |
 | GET/POST | /api/stock/portfolio | 股票组合 |
 | GET | /api/stock/history | 股票历史数据 |
+| GET | /api/whale | 投资大佬持仓（WhaleWisdom） |
+| GET | /api/seo/generate | SEO文章生成 |
 
 ### 容错处理
 - 前端调用 API 时必须使用 try-catch 包裹
