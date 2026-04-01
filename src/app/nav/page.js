@@ -107,6 +107,7 @@ const navGroups = [
     items: [
       { name: '热搜榜', url: '/trending', desc: '微博、知乎、百度热搜' },
       { name: 'GitHub热门', url: '/github-rank', desc: '每周热门开源项目' },
+      { name: 'Claude源码泄漏', url: '/claude-code-leak', desc: '51万行代码曝光事件解析' },
       { name: '2026话题', url: '/trend/2026', desc: '热门话题聚合' },
       { name: '历史上的今天', url: '/todayinhistory', desc: '回顾历史重大事件' },
       { name: '黄仁勋GTC', url: '/nvidia', desc: 'GTC 2026演讲总结' },
