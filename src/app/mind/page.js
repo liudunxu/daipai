@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import ShareButtons from '../../components/ShareButtons'
+import RelatedTools from '../../components/RelatedTools'
 import { AdBanner } from '../../components/Ads'
 
 const questions = [
@@ -141,6 +142,7 @@ export default function MindTest() {
 
         <div className="mt-6">
           <AdBanner className="mb-6" />
+          <RelatedTools category="match" />
           <ShareButtons title="心理测试 - 5道题了解真实的你" url="/mind" />
         </div>
 

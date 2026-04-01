@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import ShareButtons from '../../components/ShareButtons'
+import RelatedTools from '../../components/RelatedTools'
 
 // 袁天罡称骨歌诀（简化版）
 const boneWeight = {
@@ -173,6 +174,8 @@ export default function ChengguPage() {
               </p>
             </div>
           )}
+
+          <RelatedTools category="chenggu" />
 
           <ShareButtons title="称骨算命 - 袁天罡称骨算命法" url="/chenggu" />
 

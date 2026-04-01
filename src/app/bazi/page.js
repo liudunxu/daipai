@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import ShareButtons from '../../components/ShareButtons'
 import FAQSchema, { baziFAQs } from '../../components/FAQSchema'
+import RelatedTools from '../../components/RelatedTools'
 
 const tiangan = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸']
 const dizhi = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥']
@@ -157,6 +158,8 @@ export default function BaziPage() {
               </p>
             </div>
           )}
+
+          <RelatedTools category="bazi" />
 
           <ShareButtons title="八字算命 - 生辰八字在线查询" url="/bazi" />
 

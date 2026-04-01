@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import ShareButtons from '../components/ShareButtons'
 import FAQSchema, { homePageFAQs } from '../components/FAQSchema'
 import { CollectionPageSchema, PageContentSummary } from '../components/RAGTools'
-import { popularTools } from '../lib/constants'
+import { popularTools } from '../lib/relatedTools'
 import { supabase } from '../lib/supabase'
 
 // 标签颜色映射

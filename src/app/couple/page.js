@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import ShareButtons from '../../components/ShareButtons'
+import RelatedTools from '../../components/RelatedTools'
 import { AdBanner } from '../../components/Ads'
 
 const coupleStyles = [
@@ -113,6 +114,7 @@ export default function CoupleAvatar() {
 
         <div className="mt-6">
           <AdBanner className="mb-6" />
+          <RelatedTools category="couple" />
           <ShareButtons title="情侣头像生成 - 专属情侣头像" url="/couple" />
         </div>
 

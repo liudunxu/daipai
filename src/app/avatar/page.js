@@ -1,3 +1,5 @@
+import RelatedTools from '../../components/RelatedTools'
+
 export const metadata = {
   title: '节日祝福头像生成器 - 春节、中秋、国庆专属头像',
   description: '生成专属节日祝福头像！支持春节、中秋、国庆、生日等主题，一键生成带文字的精美头像。',
@@ -48,6 +50,8 @@ export default function AvatarPage() {
             <li>4. 截图保存，设为微信/QQ头像</li>
           </ol>
         </div>
+
+        <RelatedTools category="avatar" />
 
         <footer className="text-center py-6 border-t border-white/10 mt-8">
           <p className="text-white/30 text-sm">

@@ -2,6 +2,7 @@
 
 import { Image } from 'next/image'
 import ShareButtons from '../../components/ShareButtons'
+import RelatedTools from '../../components/RelatedTools'
 
 export default function FaceMatch() {
   const celebrities = [
@@ -45,6 +46,7 @@ export default function FaceMatch() {
         </div>
 
         <div className="mt-6">
+          <RelatedTools category="face" />
           <ShareButtons title="AI撞脸测试 - 看你像哪个明星" url="/face" />
         </div>
 

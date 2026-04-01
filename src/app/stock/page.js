@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import AffiliateLink from '../../components/AffiliateLink'
 import FAQSchema, { stockFAQs } from '../../components/FAQSchema'
+import RelatedTools from '../../components/RelatedTools'
 
 export default function StockPage() {
   const [result, setResult] = useState(null)
@@ -235,6 +236,8 @@ export default function StockPage() {
       </div>
 
       {/* 底部 */}
+      <RelatedTools category="stock" />
+
       <footer className="absolute bottom-4 w-full text-center">
         <a href="/" className="text-white/30 hover:text-white/60 text-sm transition-colors">
           ← 返回首页

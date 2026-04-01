@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import ShareButtons from '../../components/ShareButtons'
+import RelatedTools from '../../components/RelatedTools'
 
 // 获取今日日期信息
 function getTodayInfo() {
@@ -140,6 +141,8 @@ export default function HuangliPage() {
           </div>
 
           {/* 分享 */}
+          <RelatedTools category="huangli" />
+
           <ShareButtons title="老黄历 - 今日黄历吉凶宜忌" url="/huangli" />
 
           <footer className="mt-8 text-center">

@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import ShareButtons from '../../components/ShareButtons'
+import RelatedTools from '../../components/RelatedTools'
 
 const zodiacs = [
   { name: '鼠', year: '1948,1960,1972,1984,1996,2008,2020', luck: '85', desc: '2026年属鼠人运势平稳上升，工作中有望得到晋升或加薪的机会。财运方面正财稳定，偏财可适当投资。感情方面单身者有望遇到理想伴侣，已婚者家庭和睦。健康需注意胃部保养。' },
@@ -92,6 +93,8 @@ export default function FatePage() {
               </p>
             </div>
           )}
+
+          <RelatedTools category="fate" />
 
           <ShareButtons title="2026年运势 - 2026年生肖运势预测" url="/fate" />
 

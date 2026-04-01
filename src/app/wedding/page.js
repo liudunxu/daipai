@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import ShareButtons from '../../components/ShareButtons'
+import RelatedTools from '../../components/RelatedTools'
 
 // 2026年吉日（简化版）
 const goodDays = [
@@ -136,6 +137,8 @@ export default function WeddingPage() {
               💡 提示：选择吉日还需考虑双方八字，建议咨询专业人士
             </p>
           </div>
+
+          <RelatedTools category="wedding" />
 
           <ShareButtons title="结婚吉日查询 - 挑选好日子结婚" url="/wedding" />
 
