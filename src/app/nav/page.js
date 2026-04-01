@@ -188,7 +188,6 @@ export default function NavPage() {
               description="扫码加入粉丝群，获取最新资讯"
             />
             <WechatGroup
-              星球
               title="知识星球"
               description="加入付费社群，获取更多干货"
             />
