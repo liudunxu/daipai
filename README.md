@@ -1,141 +1,114 @@
-# 极客观察 - AI科技经济资讯与实用工具平台
+# 极客观察
 
-一个聚合AI、科技、经济相关资讯的导航网站，同时提供多种实用在线工具。
+> AI 科技经济资讯与实用工具平台
+
+聚合 AI、科技、经济相关资讯的导航网站，同时提供多种实用在线工具。
+
+[在线访问](https://jike観察.com) · [快速开始](#快速开始) · [功能导航](#功能导航)
+
+---
 
 ## 快速开始
 
 ```bash
+# 克隆项目
+git clone https://github.com/dunxuan/claude-code.git
+cd claude-code
+
 # 安装依赖
 npm install
 
 # 启动开发服务器
 npm run dev
+
+# 构建生产版本
+npm run build
 ```
 
 访问 http://localhost:3000
 
-## 网站特色
+---
 
-- **资讯聚合**: 混排AI、科技、经济相关资讯，聚合36氪、虎嗅、IT之家、经济时报等来源
-- **实用工具**: 集成多种在线工具，包括BMI计算、身高评估、睡眠推荐、密码生成、摇骰子等
-- **生活服务**: 包含黄历查询、婚庆吉日、生日祝福、手机号码测吉凶等日常实用功能
-- **玄学命理**: 八字、星座、生肖、运势、塔罗牌、抽签占卜等传统文化的现代化呈现
-- **儿童专区**: BMI计算、身高评估、睡眠推荐等儿童健康成长工具
+## 功能导航
 
-## 页面导航
+### AI 工具
+| 页面 | 说明 |
+|------|------|
+| [/ai](src/app/ai/page.js) | AI 工具导航 |
+| [/ai/claude](src/app/ai/claude/page.js) | Claude 使用指南 |
+| [/ai/deepseek](src/app/ai/deepseek/page.js) | DeepSeek 教程 |
+| [/ai/coze](src/app/ai/coze/page.js) | Coze 使用教程 |
 
 ### 玄学命理
 | 页面 | 说明 |
 |------|------|
-| /today | 今日运势 |
-| /xingzuo | 星座运势 |
-| /shengxiao | 十二生肖 |
-| /fate | 2026年运势 |
-| /huangli | 老黄历 |
-| /chouqian | 在线抽签 |
-| /bazi | 八字算命 |
-| /chenggu | 称骨算命 |
-| /tarot | 塔罗牌测试 |
-| /guoxue/shouqianshou | 手相术 |
-
-### 爱情配对
-| 页面 | 说明 |
-|------|------|
-| /match | 姓名配对 |
-| /phone | 手机号测运势 |
-| /mind | 心理测试 |
-
-### 生活娱乐
-| 页面 | 说明 |
-|------|------|
-| /birthday | 生日密语 |
-| /cake | 生日蛋糕 |
-| /wedding | 结婚吉日 |
-| /couple | 情侣头像 |
-| /avatar | 节日头像 |
-| /face | AI撞脸测试 |
-| /dice | 摇骰子 |
-| /blessing | 祝福语生成 |
-
-### 股票财经
-| 页面 | 说明 |
-|------|------|
-| /stock | 今天会涨吗 |
-| /stock/backtest | 股票回测 |
-| /guru | 投资大佬持仓 |
-
-### AI工具
-| 页面 | 说明 |
-|------|------|
-| /ai | AI工具导航 |
-| /ai/claude | Claude指南 |
-| /ai/deepseek | DeepSeek指南 |
-| /ai/coze | Coze教程 |
-| /ai/perplexity | Perplexity |
-| /prompt | AI提示词 |
-| /maic | OpenMAIC |
+| [/bazi](src/app/bazi/page.js) | 八字算命 |
+| [/xingzuo](src/app/xingzuo/page.js) | 星座运势 |
+| [/shengxiao](src/app/shengxiao/page.js) | 十二生肖 |
+| [/tarot](src/app/tarot/page.js) | 塔罗牌测试 |
+| [/chouqian](src/app/chouqian/page.js) | 在线抽签 |
 
 ### 实用工具
 | 页面 | 说明 |
 |------|------|
-| /tool | 开发工具 |
-| /tool/password | 密码生成 |
-| /tool/bmi | BMI计算器 |
-| /tool/height | 身高评估 |
-| /tool/sleep | 睡眠推荐 |
-| /tool/lucky | 运势测算 |
-| /tool/huoxing | 火星文转换 |
-| /tool/unit | 单位换算器 |
-| /tool/countdown | 倒数日 |
+| [/tool](src/app/tool/page.js) | 工具导航 |
+| [/tool/password](src/app/tool/password/page.js) | 密码生成器 |
+| [/tool/bmi](src/app/tool/bmi/page.js) | BMI 计算器 |
+| [/tool/height](src/app/tool/height/page.js) | 身高评估 |
+| [/tool/sleep](src/app/tool/sleep/page.js) | 睡眠推荐 |
+
+### 股票财经
+| 页面 | 说明 |
+|------|------|
+| [/stock](src/app/stock/page.js) | 今日涨跌 |
+| [/stock/backtest](src/app/stock/backtest/page.js) | 股票回测 |
+| [/guru](src/app/guru/page.js) | 投资大佬持仓 |
+
+### 生活娱乐
+| 页面 | 说明 |
+|------|------|
+| [/avatar](src/app/avatar/page.js) | 节日头像 |
+| [/cake](src/app/cake/page.js) | 生日蛋糕 |
+| [/wedding](src/app/wedding/page.js) | 结婚吉日 |
+| [/blessing](src/app/blessing/page.js) | 祝福语生成 |
 
 ### 资讯热点
 | 页面 | 说明 |
 |------|------|
-| /trending | 热搜榜 |
-| /trend/2026 | 2026话题 |
-| /todayinhistory | 历史上的今天 |
-| /nvidia | 黄仁勋GTC |
-| /alibaba | 阿里架构 |
-| /news/openclaw | QClaw资讯 |
-| /daipai | 足部护理 |
+| [/trending](src/app/trending/page.js) | 热搜榜 |
+| [/todayinhistory](src/app/todayinhistory/page.js) | 历史上的今天 |
 
-### 其他
-| 页面 | 说明 |
-|------|------|
-| /nav | 导航页（全部入口） |
-| /guoxue | 国学院 |
-| /pua | PUA话术 |
-| /features | 功能介绍 |
-| /about | 关于我们 |
-| /contact | 联系我们 |
-| /privacy | 隐私政策 |
-| /terms | 用户协议 |
+---
 
 ## 技术栈
 
-- Next.js 14 (App Router)
-- Tailwind CSS 3.4
-- 数据存储: JSON 文件 / Vercel KV (Redis)
+- **框架**: Next.js 14 (App Router)
+- **样式**: Tailwind CSS 3.4
+- **部署**: Vercel
+
+## 项目文档
+
+| 文档 | 说明 |
+|------|------|
+| [CLAUDE.md](CLAUDE.md) | Claude Code 开发规范 |
+| [ARCHITECTURE.md](ARCHITECTURE.md) | 技术架构文档 |
+| [ROADMAP.md](ROADMAP.md) | 产品路线图 |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | 贡献指南 |
+| [DEPLOY.md](DEPLOY.md) | 部署指南 |
 
 ## 目录结构
 
 ```
 src/
-├── app/
-│   ├── page.js              # 首页
-│   ├── layout.js            # 根布局
-│   ├── globals.css         # 全局样式
-│   ├── nav/page.js         # 导航页面
-│   ├── api/                # API 路由
-│   ├── ai/                 # AI工具
-│   ├── tool/               # 实用工具
-│   │   ├── bmi/           # BMI计算器
-│   │   ├── height/        # 身高评估
-│   │   ├── sleep/         # 睡眠推荐
-│   │   └── ...
-│   ├── stock/              # 股票
-│   ├── bazi/               # 八字
-│   ├── xingzuo/            # 星座
+├── app/                    # Next.js App Router
+│   ├── page.js            # 首页
+│   ├── nav/               # 导航页
+│   ├── api/               # API 路由
+│   ├── ai/                # AI 工具
+│   ├── tool/              # 实用工具
+│   ├── bazi/              # 八字算命
+│   ├── xingzuo/           # 星座
+│   ├── stock/             # 股票
 │   └── ...
 ├── components/             # React 组件
 └── lib/                    # 工具函数
@@ -148,10 +121,12 @@ src/
 ```bash
 # Vercel CLI
 npm i -g vercel
-vercel
-
-# 或者 GitHub 推送后自动部署
+vercel --prod
 ```
+
+详细部署说明请参考 [DEPLOY.md](DEPLOY.md)。
+
+---
 
 ## License
 
