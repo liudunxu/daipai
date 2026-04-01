@@ -3,8 +3,8 @@ import { MetadataRoute } from 'next'
 export default function sitemap() {
   const baseUrl = 'https://www.zkwatcher.top'
 
-  // 主页
   const staticPages = [
+    // 主页
     {
       url: baseUrl,
       lastModified: new Date(),
@@ -17,7 +17,8 @@ export default function sitemap() {
       changeFrequency: 'weekly',
       priority: 0.9,
     },
-    // 玄学命理
+
+    // ===== 玄学命理 =====
     {
       url: `${baseUrl}/today`,
       lastModified: new Date(),
@@ -67,7 +68,27 @@ export default function sitemap() {
       priority: 0.8,
     },
     {
+      url: `${baseUrl}/tarot`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/guoxue/shouqianshou`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.6,
+    },
+
+    // ===== 爱情配对 =====
+    {
       url: `${baseUrl}/match`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/phone`,
       lastModified: new Date(),
       changeFrequency: 'weekly',
       priority: 0.7,
@@ -78,19 +99,8 @@ export default function sitemap() {
       changeFrequency: 'weekly',
       priority: 0.7,
     },
-    {
-      url: `${baseUrl}/tarot`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.7,
-    },
-    // 生活工具
-    {
-      url: `${baseUrl}/phone`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.7,
-    },
+
+    // ===== 生活工具 =====
     {
       url: `${baseUrl}/birthday`,
       lastModified: new Date(),
@@ -109,7 +119,8 @@ export default function sitemap() {
       changeFrequency: 'monthly',
       priority: 0.6,
     },
-    // 娱乐功能
+
+    // ===== 娱乐功能 =====
     {
       url: `${baseUrl}/cake`,
       lastModified: new Date(),
@@ -146,7 +157,8 @@ export default function sitemap() {
       changeFrequency: 'weekly',
       priority: 0.6,
     },
-    // AI 工具
+
+    // ===== AI 工具 =====
     {
       url: `${baseUrl}/ai`,
       lastModified: new Date(),
@@ -177,7 +189,20 @@ export default function sitemap() {
       changeFrequency: 'weekly',
       priority: 0.7,
     },
-    // 股票
+    {
+      url: `${baseUrl}/prompt`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.6,
+    },
+    {
+      url: `${baseUrl}/maic`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.6,
+    },
+
+    // ===== 股票财经 =====
     {
       url: `${baseUrl}/stock`,
       lastModified: new Date(),
@@ -190,7 +215,14 @@ export default function sitemap() {
       changeFrequency: 'weekly',
       priority: 0.7,
     },
-    // 其他
+    {
+      url: `${baseUrl}/guru`,
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 0.7,
+    },
+
+    // ===== 资讯热点 =====
     {
       url: `${baseUrl}/trending`,
       lastModified: new Date(),
@@ -198,11 +230,119 @@ export default function sitemap() {
       priority: 0.7,
     },
     {
-      url: `${baseUrl}/prompt`,
+      url: `${baseUrl}/trend/2026`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/todayinhistory`,
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/nvidia`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/alibaba`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/news/openclaw`,
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/news/openclaw/check`,
       lastModified: new Date(),
       changeFrequency: 'weekly',
       priority: 0.6,
     },
+    {
+      url: `${baseUrl}/github-rank`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.6,
+    },
+
+    // ===== 实用工具 =====
+    {
+      url: `${baseUrl}/tool`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/tool/password`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.5,
+    },
+    {
+      url: `${baseUrl}/tool/lucky`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/tool/huoxing`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.5,
+    },
+    {
+      url: `${baseUrl}/tool/bmi`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.6,
+    },
+    {
+      url: `${baseUrl}/tool/height`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.6,
+    },
+    {
+      url: `${baseUrl}/tool/sleep`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.6,
+    },
+    {
+      url: `${baseUrl}/tool/unit`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.5,
+    },
+    {
+      url: `${baseUrl}/tool/countdown`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.5,
+    },
+
+    // ===== 专题内容 =====
+    {
+      url: `${baseUrl}/claude-code-leak`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/harness`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.7,
+    },
+
+    // ===== 其他页面 =====
     {
       url: `${baseUrl}/share`,
       lastModified: new Date(),
@@ -211,12 +351,6 @@ export default function sitemap() {
     },
     {
       url: `${baseUrl}/guoxue`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.6,
-    },
-    {
-      url: `${baseUrl}/guoxue/shouqianshou`,
       lastModified: new Date(),
       changeFrequency: 'weekly',
       priority: 0.6,
@@ -239,55 +373,8 @@ export default function sitemap() {
       changeFrequency: 'weekly',
       priority: 0.5,
     },
-    {
-      url: `${baseUrl}/news/openclaw`,
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/news/openclaw/check`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.6,
-    },
-    {
-      url: `${baseUrl}/tool/password`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.5,
-    },
-    {
-      url: `${baseUrl}/tool/lucky`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/tool/huoxing`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.5,
-    },
-    {
-      url: `${baseUrl}/trend/2026`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/nvidia`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/alibaba`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.7,
-    },
-    // 静态页面
+
+    // ===== 静态页面 =====
     {
       url: `${baseUrl}/features`,
       lastModified: new Date(),
