@@ -83,6 +83,7 @@ const navGroups = [
       { name: 'Coze教程', url: '/ai/coze', desc: 'Coze使用教程' },
       { name: 'Perplexity', url: '/ai/perplexity', desc: 'AI搜索引擎教程' },
       { name: 'AI提示词', url: '/prompt', desc: 'ChatGPT提示词大全' },
+      { name: 'Harness科普', url: '/harness', desc: '大模型Harness通俗解释' },
       { name: 'OpenMAIC', url: '/maic', desc: '清华开源AI互动课堂' },
     ],
   },
