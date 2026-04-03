@@ -1,7 +1,41 @@
 export const metadata = {
   title: '编程模型排行榜 2026 - AI大模型编程能力对比 | 极客观察',
   description: '2026年最新编程模型排行榜，涵盖Claude、GPT-5、 Gemini、Qwen、GLM等AI模型的编程能力评分。国产模型智谱GLM、阿里通义Qwen、月之暗面Kimi、MiniMax表现亮眼。',
-  keywords: ['编程模型排行榜', 'AI编程模型', 'Claude编程', 'GPT编程能力', 'AI代码生成', '大模型对比', '编程模型评测', '国产AI模型', 'Qwen编程', 'GLM编程', 'Kimi编程'],
+  keywords: [
+    '编程模型排行榜',
+    'AI编程模型',
+    'Claude编程',
+    'GPT编程能力',
+    'AI代码生成',
+    '大模型对比',
+    '编程模型评测',
+    '国产AI模型',
+    'Qwen编程',
+    'GLM编程',
+    'Kimi编程',
+    'AI大模型排行',
+    '2026 AI模型',
+    'Claude Opus',
+    'GPT-5',
+    'Gemini编程',
+    'AI coder排名',
+    '编程AI评测',
+    'Arena AI',
+    'LMArena',
+    'MiniMax编程',
+  ],
+  authors: [{ name: '极客观察' }],
+  creator: '极客观察',
+  publisher: '极客观察',
+  metadataBase: new URL('https://www.zkwatcher.top'),
+  alternates: {
+    canonical: 'https://www.zkwatcher.top/llm-leaderboard',
+    languages: {
+      'zh-CN': 'https://www.zkwatcher.top/llm-leaderboard',
+      'zh-TW': 'https://www.zkwatcher.top/llm-leaderboard',
+      'en-US': 'https://www.zkwatcher.top/llm-leaderboard',
+    },
+  },
   openGraph: {
     type: 'website',
     locale: 'zh_CN',
@@ -13,15 +47,71 @@ export const metadata = {
       url: 'https://www.zkwatcher.top/og-image.png',
       width: 1200,
       height: 630,
+      alt: '编程模型排行榜 2026',
     }],
   },
   twitter: {
     card: 'summary_large_image',
     title: '编程模型排行榜 2026 - AI大模型编程能力对比',
     description: '2026年最新编程模型排行榜，国产模型智谱GLM、阿里通义Qwen表现亮眼。',
+    images: ['https://www.zkwatcher.top/og-image.png'],
   },
-  alternates: {
-    canonical: 'https://www.zkwatcher.top/llm-leaderboard',
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+    yandex: false,
+    baiduspider: {
+      index: true,
+      follow: true,
+    },
+  },
+  verification: {
+    google: 'your-google-verification-code',
+    baidu: 'your-baidu-verification-code',
+  },
+}
+
+// JSON-LD 结构化数据
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebPage',
+  name: '编程模型排行榜 2026',
+  description: '2026年最新编程模型排行榜，AI大模型编程能力对比',
+  url: 'https://www.zkwatcher.top/llm-leaderboard',
+  inLanguage: 'zh-CN',
+  isPartOf: {
+    '@type': 'WebSite',
+    name: '极客观察',
+    url: 'https://www.zkwatcher.top',
+  },
+  about: {
+    '@type': 'Thing',
+    name: 'AI编程模型评测',
+    description: 'Arena AI Leaderboard 编程模型排行榜',
+  },
+  mainEntity: {
+    '@type': 'ItemList',
+    name: '编程模型排行榜 Top 30',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'claude-opus-4-6-thinking', url: 'https://www.zkwatcher.top/llm-leaderboard#model-1' },
+      { '@type': 'ListItem', position: 2, name: 'claude-opus-4-6', url: 'https://www.zkwatcher.top/llm-leaderboard#model-2' },
+      { '@type': 'ListItem', position: 3, name: 'claude-sonnet-4-6', url: 'https://www.zkwatcher.top/llm-leaderboard#model-3' },
+    ],
+  },
+  breadcrumb: {
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: '首页', item: 'https://www.zkwatcher.top' },
+      { '@type': 'ListItem', position: 2, name: 'AI工具', item: 'https://www.zkwatcher.top/ai' },
+      { '@type': 'ListItem', position: 3, name: '编程模型排行榜', item: 'https://www.zkwatcher.top/llm-leaderboard' },
+    ],
   },
 }
 
@@ -365,6 +455,11 @@ export default function LLMLeaderboardPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 py-8 px-4">
+      {/* JSON-LD 结构化数据 */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <div className="max-w-6xl mx-auto">
         {/* 头部 */}
         <header className="text-center mb-10">
