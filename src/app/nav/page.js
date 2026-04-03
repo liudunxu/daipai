@@ -78,6 +78,7 @@ const navGroups = [
     title: '🤖 AI工具',
     items: [
       { name: 'AI工具导航', url: '/ai', desc: 'DeepSeek/Claude/Coze教程' },
+      { name: '编程模型排行', url: '/llm-leaderboard', desc: 'AI编程能力排行榜' },
       { name: 'DeepSeek指南', url: '/ai/deepseek', desc: 'DeepSeek使用教程' },
       { name: 'Claude指南', url: '/ai/claude', desc: 'Claude使用教程' },
       { name: 'Coze教程', url: '/ai/coze', desc: 'Coze使用教程' },
