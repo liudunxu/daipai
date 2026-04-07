@@ -20,12 +20,15 @@ export default function StockPredictPage() {
         setStocksLoading(true)
         setError(null)
         const response = await fetch('https://predict-api-production.up.railway.app/stocks?zone=cn')
-        if (!response.ok) throw new Error('获取股票列表失败')
+        console.log('股票列表响应状态:', response.status)
+        console.log('股票列表响应头:', Object.fromEntries(response.headers.entries()))
+        if (!response.ok) throw new Error(`获取股票列表失败: ${response.status}`)
         const data = await response.json()
+        console.log('股票列表数据:', data)
         setStocks(data.stocks || data || [])
       } catch (err) {
+        console.error('获取股票列表错误:', err)
         setError('获取股票列表失败，请稍后重试')
-        console.error(err)
       } finally {
         setStocksLoading(false)
       }
@@ -43,15 +46,16 @@ export default function StockPredictPage() {
       setPrediction(null)
 
       const url = `https://predict-api-production.up.railway.app/predict?stock=${encodeURIComponent(selectedStock)}${fastMode ? '&fast_mode=true' : ''}`
+      console.log('开始获取预测, URL:', url)
       const response = await fetch(url)
-
-      if (!response.ok) throw new Error('获取预测失败')
-
+      console.log('预测响应状态:', response.status)
+      if (!response.ok) throw new Error(`获取预测失败: ${response.status}`)
       const data = await response.json()
+      console.log('预测数据:', data)
       setPrediction(data)
     } catch (err) {
+      console.error('获取预测错误:', err)
       setError('获取预测结果失败，请稍后重试')
-      console.error(err)
     } finally {
       setLoading(false)
     }
