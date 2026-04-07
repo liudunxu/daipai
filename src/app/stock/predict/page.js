@@ -84,6 +84,7 @@ export default function StockPredictPage() {
 
   // 方向翻译
   const translateDirection = (dir) => {
+    if (typeof dir !== 'string') dir = String(dir || '')
     const map = {
       'UP': '上涨',
       'DOWN': '下跌',
@@ -91,14 +92,18 @@ export default function StockPredictPage() {
       'HOLD': '持有',
       'BUY': '买入',
       'SELL': '卖出',
+      '0': '持有',
+      '1': '买入',
+      '-1': '卖出',
     }
-    return map[dir?.toUpperCase()] || dir || '未知'
+    return map[dir.toUpperCase()] || dir || '未知'
   }
 
   // 获取方向颜色
   const getDirectionColor = (dir) => {
-    if (dir === 'UP' || dir === 'BUY') return { bg: 'bg-red-500', text: 'text-red-400', arrow: '↑' }
-    if (dir === 'DOWN' || dir === 'SELL') return { bg: 'bg-green-500', text: 'text-green-400', arrow: '↓' }
+    if (typeof dir !== 'string') dir = String(dir || '')
+    if (dir === 'UP' || dir === 'BUY' || dir === '1') return { bg: 'bg-red-500', text: 'text-red-400', arrow: '↑' }
+    if (dir === 'DOWN' || dir === 'SELL' || dir === '-1') return { bg: 'bg-green-500', text: 'text-green-400', arrow: '↓' }
     return { bg: 'bg-yellow-500', text: 'text-yellow-400', arrow: '→' }
   }
 
