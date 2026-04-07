@@ -732,9 +732,14 @@ export default function LLMLeaderboardPage() {
 
         {/* 底部 */}
         <footer className="mt-12 text-center">
-          <a href="/" className="text-white/30 hover:text-white/60 text-sm transition-colors">
-            ← 返回首页
-          </a>
+          <div className="flex justify-center gap-4 mb-2">
+            <a href="/nav" className="text-white/30 hover:text-white/60 text-sm transition-colors">
+              ← 导航页
+            </a>
+            <a href="/" className="text-white/30 hover:text-white/60 text-sm transition-colors">
+              ← 首页
+            </a>
+          </div>
         </footer>
       </div>
     </div>

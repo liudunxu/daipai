@@ -215,9 +215,14 @@ export default function TrendingPage() {
           <p className="text-white/30 text-xs mb-2">
             ⚠️ 热搜数据为示例，实际数据请访问各平台官网
           </p>
-          <a href="/" className="text-white/30 hover:text-white/60 text-sm transition-colors">
-            ← 返回首页
-          </a>
+          <div className="flex justify-center gap-4 mb-2">
+            <a href="/nav" className="text-white/30 hover:text-white/60 text-sm transition-colors">
+              ← 导航页
+            </a>
+            <a href="/" className="text-white/30 hover:text-white/60 text-sm transition-colors">
+              ← 首页
+            </a>
+          </div>
         </footer>
       </div>
     </div>
