@@ -1,3 +1,5 @@
+import RelatedTools from '../../components/RelatedTools'
+
 export const metadata = {
   title: '历史上的今天 - 极客观察',
   description: '回顾历史上的今天发生了哪些重大事件',
@@ -257,6 +259,9 @@ export default function TodayInHistoryPage() {
             ))}
           </div>
         </div>
+
+        {/* 相关推荐 */}
+        <RelatedTools category="todayinhistory" />
 
         {/* 底部 */}
         <footer className="mt-12 text-center">

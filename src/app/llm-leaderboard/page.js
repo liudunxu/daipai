@@ -1,3 +1,5 @@
+import RelatedTools from '../../components/RelatedTools'
+
 export const metadata = {
   title: '编程模型排行榜 2026 - AI大模型编程能力对比 | 极客观察',
   description: '2026年最新编程模型排行榜，涵盖Claude、GPT-5、 Gemini、Qwen、GLM等AI模型的编程能力评分。国产模型智谱GLM、阿里通义Qwen、月之暗面Kimi、MiniMax表现亮眼。',
@@ -700,35 +702,7 @@ export default function LLMLeaderboardPage() {
         </div>
 
         {/* 相关页面 */}
-        <div className="text-center">
-          <p className="text-white/40 text-sm mb-4">相关推荐</p>
-          <div className="flex flex-wrap justify-center gap-3">
-            <a
-              href="/ai"
-              className="px-4 py-2 bg-white/10 rounded-full text-white/70 hover:bg-white/20 hover:text-white transition-colors text-sm"
-            >
-              AI工具导航
-            </a>
-            <a
-              href="/ai/deepseek"
-              className="px-4 py-2 bg-white/10 rounded-full text-white/70 hover:bg-white/20 hover:text-white transition-colors text-sm"
-            >
-              DeepSeek指南
-            </a>
-            <a
-              href="/ai/claude"
-              className="px-4 py-2 bg-white/10 rounded-full text-white/70 hover:bg-white/20 hover:text-white transition-colors text-sm"
-            >
-              Claude指南
-            </a>
-            <a
-              href="/prompt"
-              className="px-4 py-2 bg-white/10 rounded-full text-white/70 hover:bg-white/20 hover:text-white transition-colors text-sm"
-            >
-              AI提示词
-            </a>
-          </div>
-        </div>
+        <RelatedTools category="llm-leaderboard" />
 
         {/* 底部 */}
         <footer className="mt-12 text-center">

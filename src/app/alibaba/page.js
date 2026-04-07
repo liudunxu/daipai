@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import ShareButtons from '../../components/ShareButtons'
 import { AdBanner } from '../../components/Ads'
+import RelatedTools from '../../components/RelatedTools'
 
 // 阿里组织架构调整内容数据
 const adjustments = [
@@ -194,6 +195,9 @@ export default function AlibabaPage() {
 
         {/* 分享 */}
         <ShareButtons title="阿里巴巴组织架构调整 - 2025-2026最新变化" url="/alibaba" />
+
+        {/* 相关推荐 */}
+        <RelatedTools category="alibaba" />
 
         {/* 底部 */}
         <footer className="mt-8 text-center">

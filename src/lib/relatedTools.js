@@ -252,6 +252,14 @@ const relatedTools = {
     { href: '/nav', emoji: '🧭', name: '更多工具' },
   ],
 
+  // ===== 编程模型排行榜 =====
+  'llm-leaderboard': [
+    { href: '/ai', emoji: '🤖', name: 'AI工具导航' },
+    { href: '/ai/claude', emoji: '🤖', name: 'Claude教程' },
+    { href: '/ai/deepseek', emoji: '🔍', name: 'DeepSeek教程' },
+    { href: '/prompt', emoji: '💬', name: 'AI提示词' },
+  ],
+
   // ===== 资讯类 =====
   trending: [
     { href: '/todayinhistory', emoji: '📅', name: '历史上的今天' },

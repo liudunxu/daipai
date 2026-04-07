@@ -1,5 +1,6 @@
 import { AdBanner } from '../../components/Ads'
 import AffiliateLink from '../../components/AffiliateLink'
+import RelatedTools from '../../components/RelatedTools'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 1800 // 每30分钟重新验证更新
@@ -209,6 +210,9 @@ export default function TrendingPage() {
             <AffiliateLink url="https://www.zhihu.com" text="知乎会员" platform="app" />
           </div>
         </section>
+
+        {/* 相关推荐 */}
+        <RelatedTools category="trending" />
 
         {/* 底部 */}
         <footer className="mt-8 text-center">

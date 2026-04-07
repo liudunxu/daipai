@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import ShareButtons from '../../components/ShareButtons'
 import { AdBanner } from '../../components/Ads'
+import RelatedTools from '../../components/RelatedTools'
 
 // 演讲核心内容数据
 const speechContent = [
@@ -194,6 +195,9 @@ export default function NvidiaPage() {
 
         {/* 分享 */}
         <ShareButtons title="黄仁勋GTC 2026演讲总结 - 英伟达AI最新动向" url="/nvidia" />
+
+        {/* 相关推荐 */}
+        <RelatedTools category="nvidia" />
 
         {/* 底部 */}
         <footer className="mt-8 text-center">
