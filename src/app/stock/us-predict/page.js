@@ -13,6 +13,7 @@ export default function StockPredictPage() {
   const [error, setError] = useState(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [showDetail, setShowDetail] = useState(false)
+  const [fastMode, setFastMode] = useState(true)
 
   // 获取股票列表
   useEffect(() => {
@@ -43,7 +44,7 @@ export default function StockPredictPage() {
       setError(null)
       setShowDetail(false)
 
-      const url = `/api/stock/predict?stock=${encodeURIComponent(selectedStock)}&fast_mode=true`
+      const url = `/api/stock/predict?stock=${encodeURIComponent(selectedStock)}&fast_mode=${fastMode}`
       const response = await fetch(url)
       if (!response.ok) throw new Error(`获取预测失败: ${response.status}`)
       const data = await response.json()
@@ -155,6 +156,25 @@ export default function StockPredictPage() {
             '请先选择股票'
           )}
         </button>
+
+        {/* 极速模式开关 */}
+        <div className="flex items-center justify-center gap-2 mt-3">
+          <button
+            onClick={() => setFastMode(!fastMode)}
+            className={`relative w-12 h-6 rounded-full transition-colors duration-300 ${
+              fastMode ? 'bg-gradient-to-r from-orange-500 to-red-500' : 'bg-white/20'
+            }`}
+          >
+            <span
+              className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-300 ${
+                fastMode ? 'left-6' : 'left-0.5'
+              }`}
+            />
+          </button>
+          <span className="text-white/60 text-sm">
+            ⚡ 极速模式 {fastMode ? '开启' : '关闭'}
+          </span>
+        </div>
 
         {/* 错误提示 */}
         {error && (
