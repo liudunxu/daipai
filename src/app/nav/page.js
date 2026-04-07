@@ -71,6 +71,8 @@ const navGroups = [
     items: [
       { name: '今天会涨吗', url: '/stock', desc: '股市行情预测，娱乐一下' },
       { name: 'A股预测', url: '/stock/predict', desc: '智能预测A股走势' },
+      { name: '港股预测', url: '/stock/hk-predict', desc: '智能预测港股走势' },
+      { name: '美股预测', url: '/stock/us-predict', desc: '智能预测美股走势' },
       { name: '股票回测', url: '/stock/backtest', desc: '模拟一周股票表现' },
       { name: '大佬持仓', url: '/guru', desc: '巴菲特/Cathie Wood持仓' },
     ],
