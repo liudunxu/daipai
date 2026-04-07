@@ -19,9 +19,8 @@ export default function StockPredictPage() {
       try {
         setStocksLoading(true)
         setError(null)
-        const response = await fetch('https://predict-api-production.up.railway.app/stocks?zone=cn')
+        const response = await fetch('/api/stock/stocks?zone=cn')
         console.log('股票列表响应状态:', response.status)
-        console.log('股票列表响应头:', Object.fromEntries(response.headers.entries()))
         if (!response.ok) throw new Error(`获取股票列表失败: ${response.status}`)
         const data = await response.json()
         console.log('股票列表数据:', data)
@@ -45,7 +44,10 @@ export default function StockPredictPage() {
       setError(null)
       setPrediction(null)
 
-      const url = `https://predict-api-production.up.railway.app/predict?stock=${encodeURIComponent(selectedStock)}${fastMode ? '&fast_mode=true' : ''}`
+      let url = `/api/stock/predict?stock=${encodeURIComponent(selectedStock)}`
+      if (fastMode) {
+        url += '&fast_mode=true'
+      }
       console.log('开始获取预测, URL:', url)
       const response = await fetch(url)
       console.log('预测响应状态:', response.status)
