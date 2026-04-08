@@ -15,7 +15,7 @@ export async function GET(request) {
       )
     }
 
-    let url = `https://predict-api-production.up.railway.app/predict?stock=${encodeURIComponent(stock)}`
+    let url = `https://stock-prediction-api.liudunxu2.workers.dev/predict?stock=${encodeURIComponent(stock)}`
     if (fastMode === 'true') {
       url += '&fast_mode=true'
     }

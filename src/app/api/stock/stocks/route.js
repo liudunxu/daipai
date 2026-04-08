@@ -7,7 +7,7 @@ export async function GET(request) {
     const { searchParams } = new URL(request.url)
     const zone = searchParams.get('zone') || 'cn'
 
-    const response = await fetch(`https://predict-api-production.up.railway.app/stocks?zone=${zone}`, {
+    const response = await fetch(`https://stock-prediction-api.liudunxu2.workers.dev/stocks?zone=${zone}`, {
       headers: {
         'Accept': 'application/json',
       },
