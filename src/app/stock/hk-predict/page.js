@@ -101,7 +101,7 @@ export default function StockPredictPage() {
         {/* 标题 */}
         <header className="text-center mb-8">
           <h1 className="text-3xl md:text-4xl font-black text-white mb-2">
-            🏛️ 港股预测
+            🇭🇰 港股预测
           </h1>
           <p className="text-white/50 text-sm">
             选择股票，一键预测走势
