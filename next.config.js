@@ -2,6 +2,10 @@
 const nextConfig = {
   reactStrictMode: true,
 
+  // 性能优化
+  compress: true,
+  poweredByHeader: false,
+
   // SEO 优化配置
   trailingSlash: false, // 百度推荐不带斜杠的 URL
 
