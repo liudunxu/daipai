@@ -142,13 +142,6 @@ const relatedTools = {
   ],
   // 股票类
   stock: [
-    { href: '/stock/backtest', emoji: '📈', name: '回测' },
-    { href: '/today', emoji: '🎯', name: '今日运势' },
-    { href: '/tool/lucky', emoji: '🍀', name: '幸运数字' },
-    { href: '/nav', emoji: '🧭', name: '更多工具' },
-  ],
-  'stock/backtest': [
-    { href: '/stock', emoji: '📊', name: '股市预测' },
     { href: '/today', emoji: '🎯', name: '今日运势' },
     { href: '/tool/lucky', emoji: '🍀', name: '幸运数字' },
     { href: '/nav', emoji: '🧭', name: '更多工具' },
