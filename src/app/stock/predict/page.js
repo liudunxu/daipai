@@ -202,13 +202,13 @@ export default function StockPredictPage() {
               <div className="flex justify-between items-center mb-2">
                 <span className="text-white/60 text-sm">置信度</span>
                 <span className="text-yellow-400 font-bold">
-                  {Math.round((pred.confidence || 0.5) * 100)}%
+                  {Math.round((prediction.confidence || 0.5) * 100)}%
                 </span>
               </div>
               <div className="h-2 bg-white/10 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full"
-                  style={{ width: `${(pred.confidence || 0.5) * 100}%` }}
+                  style={{ width: `${(prediction.confidence || 0.5) * 100}%` }}
                 />
               </div>
             </div>
@@ -216,13 +216,13 @@ export default function StockPredictPage() {
             {/* 简明理由 */}
             <div className="bg-white/5 rounded-xl p-4">
               <p className="text-white/60 text-sm mb-2">📋 简明理由</p>
-              {pred.bullish_factors?.[0] && (
-                <p className="text-green-400 text-sm mb-1">✅ {pred.bullish_factors[0]}</p>
+              {prediction.bullish_factors?.[0] && (
+                <p className="text-green-400 text-sm mb-1">✅ {prediction.bullish_factors[0]}</p>
               )}
-              {pred.bearish_factors?.[0] && (
-                <p className="text-red-400 text-sm">❌ {pred.bearish_factors[0]}</p>
+              {prediction.bearish_factors?.[0] && (
+                <p className="text-red-400 text-sm">❌ {prediction.bearish_factors[0]}</p>
               )}
-              {!pred.bullish_factors?.[0] && !pred.bearish_factors?.[0] && (
+              {!prediction.bullish_factors?.[0] && !prediction.bearish_factors?.[0] && (
                 <p className="text-white/40 text-sm">暂无详细理由</p>
               )}
             </div>
@@ -233,15 +233,15 @@ export default function StockPredictPage() {
               <div className="grid grid-cols-3 gap-2 text-center">
                 <div className="bg-white/5 rounded-lg p-2">
                   <p className="text-white/40 text-xs">现价</p>
-                  <p className="text-white font-bold">{pred.current_price?.toFixed(2) || '-'}</p>
+                  <p className="text-white font-bold">{prediction.current_price?.toFixed(2) || '-'}</p>
                 </div>
                 <div className="bg-white/5 rounded-lg p-2">
                   <p className="text-green-400 text-xs">支撑</p>
-                  <p className="text-green-400 font-bold">{pred.support?.toFixed(2) || '-'}</p>
+                  <p className="text-green-400 font-bold">{prediction.support?.toFixed(2) || '-'}</p>
                 </div>
                 <div className="bg-white/5 rounded-lg p-2">
                   <p className="text-red-400 text-xs">阻力</p>
-                  <p className="text-red-400 font-bold">{pred.resistance?.toFixed(2) || '-'}</p>
+                  <p className="text-red-400 font-bold">{prediction.resistance?.toFixed(2) || '-'}</p>
                 </div>
               </div>
             </div>
@@ -260,17 +260,17 @@ export default function StockPredictPage() {
                 {/* 多空因素 */}
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <p className="text-red-400 text-xs mb-2">📈 利好 ({pred.bullish_count || 0})</p>
+                    <p className="text-red-400 text-xs mb-2">📈 利好 ({prediction.bullish_count || 0})</p>
                     <ul className="space-y-1">
-                      {pred.bullish_factors?.slice(0, 3).map((f, i) => (
+                      {prediction.bullish_factors?.slice(0, 3).map((f, i) => (
                         <li key={i} className="text-white/50 text-xs truncate">{f}</li>
                       ))}
                     </ul>
                   </div>
                   <div>
-                    <p className="text-green-400 text-xs mb-2">📉 利空 ({pred.bearish_count || 0})</p>
+                    <p className="text-green-400 text-xs mb-2">📉 利空 ({prediction.bearish_count || 0})</p>
                     <ul className="space-y-1">
-                      {pred.bearish_factors?.slice(0, 3).map((f, i) => (
+                      {prediction.bearish_factors?.slice(0, 3).map((f, i) => (
                         <li key={i} className="text-white/50 text-xs truncate">{f}</li>
                       ))}
                     </ul>
@@ -279,19 +279,19 @@ export default function StockPredictPage() {
 
                 {/* 技术信号 */}
                 <div className="flex gap-2 flex-wrap">
-                  {pred.ml_action !== undefined && (
+                  {prediction.ml_action !== undefined && (
                     <span className="px-3 py-1 bg-purple-500/20 text-purple-400 rounded-full text-xs">
-                      ML: {pred.ml_action === 0 ? '持有' : pred.ml_action === 1 ? '买入' : pred.ml_action === -1 ? '卖出' : pred.ml_action}
+                      ML: {prediction.ml_action === 0 ? '持有' : prediction.ml_action === 1 ? '买入' : prediction.ml_action === -1 ? '卖出' : prediction.ml_action}
                     </span>
                   )}
-                  {pred.technical_direction && (
+                  {prediction.technical_direction && (
                     <span className="px-3 py-1 bg-cyan-500/20 text-cyan-400 rounded-full text-xs">
-                      技术: {pred.technical_direction}
+                      技术: {prediction.technical_direction}
                     </span>
                   )}
-                  {pred.market_regime && (
+                  {prediction.market_regime && (
                     <span className="px-3 py-1 bg-orange-500/20 text-orange-400 rounded-full text-xs">
-                      {pred.market_regime === 'trending' ? '趋势市' : pred.market_regime === 'volatile' ? '波动市' : '震荡市'}
+                      {prediction.market_regime === 'trending' ? '趋势市' : prediction.market_regime === 'volatile' ? '波动市' : '震荡市'}
                     </span>
                   )}
                 </div>
@@ -300,20 +300,20 @@ export default function StockPredictPage() {
                 <div className="grid grid-cols-2 gap-2 text-center text-xs">
                   <div className="bg-white/5 rounded-lg p-2">
                     <p className="text-white/40">Alpha</p>
-                    <p className={(pred.alpha || 0) >= 0 ? 'text-red-400' : 'text-green-400'}>
-                      {(pred.alpha * 100)?.toFixed(2)}%
+                    <p className={(prediction.alpha || 0) >= 0 ? 'text-red-400' : 'text-green-400'}>
+                      {(prediction.alpha * 100)?.toFixed(2)}%
                     </p>
                   </div>
                   <div className="bg-white/5 rounded-lg p-2">
                     <p className="text-white/40">Beta</p>
-                    <p className="text-blue-400">{(pred.beta || 1).toFixed(2)}</p>
+                    <p className="text-blue-400">{(prediction.beta || 1).toFixed(2)}</p>
                   </div>
                 </div>
 
                 {/* 预测时间 */}
-                {pred.prediction_date && (
+                {prediction.prediction_date && (
                   <p className="text-center text-white/30 text-xs">
-                    预测日期: {pred.prediction_date} → {pred.target_date}
+                    预测日期: {prediction.prediction_date} → {prediction.target_date}
                   </p>
                 )}
               </div>
