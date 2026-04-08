@@ -11,6 +11,7 @@ export async function GET(request) {
       headers: {
         'Accept': 'application/json',
       },
+      cache: 'no-store',
     })
 
     if (!response.ok) {
