@@ -15,6 +15,11 @@ export default function StockPredictPage() {
   const [showDetail, setShowDetail] = useState(false)
   const [fastMode, setFastMode] = useState(true)
 
+  // 设置页面标题
+  useEffect(() => {
+    document.title = '美股预测 - 极客观察'
+  }, [])
+
   // 获取股票列表
   useEffect(() => {
     const fetchStocks = async () => {
