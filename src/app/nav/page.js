@@ -1,158 +1,157 @@
+import { cookies } from 'next/headers'
 import Link from 'next/link'
 import { AdBanner } from '../../components/Ads'
 import WechatGroup from '../../components/WechatGroup'
+import { t } from '../../lib/i18n'
 
-export const metadata = {
-  title: '导航页 - 实用工具集合 - 极客观察',
-  description: '汇集各种实用工具和资讯页面，包括摇骰子、股市预测、姓名大全、热搜榜、星座运势、塔罗牌测试等。极客观察工具箱一触即达。',
-  keywords: ['导航', '工具箱', '实用工具', '在线工具', '运势查询', '算命工具', 'AI工具'],
-  openGraph: {
-    type: 'website',
-    locale: 'zh_CN',
-    url: 'https://www.zkwatcher.top/nav',
-    siteName: '极客观察',
-    title: '导航页 - 实用工具集合',
-    description: '汇集各种实用工具和资讯页面。',
-  },
-  twitter: {
-    card: 'summary',
-    title: '导航页 - 实用工具集合',
-    description: '汇集各种实用工具和资讯页面',
-  },
-  alternates: {
-    canonical: 'https://www.zkwatcher.top/nav',
-  },
+export async function generateMetadata() {
+  const cookieStore = cookies()
+  const locale = cookieStore.get('locale')?.value || 'en'
+  const isZh = locale === 'zh'
+  
+  return {
+    title: isZh ? '导航页 - 实用工具集合 - 极客观察' : 'Navigation - All Tools - GeekWatcher',
+    description: isZh 
+      ? '汇集各种实用工具和资讯页面，包括摇骰子、股市预测、姓名大全、热搜榜、星座运势、塔罗牌测试等。极客观察工具箱一触即达。'
+      : 'Collection of useful tools and news pages. GeekWatcher toolbox at your fingertips.',
+    keywords: isZh
+      ? ['导航', '工具箱', '实用工具', '在线工具', '运势查询', '算命工具', 'AI工具']
+      : ['Navigation', 'Tools', 'Toolbox', 'Online Tools', 'AI Tools'],
+    openGraph: {
+      type: 'website',
+      locale: isZh ? 'zh_CN' : 'en_US',
+      url: 'https://www.zkwatcher.top/nav',
+      siteName: isZh ? '极客观察' : 'GeekWatcher',
+      title: isZh ? '导航页 - 实用工具集合' : 'Navigation - All Tools',
+      description: isZh ? '汇集各种实用工具和资讯页面。' : 'Collection of useful tools and pages.',
+    },
+    twitter: {
+      card: 'summary',
+      title: isZh ? '导航页 - 实用工具集合' : 'Navigation - All Tools',
+      description: isZh ? '汇集各种实用工具和资讯页面' : 'Collection of useful tools and pages',
+    },
+    alternates: {
+      canonical: 'https://www.zkwatcher.top/nav',
+    },
+  }
 }
 
-const navGroups = [
-  {
-    title: '🏠 快捷入口',
-    items: [
-      { name: '首页', url: '/', desc: '回到首页' },
-    ],
-  },
-  {
-    title: '🔮 玄学命理',
-    items: [
-      { name: '今日运势', url: '/today', desc: '每日运势查询' },
-      { name: '星座运势', url: '/xingzuo', desc: '12星座今日运势' },
-      { name: '十二生肖', url: '/shengxiao', desc: '生肖运势查询' },
-      { name: '2026年运势', url: '/fate', desc: '2026年生肖运势预测' },
-      { name: '老黄历', url: '/huangli', desc: '今日黄历吉凶宜忌' },
-      { name: '农历日历', url: '/lunar', desc: '公历农历天干地支对照' },
-      { name: '择吉日', url: '/zhaori', desc: '结婚搬家开业选好日子' },
-      { name: '在线抽签', url: '/chouqian', desc: '观音灵签月老灵签' },
-      { name: '八字算命', url: '/bazi', desc: '生辰八字五行查询' },
-      { name: '称骨算命', url: '/chenggu', desc: '袁天罡称骨算命法' },
-      { name: '塔罗牌测试', url: '/tarot', desc: '3张牌解读问题' },
-      { name: '周公解梦', url: '/jiemeng', desc: '在线免费解梦' },
-      { name: '手相术', url: '/guoxue/shouqianshou', desc: '手相看命运' },
-    ],
-  },
-  {
-    title: '💘 爱情配对',
-    items: [
-      { name: '姓名配对', url: '/match', desc: '测试缘分配对指数' },
-      { name: '手机号测运势', url: '/phone', desc: '号码吉凶查询' },
-      { name: '心理测试', url: '/mind', desc: '5道题了解真实的你' },
-      { name: 'MBTI测试', url: '/personality', desc: '16型人格测试' },
-    ],
-  },
-  {
-    title: '🎉 生活娱乐',
-    items: [
-      { name: '生日密语', url: '/birthday', desc: '生日专属秘密' },
-      { name: '生日蛋糕', url: '/cake', desc: '生日蛋糕许愿生成' },
-      { name: '结婚吉日', url: '/wedding', desc: '挑选结婚好日子' },
-      { name: '情侣头像', url: '/couple', desc: '生成专属情侣头像' },
-      { name: '节日头像', url: '/avatar', desc: '春节、中秋、生日头像' },
-      { name: 'AI撞脸测试', url: '/face', desc: '看你像哪个明星' },
-      { name: '摇骰子', url: '/dice', desc: '在线摇骰子，趣味随机' },
-      { name: '祝福语', url: '/blessing', desc: '节日祝福语生成' },
-    ],
-  },
-  {
-    title: '📊 股票财经',
-    items: [
-      { name: '今天会涨吗', url: '/stock', desc: '股市行情预测，娱乐一下' },
-      { name: 'A股预测', url: '/stock/predict', desc: '智能预测A股走势' },
-      { name: '港股预测', url: '/stock/hk-predict', desc: '智能预测港股走势' },
-      { name: '美股预测', url: '/stock/us-predict', desc: '智能预测美股走势' },
-      { name: '大佬持仓', url: '/guru', desc: '巴菲特/Cathie Wood持仓' },
-    ],
-  },
-  {
-    title: '🤖 AI工具',
-    items: [
-      { name: 'AI工具导航', url: '/ai', desc: 'DeepSeek/Claude/Coze教程' },
-      { name: '编程模型排行', url: '/llm-leaderboard', desc: 'AI编程能力排行榜' },
-      { name: 'DeepSeek指南', url: '/ai/deepseek', desc: 'DeepSeek使用教程' },
-      { name: 'Claude指南', url: '/ai/claude', desc: 'Claude使用教程' },
-      { name: 'Coze教程', url: '/ai/coze', desc: 'Coze使用教程' },
-      { name: 'Perplexity', url: '/ai/perplexity', desc: 'AI搜索引擎教程' },
-      { name: 'AI提示词', url: '/prompt', desc: 'ChatGPT提示词大全' },
-      { name: 'Harness科普', url: '/harness', desc: '大模型Harness通俗解释' },
-      { name: 'OpenMAIC', url: '/maic', desc: '清华开源AI互动课堂' },
-    ],
-  },
-  {
-    title: '🛠️ 实用工具',
-    items: [
-      { name: '姓名大全', url: '/names', desc: '100个常用人名' },
-      { name: '开发工具', url: '/tool', desc: 'JSON/时间戳/Base64/MD5' },
-      { name: '密码生成', url: '/tool/password', desc: '安全强密码生成' },
-      { name: '单位换算', url: '/tool/unit', desc: '长度/重量/温度/面积转换' },
-      { name: '倒数日', url: '/tool/countdown', desc: '重要日子倒计时' },
-      { name: 'BMI计算', url: '/tool/bmi', desc: '身体质量指数计算' },
-      { name: '身高评估', url: '/tool/height', desc: '儿童身高发育评估' },
-      { name: '睡眠推荐', url: '/tool/sleep', desc: '各年龄段睡眠时长' },
-      { name: '运势测算', url: '/tool/lucky', desc: '2026年运势测算' },
-      { name: '火星文', url: '/tool/huoxing', desc: '火星文转换器' },
-      { name: 'SEO文章', url: '/seo', desc: 'SEO文章自动生成' },
-    ],
-  },
-  {
-    title: '🔥 资讯热点',
-    items: [
-      { name: '热搜榜', url: '/trending', desc: '微博、知乎、百度热搜' },
-      { name: 'GitHub热门', url: '/github-rank', desc: '每周热门开源项目' },
-      { name: 'Claude源码泄漏', url: '/claude-code-leak', desc: '51万行代码曝光事件解析' },
-      { name: '2026话题', url: '/trend/2026', desc: '热门话题聚合' },
-      { name: '历史上的今天', url: '/todayinhistory', desc: '回顾历史重大事件' },
-      { name: '黄仁勋GTC', url: '/nvidia', desc: 'GTC 2026演讲总结' },
-      { name: '阿里架构', url: '/alibaba', desc: '阿里组织架构调整' },
-      { name: 'QClaw资讯', url: '/news/openclaw', desc: '腾讯QClaw最新消息' },
-      { name: '适合性测试', url: '/news/openclaw/check', desc: '测测你适合用OpenClaw吗' },
-      { name: '足部护理', url: '/daipai', desc: '东北雨姐推荐' },
-      { name: '引流素材', url: '/share', desc: '社交媒体文案一键复制' },
-    ],
-  },
-  {
-    title: '💼 其他',
-    items: [
-      { name: '国学院', url: '/guoxue', desc: '北京润泽园国学院' },
-      { name: 'PUA话术', url: '/pua', desc: '互联网大厂PUA大全' },
-      { name: 'PUA聊天', url: '/pua/chat', desc: '和PUA聊聊天' },
-      { name: '功能介绍', url: '/features', desc: '网站功能一览' },
-      { name: '关于我们', url: '/about', desc: '关于我们' },
-      { name: '联系我们', url: '/contact', desc: '联系我们' },
-      { name: '隐私政策', url: '/privacy', desc: '隐私政策说明' },
-      { name: '用户协议', url: '/terms', desc: '用户服务协议' },
-    ],
-  },
-]
-
 export default function NavPage() {
+  const cookieStore = cookies()
+  const locale = cookieStore.get('locale')?.value || 'en'
+  const isZh = locale === 'zh'
+
+  const navGroups = [
+    {
+      title: t('navPage.quickAccess', locale),
+      items: [
+        { name: t('nav.home', locale), url: '/', desc: isZh ? '回到首页' : 'Back to home' },
+      ],
+    },
+    {
+      title: t('navPage.mysticism', locale),
+      items: [
+        { name: t('nav.fortune', locale), url: '/today', desc: isZh ? '每日运势查询' : 'Daily fortune' },
+        { name: t('nav.horoscope', locale), url: '/xingzuo', desc: isZh ? '12星座今日运势' : '12 zodiac daily horoscope' },
+        { name: t('nav.zodiac', locale), url: '/shengxiao', desc: isZh ? '生肖运势查询' : 'Chinese zodiac fortune' },
+        { name: '2026 Fortune', url: '/fate', desc: isZh ? '2026年生肖运势预测' : '2026 zodiac prediction' },
+        { name: t('nav.almanac', locale), url: '/huangli', desc: isZh ? '今日黄历吉凶宜忌' : 'Traditional almanac' },
+        { name: t('nav.lunar', locale), url: '/lunar', desc: isZh ? '公历农历天干地支对照' : 'Lunar calendar' },
+        { name: t('nav.auspicious', locale), url: '/zhaori', desc: isZh ? '结婚搬家开业选好日子' : 'Auspicious day picker' },
+        { name: t('nav.divination', locale), url: '/chouqian', desc: isZh ? '观音灵签月老灵签' : 'Fortune sticks' },
+        { name: t('nav.bazi', locale), url: '/bazi', desc: isZh ? '生辰八字五行查询' : 'BaZi fortune telling' },
+        { name: t('nav.bone', locale), url: '/chenggu', desc: isZh ? '袁天罡称骨算命法' : 'Bone weight fortune' },
+        { name: t('nav.tarot', locale), url: '/tarot', desc: isZh ? '3张牌解读问题' : 'Tarot reading' },
+        { name: t('nav.dream', locale), url: '/jiemeng', desc: isZh ? '在线免费解梦' : 'Dream interpretation' },
+      ],
+    },
+    {
+      title: t('navPage.love', locale),
+      items: [
+        { name: 'Name Match', url: '/match', desc: isZh ? '测试缘分配对指数' : 'Love compatibility' },
+        { name: 'Phone Fortune', url: '/phone', desc: isZh ? '号码吉凶查询' : 'Phone number luck' },
+        { name: 'Psych Test', url: '/mind', desc: isZh ? '5道题了解真实的你' : '5-question psychology test' },
+        { name: t('nav.mbti', locale), url: '/personality', desc: isZh ? '16型人格测试' : '16 personality types' },
+      ],
+    },
+    {
+      title: t('navPage.entertainment', locale),
+      items: [
+        { name: 'Birthday Secret', url: '/birthday', desc: isZh ? '生日专属秘密' : 'Birthday secrets' },
+        { name: 'Birthday Cake', url: '/cake', desc: isZh ? '生日蛋糕许愿生成' : 'Birthday cake wishes' },
+        { name: 'Wedding', url: '/wedding', desc: isZh ? '挑选结婚好日子' : 'Wedding date picker' },
+        { name: 'Couple Avatar', url: '/couple', desc: isZh ? '生成专属情侣头像' : 'Couple avatars' },
+        { name: 'Avatar', url: '/avatar', desc: isZh ? '春节、中秋、生日头像' : 'Festival avatars' },
+        { name: 'Face Match', url: '/face', desc: isZh ? '看你像哪个明星' : 'Celebrity face match' },
+        { name: 'Dice', url: '/dice', desc: isZh ? '在线摇骰子，趣味随机' : 'Online dice roller' },
+        { name: 'Blessings', url: '/blessing', desc: isZh ? '节日祝福语生成' : 'Greeting generator' },
+      ],
+    },
+    {
+      title: t('navPage.stock', locale),
+      items: [
+        { name: 'Stock Today', url: '/stock', desc: isZh ? '股市行情预测，娱乐一下' : 'Stock prediction for fun' },
+        { name: t('nav.stockPredict', locale), url: '/stock/predict', desc: isZh ? '智能预测A股走势' : 'A-share prediction' },
+        { name: t('nav.hkStock', locale), url: '/stock/hk-predict', desc: isZh ? '智能预测港股走势' : 'HK stock prediction' },
+        { name: t('nav.usStock', locale), url: '/stock/us-predict', desc: isZh ? '智能预测美股走势' : 'US stock prediction' },
+        { name: t('nav.guru', locale), url: '/guru', desc: isZh ? '巴菲特/Cathie Wood持仓' : 'Guru holdings tracker' },
+      ],
+    },
+    {
+      title: t('navPage.ai', locale),
+      items: [
+        { name: 'AI Tools', url: '/ai', desc: isZh ? 'DeepSeek/Claude/Coze教程' : 'DeepSeek/Claude/Coze guides' },
+        { name: t('nav.aiRank', locale), url: '/llm-leaderboard', desc: isZh ? 'AI编程能力排行榜' : 'AI coding leaderboard' },
+        { name: 'DeepSeek', url: '/ai/deepseek', desc: isZh ? 'DeepSeek使用教程' : 'DeepSeek guide' },
+        { name: 'Claude', url: '/ai/claude', desc: isZh ? 'Claude使用教程' : 'Claude guide' },
+        { name: 'Coze', url: '/ai/coze', desc: isZh ? 'Coze使用教程' : 'Coze guide' },
+        { name: 'Perplexity', url: '/ai/perplexity', desc: isZh ? 'AI搜索引擎教程' : 'Perplexity guide' },
+        { name: 'AI Prompts', url: '/prompt', desc: isZh ? 'ChatGPT提示词大全' : 'AI prompts collection' },
+      ],
+    },
+    {
+      title: t('navPage.tools', locale),
+      items: [
+        { name: t('nav.password', locale), url: '/tool/password', desc: isZh ? '安全强密码生成' : 'Secure password generator' },
+        { name: t('nav.unit', locale), url: '/tool/unit', desc: isZh ? '长度/重量/温度/面积转换' : 'Unit converter' },
+        { name: t('nav.countdown', locale), url: '/tool/countdown', desc: isZh ? '重要日子倒计时' : 'Countdown timer' },
+        { name: t('nav.bmi', locale), url: '/tool/bmi', desc: isZh ? '身体质量指数计算' : 'BMI calculator' },
+        { name: 'Height', url: '/tool/height', desc: isZh ? '儿童身高发育评估' : 'Child height assessment' },
+        { name: 'Sleep', url: '/tool/sleep', desc: isZh ? '各年龄段睡眠时长' : 'Sleep recommendations' },
+        { name: t('nav.lucky', locale), url: '/tool/lucky', desc: isZh ? '2026年运势测算' : '2026 fortune calculation' },
+        { name: t('nav.mars', locale), url: '/tool/huoxing', desc: isZh ? '火星文转换器' : 'Mars text converter' },
+      ],
+    },
+    {
+      title: t('navPage.news', locale),
+      items: [
+        { name: t('nav.trending', locale), url: '/trending', desc: isZh ? '微博、知乎、百度热搜' : 'Trending topics' },
+        { name: t('nav.github', locale), url: '/github-rank', desc: isZh ? '每周热门开源项目' : 'Weekly trending open source' },
+        { name: t('nav.history', locale), url: '/todayinhistory', desc: isZh ? '回顾历史重大事件' : 'Today in history' },
+      ],
+    },
+    {
+      title: t('navPage.others', locale),
+      items: [
+        { name: 'Features', url: '/features', desc: isZh ? '网站功能一览' : 'Site features overview' },
+        { name: t('footer.about', locale), url: '/about', desc: isZh ? '关于我们' : 'About us' },
+        { name: t('footer.contact', locale), url: '/contact', desc: isZh ? '联系我们' : 'Contact us' },
+        { name: t('footer.privacy', locale), url: '/privacy', desc: isZh ? '隐私政策说明' : 'Privacy policy' },
+        { name: t('footer.terms', locale), url: '/terms', desc: isZh ? '用户服务协议' : 'Terms of service' },
+      ],
+    },
+  ]
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4 md:p-8">
       <div className="max-w-4xl mx-auto">
         {/* 标题 */}
         <header className="text-center mb-10">
           <h1 className="text-3xl md:text-4xl font-black text-white mb-3">
-            🧭 导航页
+            {t('navPage.title', locale)}
           </h1>
           <p className="text-white/60">
-            实用工具集合，一触即达
+            {t('navPage.subtitle', locale)}
           </p>
         </header>
 
@@ -187,24 +186,26 @@ export default function NavPage() {
           <AdBanner className="mx-auto max-w-2xl" />
         </div>
 
-        {/* 社群入口 */}
-        <section className="mt-10">
-          <h2 className="text-xl font-bold text-white mb-4 text-center">🎉 加入我们</h2>
-          <div className="flex flex-wrap justify-center gap-3">
-            <WechatGroup
-              title="微信群"
-              description="扫码加入粉丝群，获取最新资讯"
-            />
-            <WechatGroup
-              title="知识星球"
-              description="加入付费社群，获取更多干货"
-            />
-          </div>
-        </section>
+        {/* 社群入口 - 仅中文显示 */}
+        {isZh && (
+          <section className="mt-10">
+            <h2 className="text-xl font-bold text-white mb-4 text-center">{t('navPage.joinUs', locale)}</h2>
+            <div className="flex flex-wrap justify-center gap-3">
+              <WechatGroup
+                title={t('navPage.wechatGroup', locale)}
+                description={t('navPage.wechatDesc', locale)}
+              />
+              <WechatGroup
+                title={t('navPage.knowledgePlanet', locale)}
+                description={t('navPage.planetDesc', locale)}
+              />
+            </div>
+          </section>
+        )}
 
         {/* 外部链接 */}
         <section className="mt-10">
-          <h2 className="text-xl font-bold text-white mb-4 text-center">🔗 常用网站</h2>
+          <h2 className="text-xl font-bold text-white mb-4 text-center">{t('navPage.commonSites', locale)}</h2>
           <div className="flex flex-wrap justify-center gap-3">
             <a
               href="https://github.com/openclaw"
@@ -212,7 +213,7 @@ export default function NavPage() {
               rel="noopener noreferrer"
               className="px-4 py-2 bg-white/10 rounded-full text-white/70 hover:bg-white/20 hover:text-white transition-colors text-sm"
             >
-              GitHub
+              {t('navPage.github', locale)}
             </a>
             <a
               href="https://openclaw.ai"
@@ -220,7 +221,7 @@ export default function NavPage() {
               rel="noopener noreferrer"
               className="px-4 py-2 bg-white/10 rounded-full text-white/70 hover:bg-white/20 hover:text-white transition-colors text-sm"
             >
-              OpenClaw官网
+              {t('navPage.openclaw', locale)}
             </a>
             <a
               href="https://claw.guanjia.qq.com"
@@ -228,31 +229,35 @@ export default function NavPage() {
               rel="noopener noreferrer"
               className="px-4 py-2 bg-white/10 rounded-full text-white/70 hover:bg-white/20 hover:text-white transition-colors text-sm"
             >
-              QClaw
+              {t('navPage.qclaw', locale)}
             </a>
-            <a
-              href="https://weibo.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-4 py-2 bg-white/10 rounded-full text-white/70 hover:bg-white/20 hover:text-white transition-colors text-sm"
-            >
-              微博
-            </a>
-            <a
-              href="https://zhihu.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-4 py-2 bg-white/10 rounded-full text-white/70 hover:bg-white/20 hover:text-white transition-colors text-sm"
-            >
-              知乎
-            </a>
+            {isZh && (
+              <>
+                <a
+                  href="https://weibo.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-4 py-2 bg-white/10 rounded-full text-white/70 hover:bg-white/20 hover:text-white transition-colors text-sm"
+                >
+                  {t('navPage.weibo', locale)}
+                </a>
+                <a
+                  href="https://zhihu.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-4 py-2 bg-white/10 rounded-full text-white/70 hover:bg-white/20 hover:text-white transition-colors text-sm"
+                >
+                  {t('navPage.zhihu', locale)}
+                </a>
+              </>
+            )}
           </div>
         </section>
 
         {/* 底部 */}
         <footer className="mt-12 text-center">
           <Link href="/" className="text-white/30 hover:text-white/60 text-sm transition-colors">
-            ← 返回首页
+            {t('navPage.backHome', locale)}
           </Link>
         </footer>
       </div>

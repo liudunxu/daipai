@@ -1,70 +1,76 @@
-import Link from 'next/link'
+'use client'
 
-const footerSections = [
-  {
-    title: '玄学命理',
-    links: [
-      { name: '周公解梦', url: '/jiemeng' },
-      { name: 'MBTI测试', url: '/personality' },
-      { name: '星座运势', url: '/xingzuo' },
-      { name: '八字算命', url: '/bazi' },
-      { name: '塔罗牌测试', url: '/tarot' },
-      { name: '今日运势', url: '/today' },
-      { name: '择吉日', url: '/zhaori' },
-      { name: '农历日历', url: '/lunar' },
-      { name: '老黄历', url: '/huangli' },
-      { name: '在线抽签', url: '/chouqian' },
-      { name: '生肖运势', url: '/shengxiao' },
-      { name: '称骨算命', url: '/chenggu' },
-    ],
-  },
-  {
-    title: '股票财经',
-    links: [
-      { name: 'A股预测', url: '/stock/predict' },
-      { name: '港股预测', url: '/stock/hk-predict' },
-      { name: '美股预测', url: '/stock/us-predict' },
-      { name: '大佬持仓追踪', url: '/guru' },
-      { name: '股票预测', url: '/stock' },
-    ],
-  },
-  {
-    title: '实用工具',
-    links: [
-      { name: '密码生成器', url: '/tool/password' },
-      { name: 'BMI计算器', url: '/tool/bmi' },
-      { name: '单位换算器', url: '/tool/unit' },
-      { name: '倒计时工具', url: '/tool/countdown' },
-      { name: '火星文转换', url: '/tool/huoxing' },
-      { name: '运势测算', url: '/tool/lucky' },
-      { name: '儿童身高评估', url: '/tool/height' },
-      { name: '睡眠推荐', url: '/tool/sleep' },
-    ],
-  },
-  {
-    title: 'AI与资讯',
-    links: [
-      { name: 'AI工具导航', url: '/ai' },
-      { name: '热搜榜', url: '/trending' },
-      { name: 'GitHub热榜', url: '/github-rank' },
-      { name: '历史上的今天', url: '/todayinhistory' },
-      { name: 'LLM排行榜', url: '/llm-leaderboard' },
-    ],
-  },
-  {
-    title: '娱乐互动',
-    links: [
-      { name: '摇骰子', url: '/dice' },
-      { name: '情侣头像', url: '/couple' },
-      { name: '生日蛋糕', url: '/cake' },
-      { name: '姓名配对', url: '/match' },
-      { name: 'AI撞脸', url: '/face' },
-      { name: '手机号测运势', url: '/phone' },
-    ],
-  },
-]
+import Link from 'next/link'
+import { useTranslation } from './I18nProvider'
 
 function SiteFooter() {
+  const { t, locale } = useTranslation()
+  const isZh = locale === 'zh'
+
+  const footerSections = [
+    {
+      title: t('footer.mysticism'),
+      links: [
+        { name: t('nav.dream'), url: '/jiemeng' },
+        { name: t('nav.mbti'), url: '/personality' },
+        { name: t('nav.horoscope'), url: '/xingzuo' },
+        { name: t('nav.bazi'), url: '/bazi' },
+        { name: t('nav.tarot'), url: '/tarot' },
+        { name: t('nav.fortune'), url: '/today' },
+        { name: t('nav.auspicious'), url: '/zhaori' },
+        { name: t('nav.lunar'), url: '/lunar' },
+        { name: t('nav.almanac'), url: '/huangli' },
+        { name: t('nav.divination'), url: '/chouqian' },
+        { name: t('nav.zodiac'), url: '/shengxiao' },
+        { name: t('nav.bone'), url: '/chenggu' },
+      ],
+    },
+    {
+      title: t('footer.stock'),
+      links: [
+        { name: t('nav.stockPredict'), url: '/stock/predict' },
+        { name: t('nav.hkStock'), url: '/stock/hk-predict' },
+        { name: t('nav.usStock'), url: '/stock/us-predict' },
+        { name: t('nav.guru'), url: '/guru' },
+        { name: 'Stock Predict', url: '/stock' },
+      ],
+    },
+    {
+      title: t('footer.tools'),
+      links: [
+        { name: t('nav.password'), url: '/tool/password' },
+        { name: t('nav.bmi'), url: '/tool/bmi' },
+        { name: t('nav.unit'), url: '/tool/unit' },
+        { name: t('nav.countdown'), url: '/tool/countdown' },
+        { name: t('nav.mars'), url: '/tool/huoxing' },
+        { name: t('nav.lucky'), url: '/tool/lucky' },
+        { name: 'Height', url: '/tool/height' },
+        { name: 'Sleep', url: '/tool/sleep' },
+      ],
+    },
+    {
+      title: t('footer.aiNews'),
+      links: [
+        { name: 'AI Tools', url: '/ai' },
+        { name: t('nav.trending'), url: '/trending' },
+        { name: t('nav.github'), url: '/github-rank' },
+        { name: t('nav.history'), url: '/todayinhistory' },
+        { name: t('nav.aiRank'), url: '/llm-leaderboard' },
+      ],
+    },
+    {
+      title: t('footer.entertainment'),
+      links: [
+        { name: 'Dice', url: '/dice' },
+        { name: 'Couple', url: '/couple' },
+        { name: 'Cake', url: '/cake' },
+        { name: 'Match', url: '/match' },
+        { name: 'Face Match', url: '/face' },
+        { name: 'Phone', url: '/phone' },
+      ],
+    },
+  ]
+
   return (
     <footer className="bg-gray-900 border-t border-gray-800 mt-auto">
       <div className="max-w-6xl mx-auto px-4 py-10">
@@ -90,13 +96,13 @@ function SiteFooter() {
 
         <div className="border-t border-gray-800 mt-8 pt-6 text-center">
           <p className="text-gray-500 text-xs">
-            极客观察 - AI科技经济资讯平台 | 本站内容仅供参考，不构成任何投资或决策建议
+            {t('footer.copyright')}
           </p>
           <div className="flex justify-center gap-4 mt-3">
-            <Link href="/about" className="text-gray-500 text-xs hover:text-gray-400">关于我们</Link>
-            <Link href="/privacy" className="text-gray-500 text-xs hover:text-gray-400">隐私政策</Link>
-            <Link href="/terms" className="text-gray-500 text-xs hover:text-gray-400">服务条款</Link>
-            <Link href="/contact" className="text-gray-500 text-xs hover:text-gray-400">联系我们</Link>
+            <Link href="/about" className="text-gray-500 text-xs hover:text-gray-400">{t('footer.about')}</Link>
+            <Link href="/privacy" className="text-gray-500 text-xs hover:text-gray-400">{t('footer.privacy')}</Link>
+            <Link href="/terms" className="text-gray-500 text-xs hover:text-gray-400">{t('footer.terms')}</Link>
+            <Link href="/contact" className="text-gray-500 text-xs hover:text-gray-400">{t('footer.contact')}</Link>
           </div>
         </div>
       </div>

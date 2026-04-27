@@ -2,67 +2,70 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-
-const navItems = [
-  { name: '首页', url: '/' },
-  { name: '导航', url: '/nav' },
-  {
-    name: '玄学命理',
-    children: [
-      { name: '今日运势', url: '/today' },
-      { name: '周公解梦', url: '/jiemeng' },
-      { name: '星座运势', url: '/xingzuo' },
-      { name: 'MBTI测试', url: '/personality' },
-      { name: '八字算命', url: '/bazi' },
-      { name: '塔罗牌', url: '/tarot' },
-      { name: '择吉日', url: '/zhaori' },
-      { name: '老黄历', url: '/huangli' },
-      { name: '农历日历', url: '/lunar' },
-      { name: '在线抽签', url: '/chouqian' },
-      { name: '生肖运势', url: '/shengxiao' },
-      { name: '称骨算命', url: '/chenggu' },
-    ],
-  },
-  {
-    name: '股票财经',
-    children: [
-      { name: 'A股预测', url: '/stock/predict' },
-      { name: '港股预测', url: '/stock/hk-predict' },
-      { name: '美股预测', url: '/stock/us-predict' },
-      { name: '大佬持仓', url: '/guru' },
-    ],
-  },
-  {
-    name: '实用工具',
-    children: [
-      { name: '密码生成器', url: '/tool/password' },
-      { name: 'BMI计算器', url: '/tool/bmi' },
-      { name: '单位换算', url: '/tool/unit' },
-      { name: '倒计时', url: '/tool/countdown' },
-      { name: '火星文', url: '/tool/huoxing' },
-      { name: '运势测算', url: '/tool/lucky' },
-    ],
-  },
-  {
-    name: '资讯',
-    children: [
-      { name: '热搜榜', url: '/trending' },
-      { name: 'GitHub热榜', url: '/github-rank' },
-      { name: '历史上的今天', url: '/todayinhistory' },
-      { name: 'AI排名', url: '/llm-leaderboard' },
-    ],
-  },
-]
+import { useTranslation } from './I18nProvider'
 
 function SiteHeader() {
+  const { t, locale } = useTranslation()
+  const isZh = locale === 'zh'
   const [mobileOpen, setMobileOpen] = useState(false)
   const [openDropdown, setOpenDropdown] = useState(null)
+
+  const navItems = [
+    { name: t('nav.home'), url: '/' },
+    { name: t('nav.nav'), url: '/nav' },
+    {
+      name: t('nav.mysticism'),
+      children: [
+        { name: t('nav.fortune'), url: '/today' },
+        { name: t('nav.dream'), url: '/jiemeng' },
+        { name: t('nav.horoscope'), url: '/xingzuo' },
+        { name: t('nav.mbti'), url: '/personality' },
+        { name: t('nav.bazi'), url: '/bazi' },
+        { name: t('nav.tarot'), url: '/tarot' },
+        { name: t('nav.auspicious'), url: '/zhaori' },
+        { name: t('nav.almanac'), url: '/huangli' },
+        { name: t('nav.lunar'), url: '/lunar' },
+        { name: t('nav.divination'), url: '/chouqian' },
+        { name: t('nav.zodiac'), url: '/shengxiao' },
+        { name: t('nav.bone'), url: '/chenggu' },
+      ],
+    },
+    {
+      name: t('nav.stock'),
+      children: [
+        { name: t('nav.stockPredict'), url: '/stock/predict' },
+        { name: t('nav.hkStock'), url: '/stock/hk-predict' },
+        { name: t('nav.usStock'), url: '/stock/us-predict' },
+        { name: t('nav.guru'), url: '/guru' },
+      ],
+    },
+    {
+      name: t('nav.tools'),
+      children: [
+        { name: t('nav.password'), url: '/tool/password' },
+        { name: t('nav.bmi'), url: '/tool/bmi' },
+        { name: t('nav.unit'), url: '/tool/unit' },
+        { name: t('nav.countdown'), url: '/tool/countdown' },
+        { name: t('nav.mars'), url: '/tool/huoxing' },
+        { name: t('nav.lucky'), url: '/tool/lucky' },
+      ],
+    },
+    {
+      name: t('nav.news'),
+      children: [
+        { name: t('nav.trending'), url: '/trending' },
+        { name: t('nav.github'), url: '/github-rank' },
+        { name: t('nav.history'), url: '/todayinhistory' },
+        { name: t('nav.aiRank'), url: '/llm-leaderboard' },
+      ],
+    },
+  ]
 
   return (
     <header className="sticky top-0 z-40 bg-gray-900/95 backdrop-blur border-b border-gray-800">
       <nav className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
         <Link href="/" className="text-white font-bold text-lg shrink-0">
-          极客观察
+          {t('site.name')}
         </Link>
 
         <div className="hidden md:flex items-center gap-1">
@@ -106,7 +109,7 @@ function SiteHeader() {
         <button
           className="md:hidden text-white text-xl p-2"
           onClick={() => setMobileOpen(!mobileOpen)}
-          aria-label="菜单"
+          aria-label={t('nav.menu')}
         >
           {mobileOpen ? '✕' : '☰'}
         </button>

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { AdBanner } from './Ads'
+import { useTranslation } from './I18nProvider'
 
 const tagColors = {
   emerald: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
@@ -16,7 +17,7 @@ const tagColors = {
   pink: 'bg-pink-500/20 text-pink-400 border-pink-500/30',
 }
 
-function formatDate(dateStr) {
+function formatDate(dateStr, locale) {
   if (!dateStr) return ''
   try {
     const date = new Date(dateStr)
@@ -24,17 +25,19 @@ function formatDate(dateStr) {
     const diff = now - date
     const hours = Math.floor(diff / (1000 * 60 * 60))
     const days = Math.floor(diff / (1000 * 60 * 60 * 24))
+    const isZh = locale === 'zh'
 
-    if (hours < 1) return '刚刚'
-    if (hours < 24) return `${hours}小时前`
-    if (days < 7) return `${days}天前`
-    return date.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' })
+    if (hours < 1) return isZh ? '刚刚' : 'Just now'
+    if (hours < 24) return isZh ? `${hours}小时前` : `${hours}h ago`
+    if (days < 7) return isZh ? `${days}天前` : `${days}d ago`
+    return date.toLocaleDateString(isZh ? 'zh-CN' : 'en-US', { month: 'short', day: 'numeric' })
   } catch {
     return ''
   }
 }
 
 export default function HomeNews() {
+  const { t, locale } = useTranslation()
   const [news, setNews] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -48,22 +51,22 @@ export default function HomeNews() {
         if (data.success && data.data) {
           setNews(data.data)
         } else {
-          setError('获取资讯失败')
+          setError(t('home.loadError'))
         }
       } catch {
-        setError('网络错误，请稍后重试')
+        setError(t('home.loadError'))
       } finally {
         setLoading(false)
       }
     }
     fetchNews()
-  }, [])
+  }, [t])
 
   return (
     <section className="py-8 px-5">
       <div className="max-w-4xl mx-auto">
         <h2 className="text-xl font-bold text-white mb-6 text-center">
-          📰 最新资讯
+          {t('home.latestNews')}
         </h2>
         {loading ? (
           <div className="space-y-4">
@@ -87,13 +90,13 @@ export default function HomeNews() {
               onClick={() => window.location.reload()}
               className="px-6 py-3 bg-white/10 text-white font-bold rounded-full hover:bg-white/20 transition-colors"
             >
-              点击重试
+              {t('home.retry')}
             </button>
           </div>
         ) : news.length === 0 ? (
           <div className="text-center py-12">
             <div className="text-4xl mb-4">📭</div>
-            <p className="text-white/60">暂无资讯数据</p>
+            <p className="text-white/60">{t('home.noData')}</p>
           </div>
         ) : (
           <div className="space-y-4">
@@ -113,7 +116,7 @@ export default function HomeNews() {
                       </span>
                       <span className="text-white/40 text-xs">{item.source}</span>
                       <span className="text-white/30 text-xs">·</span>
-                      <span className="text-white/40 text-xs">{formatDate(item.date)}</span>
+                      <span className="text-white/40 text-xs">{formatDate(item.date, locale)}</span>
                     </div>
                     <h3 className="text-white font-bold text-lg mb-2 line-clamp-2">{item.title}</h3>
                     <p className="text-white/60 text-sm line-clamp-2">{item.desc}</p>
@@ -124,7 +127,7 @@ export default function HomeNews() {
             {news.length > 12 && (
               <div className="text-center pt-2">
                 <a href="/trending" className="text-white/50 hover:text-white/80 text-sm transition-colors">
-                  查看更多资讯 →
+                  {t('home.viewMore')}
                 </a>
               </div>
             )}

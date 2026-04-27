@@ -1,118 +1,133 @@
+import { cookies } from 'next/headers'
 import ShareButtons from '../components/ShareButtons'
 import FAQSchema, { homePageFAQs } from '../components/FAQSchema'
 import { CollectionPageSchema, PageContentSummary } from '../components/RAGTools'
 import { popularTools } from '../lib/relatedTools'
 import HomeNews from '../components/HomeNews'
+import { t } from '../lib/i18n'
 
-const toolCategories = [
-  {
-    title: '🔮 玄学命理',
-    tools: [
-      { href: '/jiemeng', emoji: '🌙', name: '周公解梦', desc: '输入梦境关键词解读寓意' },
-      { href: '/personality', emoji: '🧠', name: 'MBTI测试', desc: '16型人格测试' },
-      { href: '/xingzuo', emoji: '✨', name: '星座运势', desc: '12星座今日运势详解' },
-      { href: '/bazi', emoji: '📖', name: '八字算命', desc: '生辰八字五行查询' },
-      { href: '/tarot', emoji: '🔮', name: '塔罗牌', desc: '3张牌解读你的问题' },
-      { href: '/chouqian', emoji: '🙏', name: '在线抽签', desc: '观音灵签月老灵签' },
-      { href: '/today', emoji: '🎯', name: '今日运势', desc: '每日运势综合查询' },
-      { href: '/huangli', emoji: '📅', name: '老黄历', desc: '今日黄历吉凶宜忌' },
-    ],
-  },
-  {
-    title: '💒 择日查询',
-    tools: [
-      { href: '/zhaori', emoji: '🎊', name: '择吉日', desc: '结婚搬家开业选好日子' },
-      { href: '/lunar', emoji: '🗓️', name: '农历日历', desc: '公历农历天干地支对照' },
-      { href: '/wedding', emoji: '💒', name: '结婚吉日', desc: '挑选结婚好日子' },
-      { href: '/fate', emoji: '🔮', name: '2026年运势', desc: '生肖运势预测' },
-    ],
-  },
-  {
-    title: '💞 情感配对',
-    tools: [
-      { href: '/match', emoji: '💕', name: '姓名配对', desc: '测试缘分配对指数' },
-      { href: '/phone', emoji: '📱', name: '手机号测运势', desc: '号码吉凶查询' },
-      { href: '/mind', emoji: '🧩', name: '心理测试', desc: '5道题了解真实的你' },
-      { href: '/couple', emoji: '💑', name: '情侣头像', desc: '生成专属情侣头像' },
-    ],
-  },
-  {
-    title: '🎉 生活娱乐',
-    tools: [
-      { href: '/blessing', emoji: '🎊', name: '祝福语', desc: '节日祝福语生成' },
-      { href: '/cake', emoji: '🎂', name: '生日蛋糕', desc: '生日蛋糕许愿生成' },
-      { href: '/birthday', emoji: '🎁', name: '生日密语', desc: '生日专属秘密' },
-      { href: '/avatar', emoji: '🎨', name: '节日头像', desc: '春节中秋生日头像' },
-      { href: '/dice', emoji: '🎲', name: '摇骰子', desc: '在线摇骰子趣味随机' },
-    ],
-  },
-  {
-    title: '📊 股票财经',
-    tools: [
-      { href: '/stock', emoji: '📈', name: '今天会涨吗', desc: 'A股行情娱乐预测' },
-      { href: '/stock/predict', emoji: '💹', name: 'A股预测', desc: '智能预测A股走势' },
-      { href: '/guru', emoji: '🎯', name: '大佬持仓', desc: '巴菲特/Cathie Wood持仓' },
-    ],
-  },
-  {
-    title: '🛠️ 实用工具',
-    tools: [
-      { href: '/tool/password', emoji: '🔑', name: '密码生成', desc: '安全强密码生成器' },
-      { href: '/tool/bmi', emoji: '⚖️', name: 'BMI计算', desc: '体质指数计算' },
-      { href: '/tool/unit', emoji: '📐', name: '单位换算', desc: '长度重量温度换算' },
-      { href: '/tool/countdown', emoji: '⏳', name: '倒数日', desc: '重要日子倒计时' },
-    ],
-  },
-]
-
-export const metadata = {
-  title: '极客观察 - AI科技经济资讯 | 星座运势、八字算命、周公解梦、MBTI测试',
-  description: '极客观察提供AI科技经济资讯、星座运势、八字算命、周公解梦、MBTI性格测试、择吉日、农历查询等60+实用工具。混排36氪、虎嗅、IT之家等科技媒体资讯，每日更新。',
-  keywords: ['极客观察', '周公解梦', 'MBTI测试', '星座运势', '八字算命', '择吉日', '农历查询', 'AI资讯', '科技新闻', '塔罗牌', '在线抽签', '今日运势'],
-  openGraph: {
-    type: 'website',
-    locale: 'zh_CN',
-    url: 'https://www.zkwatcher.top',
-    siteName: '极客观察',
-    title: '极客观察 - AI科技经济资讯 | 60+实用工具',
-    description: '提供周公解梦、MBTI测试、星座运势、择吉日等60+实用工具，混排36氪、虎嗅、IT之家科技资讯。',
-    images: [
-      {
-        url: '/api/og-image?title=极客观察&desc=AI科技经济资讯平台',
-        width: 1200,
-        height: 630,
-        alt: '极客观察'
-      }
-    ],
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: '极客观察 - AI科技经济资讯 | 60+实用工具',
-    description: '提供周公解梦、MBTI测试、星座运势、择吉日等60+实用工具',
-    images: ['/api/og-image?title=极客观察&desc=AI科技经济资讯平台'],
-  },
-  alternates: {
-    canonical: 'https://www.zkwatcher.top',
-  },
+export async function generateMetadata() {
+  const cookieStore = cookies()
+  const locale = cookieStore.get('locale')?.value || 'en'
+  const isZh = locale === 'zh'
+  
+  return {
+    title: isZh 
+      ? '极客观察 - AI科技经济资讯 | 星座运势、八字算命、周公解梦、MBTI测试'
+      : 'GeekWatcher - AI Tech Finance News | Horoscope, Dream Interpretation, MBTI Test',
+    description: isZh
+      ? '极客观察提供AI科技经济资讯、星座运势、八字算命、周公解梦、MBTI性格测试、择吉日、农历查询等60+实用工具。混排36氪、虎嗅、IT之家等科技媒体资讯，每日更新。'
+      : 'GeekWatcher provides AI tech finance news, horoscope, dream interpretation, MBTI personality test, and 60+ free tools. Daily updates.',
+    keywords: isZh
+      ? ['极客观察', '周公解梦', 'MBTI测试', '星座运势', '八字算命', '择吉日', '农历查询', 'AI资讯', '科技新闻']
+      : ['GeekWatcher', 'AI News', 'Tech News', 'Horoscope', 'MBTI', 'Dream Interpretation', 'Fortune Telling'],
+    openGraph: {
+      type: 'website',
+      locale: isZh ? 'zh_CN' : 'en_US',
+      url: 'https://www.zkwatcher.top',
+      siteName: isZh ? '极客观察' : 'GeekWatcher',
+      title: isZh ? '极客观察 - AI科技经济资讯 | 60+实用工具' : 'GeekWatcher - AI Tech Finance News | 60+ Free Tools',
+      description: isZh ? '提供周公解梦、MBTI测试、星座运势、择吉日等60+实用工具' : 'Free tools: dream interpretation, MBTI test, horoscope, and more',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: isZh ? '极客观察 - AI科技经济资讯 | 60+实用工具' : 'GeekWatcher - AI Tech Finance News | 60+ Free Tools',
+      description: isZh ? '提供周公解梦、MBTI测试、星座运势、择吉日等60+实用工具' : 'Free tools: dream interpretation, MBTI test, horoscope, and more',
+    },
+    alternates: {
+      canonical: 'https://www.zkwatcher.top',
+    },
+  }
 }
 
 export default function Home() {
+  const cookieStore = cookies()
+  const locale = cookieStore.get('locale')?.value || 'en'
+  const isZh = locale === 'zh'
+
+  const toolCategories = [
+    {
+      title: t('categories.mysticism', locale),
+      tools: [
+        { href: '/jiemeng', emoji: '🌙', name: t('nav.dream', locale), desc: isZh ? '输入梦境关键词解读寓意' : 'Interpret your dreams by keywords' },
+        { href: '/personality', emoji: '🧠', name: t('nav.mbti', locale), desc: isZh ? '16型人格测试' : '16 personality types test' },
+        { href: '/xingzuo', emoji: '✨', name: t('nav.horoscope', locale), desc: isZh ? '12星座今日运势详解' : 'Daily horoscope for 12 zodiac signs' },
+        { href: '/bazi', emoji: '📖', name: t('nav.bazi', locale), desc: isZh ? '生辰八字五行查询' : 'BaZi (Eight Characters) fortune telling' },
+        { href: '/tarot', emoji: '🔮', name: t('nav.tarot', locale), desc: isZh ? '3张牌解读你的问题' : '3-card tarot reading' },
+        { href: '/chouqian', emoji: '🙏', name: t('nav.divination', locale), desc: isZh ? '观音灵签月老灵签' : 'Online fortune sticks drawing' },
+        { href: '/today', emoji: '🎯', name: t('nav.fortune', locale), desc: isZh ? '每日运势综合查询' : 'Daily comprehensive fortune' },
+        { href: '/huangli', emoji: '📅', name: t('nav.almanac', locale), desc: isZh ? '今日黄历吉凶宜忌' : 'Traditional Chinese almanac' },
+      ],
+    },
+    {
+      title: t('categories.dateSelection', locale),
+      tools: [
+        { href: '/zhaori', emoji: '🎊', name: t('nav.auspicious', locale), desc: isZh ? '结婚搬家开业选好日子' : 'Pick auspicious days for events' },
+        { href: '/lunar', emoji: '🗓️', name: t('nav.lunar', locale), desc: isZh ? '公历农历天干地支对照' : 'Gregorian & lunar calendar' },
+        { href: '/wedding', emoji: '💒', name: 'Wedding', desc: isZh ? '挑选结婚好日子' : 'Pick wedding dates' },
+        { href: '/fate', emoji: '🔮', name: '2026 Fortune', desc: isZh ? '生肖运势预测' : 'Zodiac fortune prediction' },
+      ],
+    },
+    {
+      title: t('categories.love', locale),
+      tools: [
+        { href: '/match', emoji: '💕', name: 'Name Match', desc: isZh ? '测试缘分配对指数' : 'Love compatibility test' },
+        { href: '/phone', emoji: '📱', name: 'Phone Fortune', desc: isZh ? '号码吉凶查询' : 'Phone number fortune check' },
+        { href: '/mind', emoji: '🧩', name: 'Psych Test', desc: isZh ? '5道题了解真实的你' : '5 questions to know yourself' },
+        { href: '/couple', emoji: '💑', name: 'Couple Avatar', desc: isZh ? '生成专属情侣头像' : 'Generate couple avatars' },
+      ],
+    },
+    {
+      title: t('categories.entertainment', locale),
+      tools: [
+        { href: '/blessing', emoji: '🎊', name: 'Blessings', desc: isZh ? '节日祝福语生成' : 'Generate festival greetings' },
+        { href: '/cake', emoji: '🎂', name: 'Birthday Cake', desc: isZh ? '生日蛋糕许愿生成' : 'Birthday cake wishes' },
+        { href: '/birthday', emoji: '🎁', name: 'Birthday Secret', desc: isZh ? '生日专属秘密' : 'Birthday secrets' },
+        { href: '/avatar', emoji: '🎨', name: 'Avatar', desc: isZh ? '春节中秋生日头像' : 'Festival avatars' },
+        { href: '/dice', emoji: '🎲', name: 'Dice', desc: isZh ? '在线摇骰子趣味随机' : 'Online dice roller' },
+      ],
+    },
+    {
+      title: t('categories.stock', locale),
+      tools: [
+        { href: '/stock', emoji: '📈', name: 'Stock Today', desc: isZh ? 'A股行情娱乐预测' : 'Stock market fun prediction' },
+        { href: '/stock/predict', emoji: '💹', name: t('nav.stockPredict', locale), desc: isZh ? '智能预测A股走势' : 'A-share trend prediction' },
+        { href: '/guru', emoji: '🎯', name: t('nav.guru', locale), desc: isZh ? '巴菲特/Cathie Wood持仓' : 'Buffett/Cathie Wood holdings' },
+      ],
+    },
+    {
+      title: t('categories.tools', locale),
+      tools: [
+        { href: '/tool/password', emoji: '🔑', name: t('nav.password', locale), desc: isZh ? '安全强密码生成器' : 'Secure password generator' },
+        { href: '/tool/bmi', emoji: '⚖️', name: t('nav.bmi', locale), desc: isZh ? '体质指数计算' : 'Body mass index calculator' },
+        { href: '/tool/unit', emoji: '📐', name: t('nav.unit', locale), desc: isZh ? '长度重量温度换算' : 'Length/weight/temperature converter' },
+        { href: '/tool/countdown', emoji: '⏳', name: t('nav.countdown', locale), desc: isZh ? '重要日子倒计时' : 'Important day countdown' },
+      ],
+    },
+  ]
+
+  const siteName = t('site.name', locale)
+  const tagline = t('site.tagline', locale)
+
   return (
     <>
       <CollectionPageSchema
-        name="极客观察 - AI科技经济资讯"
-        description="混排AI、科技、经济相关资讯，36氪、虎嗅、IT之家、经济时报，一站获取最新科技动态。同时提供星座运势、八字算命、塔罗牌、周公解梦、MBTI等60+实用工具。"
+        name={`${siteName} - ${tagline}`}
+        description={t('site.about', locale)}
         items={popularTools.map(tool => ({
           name: tool.name,
-          description: `${tool.name}工具`,
+          description: `${tool.name} tool`,
           url: `https://www.zkwatcher.top${tool.href}`
         }))}
       />
       <PageContentSummary
-        title="极客观察 - AI科技经济资讯"
-        description="混排AI、科技、经济相关资讯，提供周公解梦、MBTI测试、星座运势、八字算命、择吉日、农历查询等60+实用工具。"
-        category="综合工具平台"
-        features={['AI资讯', '周公解梦', 'MBTI测试', '星座运势', '择吉日', '农历查询', '八字算命', '塔罗牌', '生活工具']}
+        title={`${siteName} - ${tagline}`}
+        description={t('site.about', locale)}
+        category={isZh ? '综合工具平台' : 'Comprehensive Tools Platform'}
+        features={isZh 
+          ? ['AI资讯', '周公解梦', 'MBTI测试', '星座运势', '择吉日', '农历查询', '八字算命', '塔罗牌', '生活工具']
+          : ['AI News', 'Dream Interpretation', 'MBTI Test', 'Horoscope', 'Auspicious Days', 'Lunar Calendar', 'Fortune Telling', 'Tarot', 'Life Tools']
+        }
       />
       <FAQSchema faqs={homePageFAQs} />
 
@@ -121,22 +136,22 @@ export default function Home() {
           <div className="max-w-4xl mx-auto">
             <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full mb-6">
               <span className="text-xl">👁️</span>
-              <span className="text-white font-medium">极客观察</span>
+              <span className="text-white font-medium">{siteName}</span>
             </div>
             <h1 className="text-4xl md:text-5xl font-black text-white mb-4 leading-tight">
-              AI · 科技 · 经济
-              <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent"> 资讯</span>
+              {t('home.title', locale)}
+              <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent"> {t('home.subtitle', locale)}</span>
             </h1>
             <p className="text-lg text-white/70 mb-8">
-              混排AI、科技、经济相关资讯 · 60+实用工具 · 每日更新
+              {t('home.description', locale)}
             </p>
             <div className="flex flex-wrap justify-center gap-2">
-              <span className="px-3 py-1 bg-purple-500/20 text-purple-400 border border-purple-500/30 rounded-full text-xs">周公解梦</span>
-              <span className="px-3 py-1 bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 rounded-full text-xs">MBTI测试</span>
-              <span className="px-3 py-1 bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 rounded-full text-xs">星座运势</span>
-              <span className="px-3 py-1 bg-green-500/20 text-green-400 border border-green-500/30 rounded-full text-xs">择吉日</span>
-              <span className="px-3 py-1 bg-orange-500/20 text-orange-400 border border-orange-500/30 rounded-full text-xs">八字算命</span>
-              <span className="px-3 py-1 bg-red-500/20 text-red-400 border border-red-500/30 rounded-full text-xs">股票预测</span>
+              <span className="px-3 py-1 bg-purple-500/20 text-purple-400 border border-purple-500/30 rounded-full text-xs">{t('nav.dream', locale)}</span>
+              <span className="px-3 py-1 bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 rounded-full text-xs">{t('nav.mbti', locale)}</span>
+              <span className="px-3 py-1 bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 rounded-full text-xs">{t('nav.horoscope', locale)}</span>
+              <span className="px-3 py-1 bg-green-500/20 text-green-400 border border-green-500/30 rounded-full text-xs">{t('nav.auspicious', locale)}</span>
+              <span className="px-3 py-1 bg-orange-500/20 text-orange-400 border border-orange-500/30 rounded-full text-xs">{t('nav.bazi', locale)}</span>
+              <span className="px-3 py-1 bg-red-500/20 text-red-400 border border-red-500/30 rounded-full text-xs">{t('nav.stockPredict', locale)}</span>
             </div>
           </div>
         </header>
@@ -146,7 +161,7 @@ export default function Home() {
         <section className="py-8 px-5 bg-white/5">
           <div className="max-w-4xl mx-auto">
             <h2 className="text-xl font-bold text-white mb-6 text-center">
-              🔥 热门工具
+              {t('home.hotTools', locale)}
             </h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {popularTools.map((tool) => (
@@ -162,7 +177,7 @@ export default function Home() {
         <section className="py-8 px-5">
           <div className="max-w-4xl mx-auto">
             <h2 className="text-xl font-bold text-white mb-6 text-center">
-              🧭 全部分类工具
+              {t('home.allTools', locale)}
             </h2>
             <div className="space-y-8">
               {toolCategories.map((category) => (
@@ -188,7 +203,7 @@ export default function Home() {
             </div>
             <div className="mt-6 text-center">
               <a href="/nav" className="inline-block px-6 py-2.5 bg-white/10 hover:bg-white/20 text-white rounded-full text-sm font-medium transition-colors">
-                查看全部工具 →
+                {t('home.viewAll', locale)}
               </a>
             </div>
           </div>
@@ -197,7 +212,7 @@ export default function Home() {
         <section className="py-8 px-5 bg-white/5">
           <div className="max-w-4xl mx-auto">
             <h2 className="text-xl font-bold text-white mb-4 text-center">
-              ❓ 常见问题
+              {t('home.faq', locale)}
             </h2>
             <div className="space-y-4">
               {homePageFAQs.map((faq, index) => (
@@ -218,28 +233,24 @@ export default function Home() {
         <section className="py-8 px-5">
           <div className="max-w-4xl mx-auto bg-white/5 border border-white/10 rounded-2xl p-6">
             <h2 className="text-lg font-bold text-white mb-3 text-center">
-              📌 关于极客观察
+              {t('home.about', locale)}
             </h2>
             <div className="text-white/60 text-sm leading-relaxed space-y-3">
-              <p>
-                极客观察是一个综合性的在线工具和资讯平台，提供 <strong className="text-white/80">60+</strong> 种实用工具，包括周公解梦、MBTI性格测试、星座运势、八字算命、塔罗牌占卜、择吉日、农历查询等玄学命理工具，以及密码生成器、BMI计算器、单位换算等生活工具。
-              </p>
-              <p>
-                资讯板块混排36氪、虎嗅、IT之家、财联社等主流科技经济媒体的最新报道，每日自动更新，让你不错过任何重要动态。所有工具完全免费，无需注册即可使用。
-              </p>
+              <p dangerouslySetInnerHTML={{ __html: t('site.about', locale).replace('60+', '<strong class="text-white/80">60+</strong>') }} />
+              <p>{t('site.newsDescription', locale)}</p>
               <div className="flex flex-wrap gap-2 pt-2">
-                <span className="px-2 py-0.5 bg-white/10 text-white/50 rounded text-xs">周公解梦</span>
-                <span className="px-2 py-0.5 bg-white/10 text-white/50 rounded text-xs">MBTI性格测试</span>
-                <span className="px-2 py-0.5 bg-white/10 text-white/50 rounded text-xs">十二星座运势</span>
-                <span className="px-2 py-0.5 bg-white/10 text-white/50 rounded text-xs">生辰八字</span>
-                <span className="px-2 py-0.5 bg-white/10 text-white/50 rounded text-xs">塔罗牌占卜</span>
-                <span className="px-2 py-0.5 bg-white/10 text-white/50 rounded text-xs">择吉日</span>
-                <span className="px-2 py-0.5 bg-white/10 text-white/50 rounded text-xs">农历日历</span>
-                <span className="px-2 py-0.5 bg-white/10 text-white/50 rounded text-xs">在线抽签</span>
-                <span className="px-2 py-0.5 bg-white/10 text-white/50 rounded text-xs">老黄历</span>
-                <span className="px-2 py-0.5 bg-white/10 text-white/50 rounded text-xs">股票预测</span>
-                <span className="px-2 py-0.5 bg-white/10 text-white/50 rounded text-xs">密码生成器</span>
-                <span className="px-2 py-0.5 bg-white/10 text-white/50 rounded text-xs">热搜榜</span>
+                <span className="px-2 py-0.5 bg-white/10 text-white/50 rounded text-xs">{t('nav.dream', locale)}</span>
+                <span className="px-2 py-0.5 bg-white/10 text-white/50 rounded text-xs">{t('nav.mbti', locale)}</span>
+                <span className="px-2 py-0.5 bg-white/10 text-white/50 rounded text-xs">{t('nav.horoscope', locale)}</span>
+                <span className="px-2 py-0.5 bg-white/10 text-white/50 rounded text-xs">{t('nav.bazi', locale)}</span>
+                <span className="px-2 py-0.5 bg-white/10 text-white/50 rounded text-xs">{t('nav.tarot', locale)}</span>
+                <span className="px-2 py-0.5 bg-white/10 text-white/50 rounded text-xs">{t('nav.auspicious', locale)}</span>
+                <span className="px-2 py-0.5 bg-white/10 text-white/50 rounded text-xs">{t('nav.lunar', locale)}</span>
+                <span className="px-2 py-0.5 bg-white/10 text-white/50 rounded text-xs">{t('nav.divination', locale)}</span>
+                <span className="px-2 py-0.5 bg-white/10 text-white/50 rounded text-xs">{t('nav.almanac', locale)}</span>
+                <span className="px-2 py-0.5 bg-white/10 text-white/50 rounded text-xs">{t('nav.stockPredict', locale)}</span>
+                <span className="px-2 py-0.5 bg-white/10 text-white/50 rounded text-xs">{t('nav.password', locale)}</span>
+                <span className="px-2 py-0.5 bg-white/10 text-white/50 rounded text-xs">{t('nav.trending', locale)}</span>
               </div>
             </div>
           </div>
@@ -247,13 +258,13 @@ export default function Home() {
 
         <footer className="py-8 px-5 text-center border-t border-white/10">
           <div className="max-w-4xl mx-auto mb-6">
-            <ShareButtons title="极客观察 - AI科技经济资讯" url="/" />
+            <ShareButtons title={`${siteName} - ${tagline}`} url="/" />
           </div>
           <p className="text-white/40 text-sm">
-            极客观察 · AI 科技 经济资讯
+            {t('home.footer', locale)}
           </p>
           <p className="text-white/30 text-xs mt-2">
-            数据来源：36氪、虎嗅、IT之家、财联社 · 每日更新 · 仅供参考
+            {t('home.dataSource', locale)}
           </p>
         </footer>
       </div>
