@@ -1,3 +1,6 @@
+import { SoftwareApplicationSchema } from '../../../components/SchemaMarkup'
+import FAQSchema, { luckyFAQs } from '../../../components/FAQSchema'
+
 export const metadata = {
   title: '2026年运势测算 - 生肖星座运势预测 | 极客观察',
   description: '2026年运势在线测算，根据您的生日分析生肖和星座运势，预测爱情、事业、财运等方面的运程走向。',
@@ -14,5 +17,15 @@ export const metadata = {
 }
 
 export default function Layout({ children }) {
-  return children
+  return (
+    <>
+      <SoftwareApplicationSchema
+        name="2026年运势测算"
+        description="根据生日分析生肖和星座运势，预测2026年运程走向。"
+        url="https://www.zkwatcher.top/tool/lucky"
+      />
+      <FAQSchema faqs={luckyFAQs} />
+      {children}
+    </>
+  )
 }

@@ -1,0 +1,20 @@
+{
+  "name": "极客观察 - AI科技经济资讯",
+  "short_name": "极客观察",
+  "description": "聚合AI、科技、经济资讯，提供运势查询、股票预测、实用工具等",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#111827",
+  "theme_color": "#1e293b",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "32x32",
+      "type": "image/x-icon"
+    }
+  ],
+  "categories": ["utilities", "news", "entertainment"],
+  "lang": "zh-CN",
+  "dir": "ltr"
+}

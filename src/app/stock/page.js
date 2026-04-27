@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 import AffiliateLink from '../../components/AffiliateLink'
 import FAQSchema, { stockFAQs } from '../../components/FAQSchema'
 import RelatedTools from '../../components/RelatedTools'
@@ -240,12 +241,12 @@ export default function StockPage() {
 
       <footer className="absolute bottom-4 w-full text-center">
         <div className="flex justify-center gap-4 mb-2">
-          <a href="/nav" className="text-white/30 hover:text-white/60 text-sm transition-colors">
+          <Link href="/nav" className="text-white/30 hover:text-white/60 text-sm transition-colors">
             ← 导航页
-          </a>
-          <a href="/" className="text-white/30 hover:text-white/60 text-sm transition-colors">
+          </Link>
+          <Link href="/" className="text-white/30 hover:text-white/60 text-sm transition-colors">
             ← 首页
-          </a>
+          </Link>
         </div>
       </footer>
 

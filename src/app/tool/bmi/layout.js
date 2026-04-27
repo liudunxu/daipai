@@ -1,3 +1,6 @@
+import { SoftwareApplicationSchema } from '../../../components/SchemaMarkup'
+import FAQSchema, { bmiFAQs } from '../../../components/FAQSchema'
+
 export const metadata = {
   title: 'BMI计算器 - 在线体质指数计算器 | 极客观察',
   description: '免费在线BMI计算器，输入身高体重即可计算体质指数(BMI)，自动判断体重是否标准，提供健康建议和参考标准。',
@@ -14,5 +17,15 @@ export const metadata = {
 }
 
 export default function Layout({ children }) {
-  return children
+  return (
+    <>
+      <SoftwareApplicationSchema
+        name="BMI计算器"
+        description="在线体质指数计算器，输入身高体重即可计算BMI，判断体重是否标准。"
+        url="https://www.zkwatcher.top/tool/bmi"
+      />
+      <FAQSchema faqs={bmiFAQs} />
+      {children}
+    </>
+  )
 }

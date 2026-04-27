@@ -8,6 +8,9 @@ Disallow: /*.json$
 # Sitemap
 Sitemap: https://www.zkwatcher.top/sitemap.xml
 
+# RSS Feed
+# Feed: https://www.zkwatcher.top/feed.xml
+
 # Baidu
 User-agent: Baiduspider
 Allow: /

@@ -1,8 +1,8 @@
 'use client'
 
-import Head from 'next/head'
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
+import Link from 'next/link'
 
 export default function ArticlePage() {
   const params = useParams()
@@ -167,42 +167,7 @@ export default function ArticlePage() {
   }
 
   return (
-    <>
-      <Head>
-        <title>{title}</title>
-        <meta name="description" content={articleDesc} />
-        <meta name="keywords" content={siteKeyword} />
-        <link rel="canonical" href={`https://www.zkwatcher.top/article/${encodeURIComponent(siteKeyword)}`} />
-        <meta property="og:title" content={title} />
-        <meta property="og:description" content={articleDesc} />
-        {ogImage && <meta property="og:image" content={ogImage} />}
-        <meta property="og:type" content="article" />
-        <meta property="og:url" content={`https://www.zkwatcher.top/article/${encodeURIComponent(siteKeyword)}`} />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={title} />
-        <meta name="twitter:description" content={articleDesc} />
-        {ogImage && <meta name="twitter:image" content={ogImage} />}
-        <script type="application/ld+json" dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            '@context': 'https://schema.org',
-            '@type': 'Article',
-            headline: articleTitle,
-            description: articleDesc,
-            keywords: siteKeyword,
-            datePublished: articleMeta.generatedAt || new Date().toISOString(),
-            dateModified: articleMeta.generatedAt || new Date().toISOString(),
-            author: { '@type': 'Person', name: '极客观察' },
-            publisher: {
-              '@type': 'Organization',
-              name: '极客观察',
-              url: 'https://www.zkwatcher.top'
-            },
-            image: ogImage ? [ogImage] : []
-          })
-        }} />
-      </Head>
-
-      <div className="min-h-screen bg-[#f5f5f5] py-8 px-4">
+    <div className="min-h-screen bg-[#f5f5f5] py-8 px-4">
         <article className="max-w-[680px] mx-auto">
           {/* 微信风格文章卡片 */}
           <div className="bg-white rounded-lg shadow-sm overflow-hidden">
@@ -349,15 +314,11 @@ export default function ArticlePage() {
                 </button>
               </>
             )}
-            <a
-              href="/seo"
-              className="px-5 py-2 text-sm text-[#576b95] hover:underline"
-            >
+            <Link href="/seo" className="text-[#576b95] hover:underline">
               ← 返回SEO管理页面
-            </a>
+            </Link>
           </div>
         </article>
       </div>
-    </>
   )
 }

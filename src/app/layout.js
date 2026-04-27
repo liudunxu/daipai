@@ -32,7 +32,7 @@ export const metadata = {
     description: '混排AI、科技、经济相关资讯',
     images: [
       {
-        url: '/og-image.png',
+        url: '/api/og-image?title=极客观察&desc=AI科技经济资讯平台',
         width: 1200,
         height: 630,
         alt: '极客观察'
@@ -43,7 +43,7 @@ export const metadata = {
     card: 'summary_large_image',
     title: '极客观察 - AI科技经济资讯',
     description: '混排AI、科技、经济相关资讯',
-    images: ['/og-image.png'],
+    images: ['/api/og-image?title=极客观察&desc=AI科技经济资讯平台'],
   },
   robots: {
     index: true,
@@ -73,26 +73,34 @@ export const metadata = {
   },
 }
 
+export const viewport = {
+  themeColor: '#1e293b',
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+}
+
 export default function RootLayout({ children }) {
   return (
     <html lang="zh-CN">
       <head>
-        {/* 百度搜索资源平台验证 */}
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="极客观察" />
+
         {process.env.BAIDU_SITE_VERIFICATION && (
           <meta name="baidu-site-verification" content={process.env.BAIDU_SITE_VERIFICATION} />
         )}
 
-        {/* 360 站长平台验证 */}
         {process.env.Z360_SITE_VERIFICATION && (
           <meta name="360-site-verification" content={process.env.Z360_SITE_VERIFICATION} />
         )}
 
-        {/* 搜狗站长平台验证 */}
         {process.env.SOGOU_SITE_VERIFICATION && (
           <meta name="sogou_site_verification" content={process.env.SOGOU_SITE_VERIFICATION} />
         )}
 
-        {/* 结构化数据 */}
         <OrganizationSchema />
         <WebSiteSchema
           name="极客观察"

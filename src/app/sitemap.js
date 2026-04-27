@@ -4,437 +4,104 @@ import { supabase } from '../lib/supabase'
 export default async function sitemap() {
   const baseUrl = 'https://www.zkwatcher.top'
 
+  const now = new Date()
+  const weekly = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
+  const monthly = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
+
   const staticPages = [
-    // 主页
-    {
-      url: baseUrl,
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 1.0,
-    },
-    {
-      url: `${baseUrl}/nav`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.9,
-    },
+    { url: baseUrl, lastModified: now, changeFrequency: 'daily', priority: 1.0 },
+    { url: `${baseUrl}/nav`, lastModified: weekly, changeFrequency: 'weekly', priority: 0.9 },
 
-    // ===== 玄学命理 =====
-    {
-      url: `${baseUrl}/today`,
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/xingzuo`,
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/shengxiao`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/chouqian`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/bazi`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/chenggu`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/fate`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/huangli`,
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/tarot`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/guoxue/shouqianshou`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.6,
-    },
+    // 玄学命理
+    { url: `${baseUrl}/today`, lastModified: now, changeFrequency: 'daily', priority: 0.8 },
+    { url: `${baseUrl}/xingzuo`, lastModified: now, changeFrequency: 'daily', priority: 0.8 },
+    { url: `${baseUrl}/shengxiao`, lastModified: weekly, changeFrequency: 'weekly', priority: 0.8 },
+    { url: `${baseUrl}/chouqian`, lastModified: weekly, changeFrequency: 'weekly', priority: 0.7 },
+    { url: `${baseUrl}/bazi`, lastModified: weekly, changeFrequency: 'weekly', priority: 0.7 },
+    { url: `${baseUrl}/chenggu`, lastModified: weekly, changeFrequency: 'weekly', priority: 0.7 },
+    { url: `${baseUrl}/fate`, lastModified: weekly, changeFrequency: 'weekly', priority: 0.8 },
+    { url: `${baseUrl}/huangli`, lastModified: now, changeFrequency: 'daily', priority: 0.8 },
+    { url: `${baseUrl}/tarot`, lastModified: weekly, changeFrequency: 'weekly', priority: 0.7 },
+    { url: `${baseUrl}/guoxue/shouqianshou`, lastModified: monthly, changeFrequency: 'monthly', priority: 0.6 },
 
-    // ===== 爱情配对 =====
-    {
-      url: `${baseUrl}/match`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/phone`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/mind`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.7,
-    },
+    // 爱情配对
+    { url: `${baseUrl}/match`, lastModified: weekly, changeFrequency: 'weekly', priority: 0.7 },
+    { url: `${baseUrl}/phone`, lastModified: weekly, changeFrequency: 'weekly', priority: 0.7 },
+    { url: `${baseUrl}/mind`, lastModified: weekly, changeFrequency: 'weekly', priority: 0.7 },
 
-    // ===== 生活工具 =====
-    {
-      url: `${baseUrl}/birthday`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.6,
-    },
-    {
-      url: `${baseUrl}/dice`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.6,
-    },
-    {
-      url: `${baseUrl}/names`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.6,
-    },
+    // 生活工具
+    { url: `${baseUrl}/birthday`, lastModified: monthly, changeFrequency: 'monthly', priority: 0.6 },
+    { url: `${baseUrl}/dice`, lastModified: monthly, changeFrequency: 'monthly', priority: 0.6 },
+    { url: `${baseUrl}/names`, lastModified: monthly, changeFrequency: 'monthly', priority: 0.6 },
 
-    // ===== 娱乐功能 =====
-    {
-      url: `${baseUrl}/cake`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.6,
-    },
-    {
-      url: `${baseUrl}/wedding`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.6,
-    },
-    {
-      url: `${baseUrl}/couple`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.6,
-    },
-    {
-      url: `${baseUrl}/avatar`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.6,
-    },
-    {
-      url: `${baseUrl}/face`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.6,
-    },
-    {
-      url: `${baseUrl}/blessing`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.6,
-    },
+    // 娱乐功能
+    { url: `${baseUrl}/cake`, lastModified: weekly, changeFrequency: 'weekly', priority: 0.6 },
+    { url: `${baseUrl}/wedding`, lastModified: weekly, changeFrequency: 'weekly', priority: 0.6 },
+    { url: `${baseUrl}/couple`, lastModified: weekly, changeFrequency: 'weekly', priority: 0.6 },
+    { url: `${baseUrl}/avatar`, lastModified: weekly, changeFrequency: 'weekly', priority: 0.6 },
+    { url: `${baseUrl}/face`, lastModified: weekly, changeFrequency: 'weekly', priority: 0.6 },
+    { url: `${baseUrl}/blessing`, lastModified: weekly, changeFrequency: 'weekly', priority: 0.6 },
 
-    // ===== AI 工具 =====
-    {
-      url: `${baseUrl}/ai`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/ai/deepseek`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/ai/claude`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/ai/coze`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/ai/perplexity`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/prompt`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.6,
-    },
-    {
-      url: `${baseUrl}/maic`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.6,
-    },
-    {
-      url: `${baseUrl}/llm-leaderboard`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.6,
-    },
+    // AI 工具
+    { url: `${baseUrl}/ai`, lastModified: weekly, changeFrequency: 'weekly', priority: 0.8 },
+    { url: `${baseUrl}/ai/deepseek`, lastModified: weekly, changeFrequency: 'weekly', priority: 0.7 },
+    { url: `${baseUrl}/ai/claude`, lastModified: weekly, changeFrequency: 'weekly', priority: 0.7 },
+    { url: `${baseUrl}/ai/coze`, lastModified: weekly, changeFrequency: 'weekly', priority: 0.7 },
+    { url: `${baseUrl}/ai/perplexity`, lastModified: weekly, changeFrequency: 'weekly', priority: 0.7 },
+    { url: `${baseUrl}/prompt`, lastModified: weekly, changeFrequency: 'weekly', priority: 0.6 },
+    { url: `${baseUrl}/maic`, lastModified: monthly, changeFrequency: 'monthly', priority: 0.6 },
+    { url: `${baseUrl}/llm-leaderboard`, lastModified: weekly, changeFrequency: 'weekly', priority: 0.6 },
 
-    // ===== 股票财经 =====
-    {
-      url: `${baseUrl}/stock`,
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/stock/predict`,
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/stock/hk-predict`,
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/stock/us-predict`,
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/guru`,
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 0.7,
-    },
+    // 股票财经
+    { url: `${baseUrl}/stock`, lastModified: now, changeFrequency: 'daily', priority: 0.8 },
+    { url: `${baseUrl}/stock/predict`, lastModified: now, changeFrequency: 'daily', priority: 0.8 },
+    { url: `${baseUrl}/stock/hk-predict`, lastModified: now, changeFrequency: 'daily', priority: 0.7 },
+    { url: `${baseUrl}/stock/us-predict`, lastModified: now, changeFrequency: 'daily', priority: 0.7 },
+    { url: `${baseUrl}/guru`, lastModified: now, changeFrequency: 'daily', priority: 0.7 },
 
-    // ===== 资讯热点 =====
-    {
-      url: `${baseUrl}/trending`,
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/trend/2026`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/todayinhistory`,
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/nvidia`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/alibaba`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/news/openclaw`,
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/news/openclaw/check`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.6,
-    },
-    {
-      url: `${baseUrl}/github-rank`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.6,
-    },
+    // 资讯热点
+    { url: `${baseUrl}/trending`, lastModified: now, changeFrequency: 'daily', priority: 0.7 },
+    { url: `${baseUrl}/trend/2026`, lastModified: now, changeFrequency: 'daily', priority: 0.7 },
+    { url: `${baseUrl}/todayinhistory`, lastModified: now, changeFrequency: 'daily', priority: 0.7 },
+    { url: `${baseUrl}/nvidia`, lastModified: weekly, changeFrequency: 'weekly', priority: 0.7 },
+    { url: `${baseUrl}/alibaba`, lastModified: weekly, changeFrequency: 'weekly', priority: 0.7 },
+    { url: `${baseUrl}/news/openclaw`, lastModified: weekly, changeFrequency: 'weekly', priority: 0.7 },
+    { url: `${baseUrl}/news/openclaw/check`, lastModified: monthly, changeFrequency: 'monthly', priority: 0.6 },
+    { url: `${baseUrl}/github-rank`, lastModified: weekly, changeFrequency: 'weekly', priority: 0.6 },
 
-    // ===== 实用工具 =====
-    {
-      url: `${baseUrl}/tool`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/tool/password`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.5,
-    },
-    {
-      url: `${baseUrl}/tool/lucky`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/tool/huoxing`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.5,
-    },
-    {
-      url: `${baseUrl}/tool/bmi`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.6,
-    },
-    {
-      url: `${baseUrl}/tool/height`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.6,
-    },
-    {
-      url: `${baseUrl}/tool/sleep`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.6,
-    },
-    {
-      url: `${baseUrl}/tool/unit`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.5,
-    },
-    {
-      url: `${baseUrl}/tool/countdown`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.5,
-    },
+    // 实用工具
+    { url: `${baseUrl}/tool`, lastModified: weekly, changeFrequency: 'weekly', priority: 0.7 },
+    { url: `${baseUrl}/tool/password`, lastModified: monthly, changeFrequency: 'monthly', priority: 0.5 },
+    { url: `${baseUrl}/tool/lucky`, lastModified: weekly, changeFrequency: 'weekly', priority: 0.7 },
+    { url: `${baseUrl}/tool/huoxing`, lastModified: monthly, changeFrequency: 'monthly', priority: 0.5 },
+    { url: `${baseUrl}/tool/bmi`, lastModified: monthly, changeFrequency: 'monthly', priority: 0.6 },
+    { url: `${baseUrl}/tool/height`, lastModified: monthly, changeFrequency: 'monthly', priority: 0.6 },
+    { url: `${baseUrl}/tool/sleep`, lastModified: monthly, changeFrequency: 'monthly', priority: 0.6 },
+    { url: `${baseUrl}/tool/unit`, lastModified: monthly, changeFrequency: 'monthly', priority: 0.5 },
+    { url: `${baseUrl}/tool/countdown`, lastModified: monthly, changeFrequency: 'monthly', priority: 0.5 },
 
-    // ===== SEO 文章 =====
-    {
-      url: `${baseUrl}/seo`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.5,
-    },
+    // SEO 文章
+    { url: `${baseUrl}/seo`, lastModified: weekly, changeFrequency: 'weekly', priority: 0.5 },
 
-    // ===== 专题内容 =====
-    {
-      url: `${baseUrl}/claude-code-leak`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/harness`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.7,
-    },
+    // 专题内容
+    { url: `${baseUrl}/claude-code-leak`, lastModified: monthly, changeFrequency: 'monthly', priority: 0.7 },
+    { url: `${baseUrl}/harness`, lastModified: monthly, changeFrequency: 'monthly', priority: 0.7 },
 
-    // ===== 其他页面 =====
-    {
-      url: `${baseUrl}/share`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.6,
-    },
-    {
-      url: `${baseUrl}/guoxue`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.6,
-    },
-    {
-      url: `${baseUrl}/pua`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.5,
-    },
-    {
-      url: `${baseUrl}/pua/chat`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.5,
-    },
-    {
-      url: `${baseUrl}/daipai`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.5,
-    },
+    // 其他页面
+    { url: `${baseUrl}/share`, lastModified: weekly, changeFrequency: 'weekly', priority: 0.6 },
+    { url: `${baseUrl}/guoxue`, lastModified: weekly, changeFrequency: 'weekly', priority: 0.6 },
+    { url: `${baseUrl}/pua`, lastModified: monthly, changeFrequency: 'monthly', priority: 0.5 },
+    { url: `${baseUrl}/pua/chat`, lastModified: monthly, changeFrequency: 'monthly', priority: 0.5 },
+    { url: `${baseUrl}/daipai`, lastModified: monthly, changeFrequency: 'monthly', priority: 0.5 },
 
-    // ===== 静态页面 =====
-    {
-      url: `${baseUrl}/features`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.4,
-    },
-    {
-      url: `${baseUrl}/about`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.4,
-    },
-    {
-      url: `${baseUrl}/contact`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.4,
-    },
-    {
-      url: `${baseUrl}/privacy`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.3,
-    },
-    {
-      url: `${baseUrl}/terms`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.3,
-    },
+    // 静态页面
+    { url: `${baseUrl}/features`, lastModified: monthly, changeFrequency: 'monthly', priority: 0.4 },
+    { url: `${baseUrl}/about`, lastModified: monthly, changeFrequency: 'monthly', priority: 0.4 },
+    { url: `${baseUrl}/contact`, lastModified: monthly, changeFrequency: 'monthly', priority: 0.4 },
+    { url: `${baseUrl}/privacy`, lastModified: monthly, changeFrequency: 'monthly', priority: 0.3 },
+    { url: `${baseUrl}/terms`, lastModified: monthly, changeFrequency: 'monthly', priority: 0.3 },
   ]
 
-  // 动态文章页面
   let articlePages = []
   try {
     const { data: articles } = await supabase
@@ -448,7 +115,7 @@ export default async function sitemap() {
         .filter(a => a.keyword)
         .map(article => ({
           url: `${baseUrl}/article/${encodeURIComponent(article.keyword)}`,
-          lastModified: article.generated_at ? new Date(article.generated_at) : new Date(),
+          lastModified: article.generated_at ? new Date(article.generated_at) : weekly,
           changeFrequency: 'weekly',
           priority: 0.6,
         }))

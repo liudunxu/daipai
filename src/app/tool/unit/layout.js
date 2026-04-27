@@ -1,3 +1,6 @@
+import { SoftwareApplicationSchema } from '../../../components/SchemaMarkup'
+import FAQSchema, { unitFAQs } from '../../../components/FAQSchema'
+
 export const metadata = {
   title: '在线单位换算器 - 长度重量温度换算工具 | 极客观察',
   description: '免费在线单位换算器，支持长度、重量、温度、面积、体积、速度等多种单位快速换算，实用便捷的工程计算工具。',
@@ -14,5 +17,15 @@ export const metadata = {
 }
 
 export default function Layout({ children }) {
-  return children
+  return (
+    <>
+      <SoftwareApplicationSchema
+        name="在线单位换算器"
+        description="支持长度、重量、温度、面积、体积、速度等多种单位快速换算的在线工具。"
+        url="https://www.zkwatcher.top/tool/unit"
+      />
+      <FAQSchema faqs={unitFAQs} />
+      {children}
+    </>
+  )
 }
