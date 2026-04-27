@@ -6,7 +6,6 @@ export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url)
     const stock = searchParams.get('stock')
-    const fastMode = searchParams.get('fast_mode')
 
     if (!stock) {
       return NextResponse.json(
@@ -15,17 +14,17 @@ export async function GET(request) {
       )
     }
 
-    let url = `https://stock-prediction-api.liudunxu2.workers.dev/predict?stock=${encodeURIComponent(stock)}`
-    if (fastMode === 'true') {
-      url += '&fast_mode=true'
-    }
+    const url = `https://stock-prediction-api.liudunxu2.workers.dev/predict?stock=${encodeURIComponent(stock)}`
+
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), 25000)
 
     const response = await fetch(url, {
-      headers: {
-        'Accept': 'application/json',
-      },
+      headers: { 'Accept': 'application/json' },
       cache: 'no-store',
+      signal: controller.signal,
     })
+    clearTimeout(timeout)
 
     if (!response.ok) {
       return NextResponse.json(
