@@ -27,4 +27,4 @@ export default function FAQSchema({ faqs }) {
   )
 }
 
-export { homePageFAQs, fortuneFAQs, xingzuoFAQs, stockFAQs, chouqianFAQs, tarotFAQs, matchFAQs, shengxiaoFAQs, baziFAQs, fateFAQs, huangliFAQs, chengguFAQs, passwordFAQs, bmiFAQs, heightFAQs, sleepFAQs, unitFAQs, countdownFAQs, huoxingFAQs, luckyFAQs } from '../lib/faqData'
+export { homePageFAQs, fortuneFAQs, xingzuoFAQs, stockFAQs, chouqianFAQs, tarotFAQs, matchFAQs, shengxiaoFAQs, baziFAQs, fateFAQs, huangliFAQs, chengguFAQs, passwordFAQs, bmiFAQs, heightFAQs, sleepFAQs, unitFAQs, countdownFAQs, huoxingFAQs, luckyFAQs, jiemengFAQs, personalityFAQs, lunarFAQs, zhaoriFAQs } from '../lib/faqData'

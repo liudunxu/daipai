@@ -297,6 +297,37 @@ const relatedTools = {
     { href: '/maic', emoji: '🎓', name: 'AI课堂' },
   ],
 
+  // ===== 新增页面 =====
+  jiemeng: [
+    { href: '/bazi', emoji: '📖', name: '八字算命' },
+    { href: '/xingzuo', emoji: '✨', name: '星座运势' },
+    { href: '/chouqian', emoji: '🙏', name: '在线抽签' },
+    { href: '/tarot', emoji: '🔮', name: '塔罗牌' },
+    { href: '/huangli', emoji: '📅', name: '老黄历' },
+    { href: '/zhaori', emoji: '🎊', name: '择吉日' },
+  ],
+  personality: [
+    { href: '/xingzuo', emoji: '✨', name: '星座运势' },
+    { href: '/mind', emoji: '🧠', name: '心理测试' },
+    { href: '/bazi', emoji: '📖', name: '八字算命' },
+    { href: '/jiemeng', emoji: '🌙', name: '周公解梦' },
+    { href: '/tarot', emoji: '🔮', name: '塔罗牌' },
+  ],
+  lunar: [
+    { href: '/zhaori', emoji: '🎊', name: '择吉日' },
+    { href: '/huangli', emoji: '📅', name: '老黄历' },
+    { href: '/bazi', emoji: '📖', name: '八字算命' },
+    { href: '/today', emoji: '🎯', name: '今日运势' },
+    { href: '/shengxiao', emoji: '🐭', name: '十二生肖' },
+  ],
+  zhaori: [
+    { href: '/lunar', emoji: '📅', name: '农历日历' },
+    { href: '/huangli', emoji: '📜', name: '老黄历' },
+    { href: '/wedding', emoji: '💒', name: '结婚吉日' },
+    { href: '/bazi', emoji: '📖', name: '八字算命' },
+    { href: '/today', emoji: '🎯', name: '今日运势' },
+  ],
+
   // ===== 默认 =====
   default: [
     { href: '/nav', emoji: '🧭', name: '导航页' },
@@ -309,11 +340,15 @@ const relatedTools = {
 // 导出 popularTools 供首页使用
 export const popularTools = [
   { href: '/xingzuo', emoji: '✨', name: '星座运势' },
+  { href: '/personality', emoji: '🧠', name: 'MBTI测试' },
+  { href: '/jiemeng', emoji: '🌙', name: '周公解梦' },
   { href: '/tarot', emoji: '🔮', name: '塔罗牌' },
   { href: '/bazi', emoji: '📖', name: '八字算命' },
   { href: '/chouqian', emoji: '🙏', name: '在线抽签' },
   { href: '/today', emoji: '🎯', name: '今日运势' },
   { href: '/huangli', emoji: '📅', name: '老黄历' },
+  { href: '/lunar', emoji: '🗓️', name: '农历日历' },
+  { href: '/zhaori', emoji: '🎊', name: '择吉日' },
   { href: '/match', emoji: '💕', name: '姓名配对' },
   { href: '/stock', emoji: '📊', name: '股票预测' },
   { href: '/guru', emoji: '🎯', name: '大佬持仓' },

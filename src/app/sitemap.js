@@ -22,6 +22,8 @@ export default async function sitemap() {
     { url: `${baseUrl}/fate`, lastModified: weekly, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${baseUrl}/huangli`, lastModified: now, changeFrequency: 'daily', priority: 0.8 },
     { url: `${baseUrl}/tarot`, lastModified: weekly, changeFrequency: 'weekly', priority: 0.7 },
+    { url: `${baseUrl}/jiemeng`, lastModified: weekly, changeFrequency: 'weekly', priority: 0.8 },
+    { url: `${baseUrl}/personality`, lastModified: weekly, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${baseUrl}/guoxue/shouqianshou`, lastModified: monthly, changeFrequency: 'monthly', priority: 0.6 },
 
     // 爱情配对
@@ -29,12 +31,10 @@ export default async function sitemap() {
     { url: `${baseUrl}/phone`, lastModified: weekly, changeFrequency: 'weekly', priority: 0.7 },
     { url: `${baseUrl}/mind`, lastModified: weekly, changeFrequency: 'weekly', priority: 0.7 },
 
-    // 生活工具
+    // 生活娱乐
     { url: `${baseUrl}/birthday`, lastModified: monthly, changeFrequency: 'monthly', priority: 0.6 },
     { url: `${baseUrl}/dice`, lastModified: monthly, changeFrequency: 'monthly', priority: 0.6 },
     { url: `${baseUrl}/names`, lastModified: monthly, changeFrequency: 'monthly', priority: 0.6 },
-
-    // 娱乐功能
     { url: `${baseUrl}/cake`, lastModified: weekly, changeFrequency: 'weekly', priority: 0.6 },
     { url: `${baseUrl}/wedding`, lastModified: weekly, changeFrequency: 'weekly', priority: 0.6 },
     { url: `${baseUrl}/couple`, lastModified: weekly, changeFrequency: 'weekly', priority: 0.6 },
@@ -79,6 +79,8 @@ export default async function sitemap() {
     { url: `${baseUrl}/tool/sleep`, lastModified: monthly, changeFrequency: 'monthly', priority: 0.6 },
     { url: `${baseUrl}/tool/unit`, lastModified: monthly, changeFrequency: 'monthly', priority: 0.5 },
     { url: `${baseUrl}/tool/countdown`, lastModified: monthly, changeFrequency: 'monthly', priority: 0.5 },
+    { url: `${baseUrl}/lunar`, lastModified: now, changeFrequency: 'daily', priority: 0.8 },
+    { url: `${baseUrl}/zhaori`, lastModified: now, changeFrequency: 'daily', priority: 0.8 },
 
     // SEO 文章
     { url: `${baseUrl}/seo`, lastModified: weekly, changeFrequency: 'weekly', priority: 0.5 },
