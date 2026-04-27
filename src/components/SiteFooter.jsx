@@ -4,10 +4,14 @@ const footerSections = [
   {
     title: '玄学命理',
     links: [
-      { name: '八字算命', url: '/bazi' },
+      { name: '周公解梦', url: '/jiemeng' },
+      { name: 'MBTI测试', url: '/personality' },
       { name: '星座运势', url: '/xingzuo' },
+      { name: '八字算命', url: '/bazi' },
       { name: '塔罗牌测试', url: '/tarot' },
       { name: '今日运势', url: '/today' },
+      { name: '择吉日', url: '/zhaori' },
+      { name: '农历日历', url: '/lunar' },
       { name: '老黄历', url: '/huangli' },
       { name: '在线抽签', url: '/chouqian' },
       { name: '生肖运势', url: '/shengxiao' },
