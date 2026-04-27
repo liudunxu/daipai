@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import RelatedTools from '../../../components/RelatedTools'
+import AffiliateLink from '../../../components/AffiliateLink'
 
 export default function StockPredictPage() {
   const [stocks, setStocks] = useState([])
@@ -344,6 +345,15 @@ export default function StockPredictPage() {
         {/* 相关推荐 */}
         <div className="mt-8">
           <RelatedTools category="stock" />
+        </div>
+
+        <div className="mt-8 bg-white/5 border border-white/10 rounded-2xl p-6">
+          <h3 className="text-white font-bold mb-3 text-center">投资学习工具</h3>
+          <p className="text-white/60 text-sm mb-4 text-center">专业工具，助力投资决策</p>
+          <div className="flex flex-wrap justify-center gap-3">
+            <AffiliateLink url="https://www.10jqka.com.cn" text="同花顺" platform="app" />
+            <AffiliateLink url="https://xueqiu.com" text="雪球" platform="app" />
+          </div>
         </div>
 
         {/* 底部导航 */}

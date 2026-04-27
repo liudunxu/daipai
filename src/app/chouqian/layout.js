@@ -15,6 +15,9 @@ export const metadata = {
     title: '在线抽签 - 观音灵签在线抽签',
     description: '在线抽签占卜测试',
   },
+  alternates: {
+    canonical: 'https://www.zkwatcher.top/chouqian',
+  },
 }
 
 export default function Layout({ children }) {

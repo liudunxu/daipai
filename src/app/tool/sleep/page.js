@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import AffiliateLink from '../../../components/AffiliateLink'
 
 // 不同年龄段睡眠推荐（小时）
 const sleepStandards = [
@@ -141,6 +142,15 @@ export default function SleepPage() {
             <li>• 睡前避免使用电子设备</li>
             <li>• 保持规律作息有助于睡眠质量</li>
           </ul>
+        </div>
+
+        <div className="mt-8 bg-white/5 border border-white/10 rounded-2xl p-6">
+          <h3 className="text-white font-bold mb-3 text-center">优质睡眠好物</h3>
+          <p className="text-white/60 text-sm mb-4 text-center">提升睡眠质量，从好物开始</p>
+          <div className="flex flex-wrap justify-center gap-3">
+            <AffiliateLink url="https://search.jd.com/Search?keyword=蒸汽眼罩" text="蒸汽眼罩" platform="jingdong" />
+            <AffiliateLink url="https://www.calm.com" text="助眠白噪音" platform="app" />
+          </div>
         </div>
 
         {/* 返回 */}

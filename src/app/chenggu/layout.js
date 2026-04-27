@@ -15,6 +15,9 @@ export const metadata = {
     title: '称骨算命 - 袁天罡称骨算命法',
     description: '称骨算命在线查询',
   },
+  alternates: {
+    canonical: 'https://www.zkwatcher.top/chenggu',
+  },
 }
 
 export default function Layout({ children }) {

@@ -1,4 +1,5 @@
-import FAQSchema, { xingzuoFAQs } from '../../components/FAQSchema'
+import FAQSchema from '../../components/FAQSchema'
+import { xingzuoFAQs } from '../../lib/faqData'
 import RelatedTools from '../../components/RelatedTools'
 import { FortuneTellingSchema, PageContentSummary } from '../../components/RAGTools'
 import AffiliateLink from '../../components/AffiliateLink'

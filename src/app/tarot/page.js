@@ -1,4 +1,5 @@
-import FAQSchema, { tarotFAQs } from '../../components/FAQSchema'
+import FAQSchema from '../../components/FAQSchema'
+import { tarotFAQs } from '../../lib/faqData'
 import { FortuneTellingSchema, PageContentSummary } from '../../components/RAGTools'
 import TarotCalculator from '../../components/TarotCalculator'
 

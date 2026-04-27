@@ -1,9 +1,0 @@
-# *
-User-agent: *
-Allow: /
-
-# Host
-Host: https://www.zkwatcher.top
-
-# Sitemaps
-Sitemap: https://www.zkwatcher.top/sitemap.xml

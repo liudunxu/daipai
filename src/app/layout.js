@@ -4,6 +4,8 @@ import BaiduAdScript from '../components/BaiduAd'
 import GoogleAdSense from '../components/GoogleAdSense'
 import GoogleAnalytics from '../components/GoogleAnalytics'
 import { OrganizationSchema, WebSiteSchema } from '../components/SchemaMarkup'
+import SiteHeader from '../components/SiteHeader'
+import SiteFooter from '../components/SiteFooter'
 
 export const metadata = {
   metadataBase: new URL('https://www.zkwatcher.top'),
@@ -98,8 +100,12 @@ export default function RootLayout({ children }) {
           description="AI科技经济资讯平台"
         />
       </head>
-      <body>
-        {children}
+      <body className="min-h-screen flex flex-col">
+        <SiteHeader />
+        <main className="flex-1">
+          {children}
+        </main>
+        <SiteFooter />
         <GoogleAdSense />
         <GoogleAnalytics />
         <BaiduAnalytics />

@@ -103,23 +103,12 @@ export default function LuckyPage() {
           </div>
         )}
 
-        {/* 联盟推广 */}
         <div className="mt-8 bg-white/5 border border-white/10 rounded-2xl p-6">
-          <h3 className="text-white font-bold mb-3 text-center">📱 推荐运势App</h3>
-          <p className="text-white/60 text-sm mb-4 text-center">
-            更多运势测算，尽在专业App
-          </p>
+          <h3 className="text-white font-bold mb-3 text-center">开运好物</h3>
+          <p className="text-white/60 text-sm mb-4 text-center">新的一年，好运加持</p>
           <div className="flex flex-wrap justify-center gap-3">
-            <AffiliateLink
-              url="https://apps.apple.com"
-              text="App Store"
-              platform="app"
-            />
-            <AffiliateLink
-              url="https://play.google.com"
-              text="Google Play"
-              platform="app"
-            />
+            <AffiliateLink url="https://search.jd.com/Search?keyword=转运珠手链" text="转运珠手链" platform="jingdong" />
+            <AffiliateLink url="https://search.jd.com/Search?keyword=招财摆件" text="招财摆件" platform="jingdong" />
           </div>
         </div>
       </div>

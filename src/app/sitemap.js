@@ -1,6 +1,7 @@
 import { MetadataRoute } from 'next'
+import { supabase } from '../lib/supabase'
 
-export default function sitemap() {
+export default async function sitemap() {
   const baseUrl = 'https://www.zkwatcher.top'
 
   const staticPages = [
@@ -201,6 +202,12 @@ export default function sitemap() {
       changeFrequency: 'weekly',
       priority: 0.6,
     },
+    {
+      url: `${baseUrl}/llm-leaderboard`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.6,
+    },
 
     // ===== 股票财经 =====
     {
@@ -210,9 +217,21 @@ export default function sitemap() {
       priority: 0.8,
     },
     {
-      url: `${baseUrl}/stock/backtest`,
+      url: `${baseUrl}/stock/predict`,
       lastModified: new Date(),
-      changeFrequency: 'weekly',
+      changeFrequency: 'daily',
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/stock/hk-predict`,
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/stock/us-predict`,
+      lastModified: new Date(),
+      changeFrequency: 'daily',
       priority: 0.7,
     },
     {
@@ -328,6 +347,14 @@ export default function sitemap() {
       priority: 0.5,
     },
 
+    // ===== SEO 文章 =====
+    {
+      url: `${baseUrl}/seo`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.5,
+    },
+
     // ===== 专题内容 =====
     {
       url: `${baseUrl}/claude-code-leak`,
@@ -407,5 +434,28 @@ export default function sitemap() {
     },
   ]
 
-  return staticPages
+  // 动态文章页面
+  let articlePages = []
+  try {
+    const { data: articles } = await supabase
+      .from('seo_articles')
+      .select('keyword, generated_at, page_path')
+      .order('generated_at', { ascending: false })
+      .limit(200)
+
+    if (articles && articles.length > 0) {
+      articlePages = articles
+        .filter(a => a.keyword)
+        .map(article => ({
+          url: `${baseUrl}/article/${encodeURIComponent(article.keyword)}`,
+          lastModified: article.generated_at ? new Date(article.generated_at) : new Date(),
+          changeFrequency: 'weekly',
+          priority: 0.6,
+        }))
+    }
+  } catch (error) {
+    console.error('Sitemap: 获取文章列表失败', error)
+  }
+
+  return [...staticPages, ...articlePages]
 }

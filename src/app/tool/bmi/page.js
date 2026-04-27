@@ -1,342 +1,153 @@
-'use client'
+import BmiTool from '../../../components/BmiTool'
+import RelatedTools from '../../../components/RelatedTools'
+import ShareButtons from '../../../components/ShareButtons'
+import FAQSchema from '../../../components/FAQSchema'
 
-import { useState } from 'react'
+export const metadata = {
+  title: 'BMI计算器 - 在线体质指数计算 | 极客观察',
+  description: '免费在线BMI计算器，支持儿童和成人，根据身高体重快速计算体质指数（BMI），自动判断体重是否正常。包含BMI参考标准表和健康建议。',
+  keywords: ['BMI计算器', '体质指数', '体重指数', 'BMI标准', '健康体重', '儿童BMI'],
+}
 
-// 年龄选项 3-80岁
-const ageOptions = Array.from({ length: 78 }, (_, i) => i + 3)
-
-// 身高选项 100-220cm
-const heightOptions = Array.from({ length: 121 }, (_, i) => i + 100)
-
-// 体重选项 20-150kg（每0.5kg递增）
-const weightOptions = Array.from({ length: 261 }, (_, i) => (i * 0.5 + 20).toFixed(1))
+const bmiFAQs = [
+  {
+    question: 'BMI是怎么计算的？',
+    answer: 'BMI（Body Mass Index，身体质量指数）的计算公式为：BMI = 体重(kg) ÷ 身高(m)的平方。例如一个身高170cm、体重65kg的人，BMI = 65 ÷ (1.70)² = 22.5。BMI是世界卫生组织推荐的简单评估体重状况的指标。'
+  },
+  {
+    question: 'BMI的正常范围是多少？',
+    answer: '根据中国标准，成人BMI正常范围为18.5-23.9，偏瘦为低于18.5，超重为24-27.9，肥胖为28及以上。需要注意的是，不同国家和地区的BMI标准可能略有差异，亚洲人的标准通常比欧美标准更严格。'
+  },
+  {
+    question: 'BMI适用于所有人吗？有什么局限性？',
+    answer: 'BMI不适用于运动员、孕妇、哺乳期妇女和肌肉量较大的人群，因为肌肉比脂肪重，运动员BMI可能偏高但并不肥胖。BMI也不能区分脂肪分布位置，而腹部脂肪（内脏脂肪）比皮下脂肪对健康危害更大。对于这些人群，建议结合体脂率、腰围等指标综合评估。'
+  },
+  {
+    question: '儿童的BMI标准和成人一样吗？',
+    answer: '不一样。儿童和青少年的BMI需要根据年龄和性别来评估，因为儿童处于生长发育期，体脂比例会随年龄变化。本计算器已内置中国学生体质标准的年龄和性别分界值，可以对6-18岁的儿童青少年进行准确评估。'
+  },
+  {
+    question: 'BMI偏高应该怎么办？',
+    answer: '如果BMI偏高，建议采取以下措施：1）调整饮食结构，减少高热量、高脂肪食物摄入；2）增加运动量，每周至少150分钟中等强度有氧运动；3）保证充足睡眠；4）定期监测体重变化。如果BMI达到肥胖标准（≥28），建议咨询医生排除代谢性疾病。'
+  },
+]
 
 export default function BMIPage() {
-  const [height, setHeight] = useState(null)
-  const [weight, setWeight] = useState(null)
-  const [age, setAge] = useState(18)
-  const [gender, setGender] = useState('male')
-  const [result, setResult] = useState(null)
-  const [showHeightPicker, setShowHeightPicker] = useState(false)
-  const [showWeightPicker, setShowWeightPicker] = useState(false)
-
-  const calculateBMI = () => {
-    if (!height || !weight) return
-
-    const h = parseFloat(height)
-    const w = parseFloat(weight)
-    const a = parseInt(age)
-
-    // BMI = 体重(kg) / 身高(m)²
-    const bmi = w / ((h / 100) ** 2)
-
-    let category = ''
-    let description = ''
-    let color = ''
-
-    // 儿童BMI判断标准（根据年龄）
-    if (a < 18) {
-      if (a >= 6 && a <= 18) {
-        const boyThresholds = {
-          6: { under: 14.2, normal: 14.2, over: 17.7, obese: 19.4 },
-          7: { under: 14.0, normal: 14.0, over: 18.1, obese: 20.3 },
-          8: { under: 13.8, normal: 13.8, over: 18.8, obese: 21.4 },
-          9: { under: 13.6, normal: 13.6, over: 19.5, obese: 22.5 },
-          10: { under: 13.5, normal: 13.5, over: 20.3, obese: 23.6 },
-          11: { under: 13.7, normal: 13.7, over: 21.0, obese: 24.5 },
-          12: { under: 14.0, normal: 14.0, over: 21.8, obese: 25.3 },
-          13: { under: 14.4, normal: 14.4, over: 22.6, obese: 26.1 },
-          14: { under: 14.8, normal: 14.8, over: 23.3, obese: 26.8 },
-          15: { under: 15.2, normal: 15.2, over: 23.9, obese: 27.4 },
-          16: { under: 15.6, normal: 15.6, over: 24.4, obese: 27.9 },
-          17: { under: 16.0, normal: 16.0, over: 24.8, obese: 28.2 },
-          18: { under: 16.4, normal: 16.4, over: 25.1, obese: 28.5 },
-        }
-        const girlThresholds = {
-          6: { under: 14.0, normal: 14.0, over: 17.3, obese: 19.0 },
-          7: { under: 13.8, normal: 13.8, over: 17.8, obese: 19.9 },
-          8: { under: 13.6, normal: 13.6, over: 18.5, obese: 21.0 },
-          9: { under: 13.5, normal: 13.5, over: 19.3, obese: 22.2 },
-          10: { under: 13.5, normal: 13.5, over: 20.3, obese: 23.5 },
-          11: { under: 13.7, normal: 13.7, over: 21.3, obese: 24.8 },
-          12: { under: 14.1, normal: 14.1, over: 22.3, obese: 26.0 },
-          13: { under: 14.6, normal: 14.6, over: 23.2, obese: 27.0 },
-          14: { under: 15.1, normal: 15.1, over: 23.9, obese: 27.7 },
-          15: { under: 15.6, normal: 15.6, over: 24.5, obese: 28.3 },
-          16: { under: 16.0, normal: 16.0, over: 24.9, obese: 28.7 },
-          17: { under: 16.3, normal: 16.3, over: 25.2, obese: 28.9 },
-          18: { under: 16.6, normal: 16.6, over: 25.4, obese: 29.1 },
-        }
-
-        const thresholds = gender === 'male' ? boyThresholds : girlThresholds
-        const ageKey = Math.min(Math.max(a, 6), 18)
-        const t = thresholds[ageKey]
-
-        if (bmi < t.under) {
-          category = '偏瘦'
-          description = '建议适当增加营养，保持均衡饮食'
-          color = 'text-blue-400'
-        } else if (bmi < t.normal) {
-          category = '正常'
-          description = '继续保持健康的生活方式'
-          color = 'text-green-400'
-        } else if (bmi < t.over) {
-          category = '偏胖'
-          description = '建议适当控制饮食，增加运动'
-          color = 'text-yellow-400'
-        } else if (bmi < t.obese) {
-          category = '超重'
-          description = '需要关注体重，加强锻炼'
-          color = 'text-orange-400'
-        } else {
-          category = '肥胖'
-          description = '建议咨询医生，制定健康计划'
-          color = 'text-red-400'
-        }
-      } else {
-        if (bmi < 14) {
-          category = '偏瘦'
-          description = '婴幼儿期建议咨询儿科医生'
-          color = 'text-blue-400'
-        } else if (bmi < 18) {
-          category = '正常'
-          description = '继续保持'
-          color = 'text-green-400'
-        } else if (bmi < 22) {
-          category = '偏胖'
-          description = '注意控制'
-          color = 'text-yellow-400'
-        } else {
-          category = '肥胖'
-          description = '建议咨询医生'
-          color = 'text-red-400'
-        }
-      }
-    } else {
-      // 成人BMI标准
-      if (bmi < 18.5) {
-        category = '偏瘦'
-        description = '建议适当增加营养，保持均衡饮食'
-        color = 'text-blue-400'
-      } else if (bmi < 24) {
-        category = '正常'
-        description = '继续保持健康的生活方式'
-        color = 'text-green-400'
-      } else if (bmi < 28) {
-        category = '偏胖'
-        description = '建议适当控制饮食，增加运动'
-        color = 'text-yellow-400'
-      } else {
-        category = '肥胖'
-        description = '建议咨询医生，制定健康计划'
-        color = 'text-red-400'
-      }
-    }
-
-    setResult({
-      bmi: bmi.toFixed(1),
-      category,
-      description,
-      color,
-      isChild: a < 18,
-    })
-  }
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-900 via-cyan-900 to-teal-900 p-4 md:p-8">
       <div className="max-w-2xl mx-auto">
-        {/* 标题 */}
         <header className="text-center mb-8">
           <h1 className="text-3xl md:text-4xl font-black text-white mb-3">
-            ⚖️ BMI计算器
+            BMI计算器
           </h1>
-          <p className="text-white/60">
-            身体质量指数，适合儿童和成人
+          <p className="text-white/60 text-lg">
+            身体质量指数计算，支持儿童和成人
           </p>
         </header>
 
-        {/* 选择表单 */}
-        <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 mb-6">
-          {/* 性别 */}
-          <div className="mb-6">
-            <label className="block text-white/70 text-sm mb-3">性别</label>
-            <div className="flex gap-3">
-              <button
-                onClick={() => { setGender('male'); setResult(null); }}
-                className={`flex-1 py-3 rounded-xl font-medium transition-all ${
-                  gender === 'male'
-                    ? 'bg-cyan-500 text-white'
-                    : 'bg-white/10 text-white/60 hover:bg-white/20'
-                }`}
-              >
-                👦 男
-              </button>
-              <button
-                onClick={() => { setGender('female'); setResult(null); }}
-                className={`flex-1 py-3 rounded-xl font-medium transition-all ${
-                  gender === 'female'
-                    ? 'bg-pink-500 text-white'
-                    : 'bg-white/10 text-white/60 hover:bg-white/20'
-                }`}
-              >
-                👧 女
-              </button>
-            </div>
-          </div>
+        <BmiTool />
 
-          {/* 年龄 */}
-          <div className="mb-6">
-            <label className="block text-white/70 text-sm mb-3">年龄（岁）</label>
-            <div className="flex flex-wrap gap-2">
-              {ageOptions.slice(0, 24).map((a) => (
-                <button
-                  key={a}
-                  onClick={() => { setAge(a); setResult(null); }}
-                  className={`w-12 py-2 rounded-lg text-sm font-medium transition-all ${
-                    age === a
-                      ? 'bg-cyan-500 text-white'
-                      : 'bg-white/10 text-white/60 hover:bg-white/20'
-                  }`}
-                >
-                  {a}
-                </button>
-              ))}
-              <button
-                onClick={() => setShowHeightPicker(!showHeightPicker)}
-                className="w-12 py-2 rounded-lg text-sm bg-white/10 text-white/60"
-              >
-                ...
-              </button>
-            </div>
-            {age >= 3 && age <= 26 && (
-              <div className="text-center mt-2">
-                <span className="text-cyan-300 text-sm">当前: {age}岁</span>
-              </div>
-            )}
+        <div className="bg-white/5 border border-white/10 rounded-2xl p-6 mb-6">
+          <h2 className="text-xl font-bold text-white mb-4">什么是BMI？</h2>
+          <div className="text-white/70 text-sm space-y-3">
+            <p>
+              BMI（Body Mass Index，身体质量指数）是目前国际上最常用的衡量人体胖瘦程度以及是否健康的一个标准。它由比利时统计学家阿道夫·凯特勒（Adolphe Quetelet）在19世纪提出，至今已有近200年的历史。世界卫生组织（WHO）和各国卫生机构都将BMI作为评估体重状况的首选指标。
+            </p>
+            <p>
+              BMI的计算方法非常简单：用体重（千克）除以身高（米）的平方。例如，一个身高1.75米、体重70公斤的人，其BMI为70 ÷ (1.75)² = 22.9，属于正常范围。由于计算简便且不需要特殊设备，BMI被广泛应用于健康体检、流行病学研究和临床实践中。
+            </p>
+            <p>
+              虽然BMI是一个有用的筛查工具，但它并不是万能的。BMI无法区分脂肪和肌肉，也无法反映脂肪在体内的分布情况。一个经常健身的人可能肌肉量较大，BMI偏高但体脂率正常。此外，年龄、性别、种族等因素也会影响BMI的解读。因此，BMI应该与其他健康指标（如腰围、体脂率、血压、血脂等）结合使用，才能全面评估一个人的健康状况。
+            </p>
           </div>
-
-          {/* 身高 */}
-          <div className="mb-6">
-            <label className="block text-white/70 text-sm mb-3">身高（cm）</label>
-            <button
-              onClick={() => setShowHeightPicker(!showHeightPicker)}
-              className="w-full py-4 bg-white/10 border border-white/20 rounded-xl text-white text-lg font-medium hover:bg-white/20 transition-all"
-            >
-              {height ? `${height} cm` : '👉 点击选择身高'}
-            </button>
-            {showHeightPicker && (
-              <div className="mt-3 max-h-48 overflow-y-auto grid grid-cols-5 md:grid-cols-8 gap-2 p-2 bg-black/20 rounded-xl">
-                {heightOptions.map((h) => (
-                  <button
-                    key={h}
-                    onClick={() => { setHeight(h); setShowHeightPicker(false); setResult(null); }}
-                    className={`py-2 rounded-lg text-sm font-medium transition-all ${
-                      height === h
-                        ? 'bg-cyan-500 text-white'
-                        : 'bg-white/10 text-white/60 hover:bg-white/20'
-                    }`}
-                  >
-                    {h}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* 体重 */}
-          <div className="mb-6">
-            <label className="block text-white/70 text-sm mb-3">体重（kg）</label>
-            <button
-              onClick={() => setShowWeightPicker(!showWeightPicker)}
-              className="w-full py-4 bg-white/10 border border-white/20 rounded-xl text-white text-lg font-medium hover:bg-white/20 transition-all"
-            >
-              {weight ? `${weight} kg` : '👉 点击选择体重'}
-            </button>
-            {showWeightPicker && (
-              <div className="mt-3 max-h-48 overflow-y-auto grid grid-cols-6 md:grid-cols-9 gap-2 p-2 bg-black/20 rounded-xl">
-                {weightOptions.map((w) => (
-                  <button
-                    key={w}
-                    onClick={() => { setWeight(w); setShowWeightPicker(false); setResult(null); }}
-                    className={`py-2 rounded-lg text-xs font-medium transition-all ${
-                      weight === w
-                        ? 'bg-cyan-500 text-white'
-                        : 'bg-white/10 text-white/60 hover:bg-white/20'
-                    }`}
-                  >
-                    {w}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* 计算按钮 */}
-          <button
-            onClick={calculateBMI}
-            disabled={!height || !weight}
-            className={`w-full py-4 text-white font-bold rounded-xl transition-all transform ${
-              height && weight
-                ? 'bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-400 hover:to-teal-400 hover:scale-[1.02]'
-                : 'bg-white/20 cursor-not-allowed'
-            }`}
-          >
-            计算BMI
-          </button>
         </div>
 
-        {/* 结果展示 */}
-        {result && (
-          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 mb-6">
-            <div className="text-center">
-              <div className="text-white/60 text-sm mb-2">您的BMI值</div>
-              <div className="text-6xl font-black text-white mb-2">{result.bmi}</div>
-              <div className={`text-2xl font-bold ${result.color} mb-2`}>
-                {result.category}
-              </div>
-              <div className="text-white/70 text-sm">{result.description}</div>
-
-              {result.isChild && (
-                <div className="mt-4 p-3 bg-yellow-500/20 rounded-lg text-yellow-200 text-sm">
-                  ℹ️ 儿童BMI判断标准与成人不同，已根据年龄和性别进行评估
-                </div>
-              )}
-            </div>
-
-            {/* BMI参考表 */}
-            <div className="mt-6">
-              <h3 className="text-white font-bold mb-3 text-center">BMI参考标准</h3>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
-                <div className="bg-blue-500/20 rounded-lg p-3 text-center">
-                  <div className="text-blue-300 font-medium">偏瘦</div>
-                  <div className="text-white/60">&lt;18.5</div>
-                </div>
-                <div className="bg-green-500/20 rounded-lg p-3 text-center">
-                  <div className="text-green-300 font-medium">正常</div>
-                  <div className="text-white/60">18.5-24</div>
-                </div>
-                <div className="bg-yellow-500/20 rounded-lg p-3 text-center">
-                  <div className="text-yellow-300 font-medium">偏胖</div>
-                  <div className="text-white/60">24-28</div>
-                </div>
-                <div className="bg-red-500/20 rounded-lg p-3 text-center">
-                  <div className="text-red-300 font-medium">肥胖</div>
-                  <div className="text-white/60">&gt;28</div>
-                </div>
-              </div>
-            </div>
+        <div className="bg-white/5 border border-white/10 rounded-2xl p-6 mb-6">
+          <h2 className="text-xl font-bold text-white mb-4">BMI参考标准表</h2>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-white/10">
+                  <th className="text-left text-white/80 py-2 px-3">分类</th>
+                  <th className="text-left text-white/80 py-2 px-3">BMI范围</th>
+                  <th className="text-left text-white/80 py-2 px-3">健康风险</th>
+                  <th className="text-left text-white/80 py-2 px-3">建议</th>
+                </tr>
+              </thead>
+              <tbody className="text-white/60">
+                <tr className="border-b border-white/5">
+                  <td className="py-2 px-3 text-blue-300">偏瘦</td>
+                  <td className="py-2 px-3">&lt; 18.5</td>
+                  <td className="py-2 px-3">营养不良、免疫力下降</td>
+                  <td className="py-2 px-3">增加营养摄入</td>
+                </tr>
+                <tr className="border-b border-white/5">
+                  <td className="py-2 px-3 text-green-300">正常</td>
+                  <td className="py-2 px-3">18.5 - 23.9</td>
+                  <td className="py-2 px-3">较低</td>
+                  <td className="py-2 px-3">保持健康生活方式</td>
+                </tr>
+                <tr className="border-b border-white/5">
+                  <td className="py-2 px-3 text-yellow-300">超重</td>
+                  <td className="py-2 px-3">24.0 - 27.9</td>
+                  <td className="py-2 px-3">中等，慢性病风险增加</td>
+                  <td className="py-2 px-3">控制饮食，增加运动</td>
+                </tr>
+                <tr>
+                  <td className="py-2 px-3 text-red-300">肥胖</td>
+                  <td className="py-2 px-3">≥ 28.0</td>
+                  <td className="py-2 px-3">高，心血管疾病风险显著</td>
+                  <td className="py-2 px-3">咨询医生，制定减重计划</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
-        )}
-
-        {/* 底部说明 */}
-        <div className="text-center text-white/40 text-sm">
-          <p>BMI计算公式：体重(kg) ÷ 身高(m)²</p>
-          <p className="mt-2">儿童判断标准参考中国学生体质标准</p>
+          <p className="text-white/40 text-xs mt-3">* 以上标准参考中国成人超重和肥胖症预防控制指南</p>
         </div>
 
-        {/* 返回 */}
+        <div className="bg-white/5 border border-white/10 rounded-2xl p-6 mb-6">
+          <h2 className="text-xl font-bold text-white mb-4">影响BMI准确性的因素</h2>
+          <div className="text-white/70 text-sm space-y-3">
+            <p>
+              <strong className="text-white">年龄因素：</strong>随着年龄增长，人体肌肉量会逐渐减少，脂肪比例增加。因此老年人的BMI可能低估其体脂水平。儿童和青少年则因为处于快速生长期，需要使用年龄和性别特异性的BMI标准来评估。
+            </p>
+            <p>
+              <strong className="text-white">性别差异：</strong>一般来说，女性的体脂率比男性高，相同BMI下女性可能拥有更多肌肉。因此有些研究建议对男女使用不同的BMI分界值，但目前大多数标准仍采用统一分界值。
+            </p>
+            <p>
+              <strong className="text-white">种族差异：</strong>亚洲人在相同BMI下往往比欧美人有更高的体脂率和代谢风险。这也是为什么中国的BMI标准（超重为24）比WHO标准（超重为25）更严格的原因。
+            </p>
+            <p>
+              <strong className="text-white">肌肉量：</strong>运动员或经常进行力量训练的人，由于肌肉密度大于脂肪，BMI可能显示超重或肥胖，但实际上体脂率正常。这类人群应结合体脂率测量来评估。
+            </p>
+          </div>
+        </div>
+
+        <div className="bg-white/5 border border-white/10 rounded-2xl p-6 mb-6">
+          <h2 className="text-xl font-bold text-white mb-4">常见问题 FAQ</h2>
+          <div className="space-y-4">
+            {bmiFAQs.map((faq, index) => (
+              <details key={index} className="group">
+                <summary className="flex items-center justify-between cursor-pointer text-white/80 hover:text-white font-medium py-2">
+                  <span>{faq.question}</span>
+                  <span className="ml-2 text-white/40 group-open:rotate-180 transition-transform">▼</span>
+                </summary>
+                <p className="text-white/60 text-sm mt-2 pl-0 pb-2 leading-relaxed">{faq.answer}</p>
+              </details>
+            ))}
+          </div>
+        </div>
+
+        <ShareButtons title="BMI计算器 - 极客观察" url="/tool/bmi" />
+        <RelatedTools category="tool/password" />
+        <FAQSchema faqs={bmiFAQs} />
+
         <footer className="mt-8 text-center">
-          <a href="/" className="text-white/30 hover:text-white/60 text-sm transition-colors">
+          <div className="text-white/40 text-sm">
+            <p>BMI计算公式：体重(kg) ÷ 身高(m)²</p>
+            <p className="mt-1">儿童判断标准参考中国学生体质标准</p>
+          </div>
+          <a href="/" className="text-white/30 hover:text-white/60 text-sm transition-colors mt-2 inline-block">
             ← 返回首页
           </a>
         </footer>
