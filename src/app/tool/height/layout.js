@@ -1,13 +1,18 @@
 export const metadata = {
-  title: '儿童身高评估 - 身高发育标准 - 极客观察',
-  description: '在线儿童身高评估工具，根据年龄和性别评估身高发育水平，参照中国儿童身高标准',
-  keywords: ['儿童身高', '身高评估', '身高标准', '儿童发育', '身高测试'],
+  title: '儿童身高评估工具 - 生长发育标准参考 | 极客观察',
+  description: '儿童身高评估工具，根据年龄和性别评估孩子身高是否达标，提供生长发育标准参考数据和科学建议。',
+  keywords: ['身高评估', '儿童身高', '生长发育', '身高标准', '育儿工具'],
   openGraph: {
-    title: '儿童身高评估 - 极客观察',
-    description: '根据年龄和性别评估儿童身高发育水平',
+    title: '儿童身高评估工具 - 生长发育标准参考 | 极客观察',
+    description: '儿童身高评估工具，根据年龄和性别评估孩子身高是否达标，提供生长发育标准参考数据和科学建议。',
+    url: 'https://www.zkwatcher.top/tool/height',
+    type: 'website',
+  },
+  alternates: {
+    canonical: 'https://www.zkwatcher.top/tool/height',
   },
 }
 
-export default function HeightLayout({ children }) {
+export default function Layout({ children }) {
   return children
 }

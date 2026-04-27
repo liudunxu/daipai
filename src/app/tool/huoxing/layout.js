@@ -1,19 +1,15 @@
 export const metadata = {
-  title: '火星文转换器 - 繁体字火星文生成',
-  description: '在线火星文转换工具，将文字转换为繁体字、火星文、符号文字，聊天炫酷必备。',
-  keywords: ['火星文', '火星文转换', '繁体字', '符号文字', '繁体转换'],
+  title: '火星文转换器 - 在线文字转换工具 | 极客观察',
+  description: '免费在线火星文转换器，支持中文转火星文、繁体字转换、特殊符号生成，让您的文字更加个性有趣。',
+  keywords: ['火星文', '火星文转换器', '文字转换', '繁体字', '个性签名'],
   openGraph: {
-    type: 'website',
-    locale: 'zh_CN',
+    title: '火星文转换器 - 在线文字转换工具 | 极客观察',
+    description: '免费在线火星文转换器，支持中文转火星文、繁体字转换、特殊符号生成，让您的文字更加个性有趣。',
     url: 'https://www.zkwatcher.top/tool/huoxing',
-    siteName: '极客观察',
-    title: '火星文转换器 - 繁体字火星文生成',
-    description: '在线火星文转换工具',
+    type: 'website',
   },
-  twitter: {
-    card: 'summary',
-    title: '火星文转换器 - 繁体字火星文生成',
-    description: '将文字转换为火星文',
+  alternates: {
+    canonical: 'https://www.zkwatcher.top/tool/huoxing',
   },
 }
 

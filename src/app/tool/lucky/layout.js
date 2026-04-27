@@ -1,19 +1,15 @@
 export const metadata = {
-  title: '运势测算 - 生肖运势在线查询',
-  description: '十二生肖运势测算，输入生日查看今日运势、财运、爱情运、工作运，健康运势全面分析。',
-  keywords: ['运势测算', '生肖运势', '今日运势', '财运测试'],
+  title: '2026年运势测算 - 生肖星座运势预测 | 极客观察',
+  description: '2026年运势在线测算，根据您的生日分析生肖和星座运势，预测爱情、事业、财运等方面的运程走向。',
+  keywords: ['2026运势', '运势测算', '生肖运势', '星座运势', '运程预测'],
   openGraph: {
-    type: 'website',
-    locale: 'zh_CN',
+    title: '2026年运势测算 - 生肖星座运势预测 | 极客观察',
+    description: '2026年运势在线测算，根据您的生日分析生肖和星座运势，预测爱情、事业、财运等方面的运程走向。',
     url: 'https://www.zkwatcher.top/tool/lucky',
-    siteName: '极客观察',
-    title: '运势测算 - 生肖运势在线查询',
-    description: '十二生肖运势全面分析',
+    type: 'website',
   },
-  twitter: {
-    card: 'summary',
-    title: '运势测算 - 生肖运势在线查询',
-    description: '查看你的今日运势',
+  alternates: {
+    canonical: 'https://www.zkwatcher.top/tool/lucky',
   },
 }
 

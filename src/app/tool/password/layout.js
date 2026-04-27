@@ -1,19 +1,15 @@
 export const metadata = {
-  title: '密码生成器 - 强密码在线生成',
-  description: '在线生成随机强密码，支持自定义长度、数字、大小写字母、特殊字符，确保账号安全。',
-  keywords: ['密码生成', '强密码', '随机密码', '密码生成器'],
+  title: '在线密码生成器 - 安全随机密码生成工具 | 极客观察',
+  description: '免费在线密码生成器，支持自定义密码长度、大小写字母、数字和特殊字符，一键生成安全随机密码，保护您的账户安全。',
+  keywords: ['密码生成器', '随机密码', '安全密码', '密码工具', '在线工具'],
   openGraph: {
-    type: 'website',
-    locale: 'zh_CN',
+    title: '在线密码生成器 - 安全随机密码生成工具 | 极客观察',
+    description: '免费在线密码生成器，支持自定义密码长度、大小写字母、数字和特殊字符，一键生成安全随机密码，保护您的账户安全。',
     url: 'https://www.zkwatcher.top/tool/password',
-    siteName: '极客观察',
-    title: '密码生成器 - 强密码在线生成',
-    description: '在线生成随机强密码',
+    type: 'website',
   },
-  twitter: {
-    card: 'summary',
-    title: '密码生成器 - 强密码在线生成',
-    description: '生成安全的强密码',
+  alternates: {
+    canonical: 'https://www.zkwatcher.top/tool/password',
   },
 }
 
