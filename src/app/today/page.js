@@ -103,6 +103,44 @@ export default function TodayLucky() {
           <ShareButtons title="今日运势 - 测测你今天的运气如何" url="/today" />
         </div>
 
+        <div className="mt-8 space-y-6">
+          <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
+            <h2 className="text-lg font-bold text-white mb-4 text-center">🎯 如何查看今日运势？</h2>
+            <p className="text-white/70 text-sm leading-relaxed mb-3">
+              今日运势是一种基于姓名和日期的趣味测试，通过特定的算法将姓名笔画与当日天干地支相结合，生成每日的运势参考。查看今日运势的方法非常简单：只需输入您的名字，系统就会为您计算今日的整体运势指数。
+            </p>
+            <p className="text-white/70 text-sm leading-relaxed mb-3">
+              运势结果通常包括整体运势等级（大吉、吉、小吉、一般、凶、大凶），以及幸运数字、幸运颜色、幸运美食等趣味参考。这些元素综合起来，为您提供一天的趣味指引。
+            </p>
+            <p className="text-white/70 text-sm leading-relaxed">
+              需要注意的是，今日运势仅供娱乐消遣，不具备科学依据。它更多的是一种文化体验和心理暗示，帮助您以积极的心态开始新的一天。无论运势如何，保持乐观向上的心态才是最重要的。
+            </p>
+          </div>
+
+          <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
+            <h2 className="text-lg font-bold text-white mb-4 text-center">📊 运势参考指南</h2>
+            <p className="text-white/70 text-sm leading-relaxed mb-4">
+              每日运势通常会从多个维度为您提供参考。了解每个维度的含义，可以帮助您更好地规划一天的安排：
+            </p>
+            <div className="space-y-3">
+              {[
+                { icon: '❤️', title: '爱情运势', desc: '反映当天的感情状态和桃花运。运势好的日子适合表白、约会或处理感情问题；运势一般时则建议多给彼此空间。' },
+                { icon: '💼', title: '事业运势', desc: '反映当天的工作状态和职场机遇。运势旺盛时适合推进重要项目或提出新方案；运势一般时建议做好日常事务。' },
+                { icon: '💰', title: '财运指数', desc: '反映当天的财富机遇。财运好的日子适合投资理财或开展新的商业合作；财运一般时则建议保守理财。' },
+                { icon: '🍀', title: '幸运元素', desc: '包括幸运数字、幸运颜色和幸运美食等。这些元素可以作为一天的小参考，增添生活的仪式感和趣味性。' },
+              ].map((item, i) => (
+                <div key={i} className="bg-white/5 rounded-xl p-3 flex items-start gap-3">
+                  <span className="text-2xl">{item.icon}</span>
+                  <div>
+                    <div className="text-white font-bold text-sm">{item.title}</div>
+                    <div className="text-white/60 text-xs">{item.desc}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
         {/* 常见问题 - Google SEO 要求内容必须可见 */}
         <div className="mt-8 bg-white/5 border border-white/10 rounded-2xl p-6">
           <h2 className="text-lg font-bold text-white mb-4 text-center">❓ 常见问题</h2>

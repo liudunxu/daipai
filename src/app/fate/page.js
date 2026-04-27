@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import ShareButtons from '../../components/ShareButtons'
 import RelatedTools from '../../components/RelatedTools'
+import FAQSchema, { fateFAQs } from '../../components/FAQSchema'
 
 const zodiacs = [
   { name: '鼠', year: '1948,1960,1972,1984,1996,2008,2020', luck: '85', desc: '2026年属鼠人运势平稳上升，工作中有望得到晋升或加薪的机会。财运方面正财稳定，偏财可适当投资。感情方面单身者有望遇到理想伴侣，已婚者家庭和睦。健康需注意胃部保养。' },
@@ -30,6 +31,7 @@ export default function FatePage() {
 
   return (
     <>
+      <FAQSchema faqs={fateFAQs} />
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-8 px-5">
         <div className="max-w-xl mx-auto">
           <header className="text-center mb-8">
@@ -95,6 +97,71 @@ export default function FatePage() {
           )}
 
           <RelatedTools category="fate" />
+
+          <div className="mt-8 space-y-6">
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
+              <h2 className="text-lg font-bold text-white mb-4 text-center">🐴 2026年是什么年？</h2>
+              <p className="text-white/70 text-sm leading-relaxed mb-3">
+                2026年是农历丙午年，生肖属马。丙在五行中属火，午也属火，因此2026年是"火马年"。马在十二生肖中排名第七，与十二地支中的"午"相对应，午时（上午11点至下午1点）正是阳气最旺盛的时刻。
+              </p>
+              <p className="text-white/70 text-sm leading-relaxed mb-3">
+                属马的人通常性格热情奔放、积极向上，具有很强的行动力和冒险精神。他们天生乐观，善于交际，喜欢自由自在的生活方式。火马年出生的人更是精力充沛，具有领导才能和开拓精神。
+              </p>
+              <p className="text-white/70 text-sm leading-relaxed mb-3">
+                在传统命理中，马年是一个充满活力和变化的年份。这一年适合积极进取、开拓创新，但也需要注意控制冲动，避免过于冒进。对于大多数人来说，2026年是一个充满机遇和挑战并存的年份。
+              </p>
+              <p className="text-white/70 text-sm leading-relaxed">
+                马年出生的名人包括：成吉思汗、康熙帝、秦始皇、李世民等历史人物，以及现代的成龙、刘德华、赵薇等明星。属马的人往往具有非凡的个人魅力和领导力。
+              </p>
+            </div>
+
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
+              <h2 className="text-lg font-bold text-white mb-4 text-center">🔮 十二生肖2026年运势概览</h2>
+              <p className="text-white/70 text-sm leading-relaxed mb-4">
+                2026年马年，不同生肖的运势各有特点。以下是各生肖在马年的运势概览：
+              </p>
+              <div className="grid grid-cols-1 gap-2">
+                {[
+                  { zodiac: '鼠', luck: '中等', note: '与马相冲，需谨慎行事，注意人际关系' },
+                  { zodiac: '牛', luck: '较好', note: '事业稳步上升，财运有所提升' },
+                  { zodiac: '虎', luck: '旺盛', note: '三合太岁，运势极佳，适合大展拳脚' },
+                  { zodiac: '兔', luck: '良好', note: '贵人运旺，适合合作发展' },
+                  { zodiac: '龙', luck: '极佳', note: '龙马精神，事业财运双丰收' },
+                  { zodiac: '蛇', luck: '中等', note: '需要稳扎稳打，不宜冒进' },
+                  { zodiac: '马', luck: '本命年', note: '值太岁，运势波动大，需低调行事' },
+                  { zodiac: '羊', luck: '中等', note: '六合太岁，有贵人相助' },
+                  { zodiac: '猴', luck: '良好', note: '思维活跃，适合创新突破' },
+                  { zodiac: '鸡', luck: '中等', note: '平稳发展，注意健康' },
+                  { zodiac: '狗', luck: '良好', note: '三合太岁，事业有新机遇' },
+                  { zodiac: '猪', luck: '较好', note: '整体运势不错，感情有进展' },
+                ].map((item, i) => (
+                  <div key={i} className="bg-white/5 rounded-xl p-3 flex items-center gap-3">
+                    <div className="text-center min-w-[40px]">
+                      <div className="text-white font-bold text-sm">{item.zodiac}</div>
+                    </div>
+                    <div className="flex-1">
+                      <div className="text-yellow-400 font-bold text-xs">{item.luck}</div>
+                      <div className="text-white/50 text-xs">{item.note}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <p className="text-white/50 text-xs mt-3 text-center">以上运势仅供参考，实际运势取决于个人努力和机遇</p>
+            </div>
+          </div>
+
+          {/* 常见问题 */}
+          <div className="mt-8 bg-white/5 border border-white/10 rounded-2xl p-6">
+            <h2 className="text-lg font-bold text-white mb-4 text-center">❓ 常见问题</h2>
+            <div className="space-y-4">
+              {fateFAQs.map((faq, index) => (
+                <div key={index}>
+                  <h3 className="text-white font-medium mb-1 text-sm">{faq.question}</h3>
+                  <p className="text-white/50 text-xs">{faq.answer}</p>
+                </div>
+              ))}
+            </div>
+          </div>
 
           <ShareButtons title="2026年运势 - 2026年生肖运势预测" url="/fate" />
 
