@@ -1,8 +1,6 @@
 import { NextResponse } from 'next/server'
-import YahooFinance from 'yahoo-finance2'
+import yahooFinance from 'yahoo-finance2'
 import { STOCKS } from '../../../../lib'
-
-const yahooFinance = new YahooFinance()
 
 // GET 获取股票历史数据
 export async function GET(request) {
