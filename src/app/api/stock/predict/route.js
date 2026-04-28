@@ -17,7 +17,7 @@ export async function GET(request) {
     const url = `https://stock-prediction-api.liudunxu2.workers.dev/predict?stock=${encodeURIComponent(stock)}`
 
     const controller = new AbortController()
-    const timeout = setTimeout(() => controller.abort(), 25000)
+    const timeout = setTimeout(() => controller.abort(), 295000)
 
     const response = await fetch(url, {
       headers: { 'Accept': 'application/json' },

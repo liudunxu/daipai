@@ -1,4 +1,9 @@
 {
+  "functions": {
+    "src/app/api/stock/predict/route.js": {
+      "maxDuration": 300
+    }
+  },
   "buildCommand": "npm run build",
   "installCommand": "npm install",
   "framework": "nextjs",
