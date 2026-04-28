@@ -20,7 +20,10 @@ export async function GET(request) {
     const timeout = setTimeout(() => controller.abort(), 295000)
 
     const response = await fetch(url, {
-      headers: { 'Accept': 'application/json' },
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${process.env.PREDICTION_API_SECRET || ''}`,
+      },
       cache: 'no-store',
       signal: controller.signal,
     })
