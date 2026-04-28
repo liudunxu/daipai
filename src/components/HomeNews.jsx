@@ -50,6 +50,11 @@ export default function HomeNews() {
         const data = await res.json()
         if (data.success && data.data) {
           setNews(data.data)
+          fetch('/api/news/log', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ news: data.data })
+          }).catch(() => {})
         } else {
           setError(t('home.loadError'))
         }
