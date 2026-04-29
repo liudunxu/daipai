@@ -10,6 +10,7 @@ export async function GET(request) {
     const response = await fetch(`https://stock-prediction-api.liudunxu2.workers.dev/stocks?zone=${zone}`, {
       headers: {
         'Accept': 'application/json',
+        'Authorization': `Bearer ${process.env.PREDICTION_API_SECRET || ''}`,
       },
       cache: 'no-store',
     })
